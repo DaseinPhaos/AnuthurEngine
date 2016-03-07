@@ -1,9 +1,11 @@
 # AnuthurEngine
 ## Introduction
-This is an in-build realtime renderer/engine for personal study use, written in C++. Currently I've only finished the basic math part. This engine is built and tested under Visual Studio 2015.
+This is an in-building real-time renderer/game engine for personal study use, written in C++. Currently I've only finished the basic math part. This engine is built and tested under Visual Studio 2015.
 
 ## Acknowledgement
-I should thank Eric Lengyel for his great book, *Mathematics for 3D Game Programming and Computer Graphics*. The math part is written based on knowledges learned from this great book.
+I should thank Eric Lengyel for his great book, [*Mathematics for 3D Game Programming and Computer Graphics*](http://www.amazon.com/Mathematics-Programming-Computer-Graphics-Third/dp/1435458869/ref=sr_1_1?ie=UTF8&qid=1457356917&sr=8-1&keywords=Mathematics+for+3D+Game+Programming+and+Computer+Graphics). The math part of this engine is written based on knowledges learned from this book.
+
+The engine also contains source code from Jason Zink's [Hieroglyph3](https://hieroglyph3.codeplex.com/), for performance tests. Source files from Hieoglyph3 is named with a "G" prefix. 
 
 ## License
 This project is distributed under the MIT license (https://opensource.org/licenses/MIT).
