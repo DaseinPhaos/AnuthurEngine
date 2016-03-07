@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{ae8f0bd0-6a2c-4f29-b05f-7fdafd0ad1af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Math">
+      <UniqueIdentifier>{f73f4f7d-8e54-457c-b5bb-3ca9fe876d66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{c274ce62-a303-417e-954a-412cc64bb18f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{63d71732-eb60-4a68-b1ce-2446a855235e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Vector3f.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonHeader.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix3x3f.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="MathIO.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector4f.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix4x4f.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Quaternionf.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Point3DH.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3DH.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Line3DH.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane3DH.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="FloatsComparision.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform3DH.h">
+      <Filter>Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="ValResult.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="RootFinding.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Vector3f.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix3x3f.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="MathIO.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector4f.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix4x4f.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Point3DH.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector3DH.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Line3DH.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Plane3DH.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="FloatsComparision.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform3DH.cpp">
+      <Filter>Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="RootFinding.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Quaternionf.cpp">
+      <Filter>Math</Filter>
+    </None>
+  </ItemGroup>
+</Project>
