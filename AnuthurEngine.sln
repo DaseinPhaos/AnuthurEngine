@@ -5,8 +5,6 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnuthurEngine", "AnuthurEngine\AnuthurEngine.vcxproj", "{775B46CD-66C4-4458-9AAA-349AB857D623}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleTest", "ConsoleTest\ConsoleTest.vcxproj", "{2863E99E-365B-400A-9558-8EF072ADB421}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MathTest", "MathTest\MathTest.vcxproj", "{C20A6F70-38DC-4859-8EF5-98AC76C614DE}"
 EndProject
 Global
@@ -25,14 +23,6 @@ Global
 		{775B46CD-66C4-4458-9AAA-349AB857D623}.Release|x64.Build.0 = Release|x64
 		{775B46CD-66C4-4458-9AAA-349AB857D623}.Release|x86.ActiveCfg = Release|Win32
 		{775B46CD-66C4-4458-9AAA-349AB857D623}.Release|x86.Build.0 = Release|Win32
-		{2863E99E-365B-400A-9558-8EF072ADB421}.Debug|x64.ActiveCfg = Debug|x64
-		{2863E99E-365B-400A-9558-8EF072ADB421}.Debug|x64.Build.0 = Debug|x64
-		{2863E99E-365B-400A-9558-8EF072ADB421}.Debug|x86.ActiveCfg = Debug|Win32
-		{2863E99E-365B-400A-9558-8EF072ADB421}.Debug|x86.Build.0 = Debug|Win32
-		{2863E99E-365B-400A-9558-8EF072ADB421}.Release|x64.ActiveCfg = Release|x64
-		{2863E99E-365B-400A-9558-8EF072ADB421}.Release|x64.Build.0 = Release|x64
-		{2863E99E-365B-400A-9558-8EF072ADB421}.Release|x86.ActiveCfg = Release|Win32
-		{2863E99E-365B-400A-9558-8EF072ADB421}.Release|x86.Build.0 = Release|Win32
 		{C20A6F70-38DC-4859-8EF5-98AC76C614DE}.Debug|x64.ActiveCfg = Debug|x64
 		{C20A6F70-38DC-4859-8EF5-98AC76C614DE}.Debug|x64.Build.0 = Debug|x64
 		{C20A6F70-38DC-4859-8EF5-98AC76C614DE}.Debug|x86.ActiveCfg = Debug|Win32
