@@ -79,3 +79,51 @@ Luxko::CubicRoots Luxko::SolveCubicPolynomials(float p, float q)
 
 
 
+
+Luxko::QuarticRoots Luxko::SolveQuarticPolynomial(float a, float b, float c, float d)
+{
+	auto p = (-3.f / 8.f)*a*a + b;
+	auto q = a*a*a / 8.f - (a * b) / 2.f + c;
+	auto r = (-3.f / 256.f)*a*a*a*a + a*a*b / 16.f - a*c / 4.f + d;
+	auto result = SolveQuarticPolynomial(p, q, r);
+	for (auto i = 0U; i < result.count; ++i) {
+		result[i] -= a / 4.f;
+	}
+	return result;
+}
+
+Luxko::QuarticRoots Luxko::SolveQuarticPolynomial(float p, float q, float r)
+{
+	QuarticRoots result;
+	result.count = 0;
+	auto ys = SolveCubicPolynomials(-p / 2.f, -r, (4.f*r*p - q*q) / 8.f);
+	if (ys.count == 0) {
+		
+		return result;
+	}
+	float y=-1.f;
+	for (auto i = 0U; i < ys.count; ++i) {
+		if (ys[i] > 0.f
+			&& 2.f*ys[i]-p>=0.f
+			&& ys[i]*ys[i]-r>=0.f) {
+			y = ys[i];
+			break;
+		}
+	}
+	if (y < 0.f) return result;
+	assert(2.f*y - p >= 0.f);
+	assert(y*y - r >= 0.f);
+	auto m = std::sqrtf(2.f*y - p);
+	auto n = std::sqrtf(y*y - r);
+	if (q >= 0.f) {
+		auto r1 = SolveQuadraticPolynomials(m, y - n);
+		auto r2 = SolveQuadraticPolynomials(-m, y + n);
+		return ValResultMerge(r1, r2);
+	}
+	else {
+		assert(q < 0.f);
+		auto r1 = SolveQuadraticPolynomials(m, y + n);
+		auto r2 = SolveQuadraticPolynomials(-m, y - n);
+		return ValResultMerge(r1, r2);
+	}
+}

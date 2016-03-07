@@ -52,6 +52,7 @@
     <ClCompile Include="Vector4f.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="Quaternionf.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
