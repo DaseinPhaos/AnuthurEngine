@@ -9,6 +9,7 @@
 #include "RootFinding.h"
 #include <iostream>
 #include "MathIO.h"
+#include "Timer.h"
 #include "FloatsComparision.h"
 #include <cassert>
 #include <random>
@@ -115,12 +116,13 @@ int main() {
 	//std::cout << "Total " << rejectCount << " times rejected." << std::endl;
 
 	//std::cout << "Total " << ieqCount << " times failed." << std::endl;
-
+	
 	float sum = 0.f;
 	float max = 0.f;
 	size_t count = 0;
 	float epsilon[testTime];
 	using namespace std;
+	Luxko::Timer timer = Luxko::Timer();
 	for (int i = 0; i < testTime; ++i) {
 		float ps[4] = { urd(dre),urd(dre),urd(dre),urd(dre) };
 		auto r = Luxko::SolveQuarticPolynomial(ps[0], ps[1], ps[2], ps[3]);
@@ -141,6 +143,8 @@ int main() {
 			cout << r << endl;
 		}
 	}
-	cout << "average = "<<sum / count << endl;
+	timer.Elapse();
+
+	cout << "average = "<<sum / count << endl<<"Time used = "<<timer.GetLastMs()<<endl;
 	getchar();
 }
