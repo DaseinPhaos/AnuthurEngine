@@ -6,10 +6,18 @@
 //**********************************************************************
 
 #pragma once
+
+#ifdef LUXKOUTILITY_EXPORTS
+#define LUXKOUTILITY_API _declspec(dllexport)
+#else
+#define LUXKOUTILITY_API _declspec(dllimport)
+#endif
+
+
 #include "CommonHeader.h"
 
 namespace Luxko {
-	class Timer {
+	class LUXKOUTILITY_API Timer {
 	public:
 		Timer();
 		Timer(const Timer&) = default;

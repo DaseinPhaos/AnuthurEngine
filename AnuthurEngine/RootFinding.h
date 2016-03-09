@@ -20,9 +20,18 @@ namespace Luxko {
 	CubicRoots SolveCubicPolynomials(float p, float q);
 
 	using QuarticRoots = ValResult<float, 4>;
+
+	//**********************************************************************
+	// CAUTION : The following methods don't handle complex numbers
+	//			 correctly for the time being. Thus many inputs
+	//			 which should have real solutions would yield incorrect no-
+	//			 solution output.
+	//			 The problem should be managed if these functions are actually
+	//			 used.
 	// find x s.t. x^4 + a*x^3 + b*x^2 + c*x + d = 0
 	QuarticRoots SolveQuarticPolynomial(float a, float b, float c, float d);
 	// find x s.t. x^4 + p*x^2 + q*x + r = 0
 	QuarticRoots SolveQuarticPolynomial(float p, float q, float r);
+	//**********************************************************************
 
 }

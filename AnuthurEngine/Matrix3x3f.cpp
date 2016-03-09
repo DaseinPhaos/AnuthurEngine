@@ -331,6 +331,7 @@ Luxko::Vector3f Luxko::Matrix3x3f::Column(int i) const
 	return Vector3f(At(0, i), At(1, i), At(2, i));
 }
 
+
 Luxko::Matrix4x4f Luxko::Matrix3x3f::ToHomoMatrix4x4f() const
 {
 	return Matrix4x4f(_data[0], _data[1], _data[2], 0.f,

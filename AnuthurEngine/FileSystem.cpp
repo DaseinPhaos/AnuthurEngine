@@ -1,0 +1,367 @@
+#include "FileSystem.h"
+#include <sstream>
+#include <cstring>
+
+inline DWORD ToDword() { return 0x0UL; }
+template<typename T, typename ... Types>
+DWORD ToDword(const T& t, const Types& ... types);
+
+
+template<typename T, typename ... Types>
+DWORD ToDword(const T& t, const Types& ... types)
+{
+	return static_cast<DWORD>(t) | ToDword(types ...);
+}
+
+Luxko::FileSystem::File Luxko::FileSystem::File::Create(const std::wstring& fileName, FileAccess access /*= FileAccess::ReadWrite*/, FileShareMode shareMode /*= FileShareMode::NoSharing*/, FileCreationOption creationOp /*= FileCreationOption::CreateAlways*/, FileAttribute attribute /*= FileAttribute::Normal*/, FileFlag flags /*= FileFlag::NoFlags*/)
+{
+	File f;
+	f._hFile = CreateFile(fileName.c_str(), ToDword(access), ToDword(shareMode), nullptr, ToDword(creationOp),
+		ToDword(attribute, flags), NULL);
+	f._isValid = (f._hFile != INVALID_HANDLE_VALUE);
+	if (!f._isValid) {
+		std::wstringstream wss;
+		wss << L"File Creation Failed. Error code: " << GetLastError() << std::flush;
+		throw wss.str().c_str();
+	}
+	return std::move(f);
+}
+
+Luxko::FileSystem::File Luxko::FileSystem::File::CreateAccordingTo(const std::wstring& fileName, const File& f, FileAccess access /*= FileAccess::ReadWrite*/, FileShareMode shareMode /*= FileShareMode::NoSharing*/)
+{
+	File file;
+	file._hFile = CreateFile(fileName.c_str(), ToDword(access), ToDword(shareMode), nullptr, CREATE_ALWAYS,
+		0, f._hFile);
+	file._isValid = (f._hFile != INVALID_HANDLE_VALUE);
+	if (!f._isValid) {
+		std::wstringstream wss;
+		wss << L"File Creation Failed. Error code: " << GetLastError() << std::flush;
+		throw wss.str().c_str();
+	}
+	return std::move(file);
+}
+
+Luxko::FileSystem::File::~File()
+{
+	Close();
+}
+
+Luxko::FileSystem::File::File(File&& f)
+{
+	//Close();
+	_hFile = f._hFile;
+	_isValid = f._isValid;
+	f._isValid = false;
+}
+
+Luxko::FileSystem::File& Luxko::FileSystem::File::operator=(File&& f)
+{
+	Close();
+	_hFile = f._hFile;
+	_isValid = f._isValid;
+	f._isValid = false;
+	return *this;
+}
+
+void Luxko::FileSystem::File::swap(File& f)
+{
+	auto tHFile = _hFile;
+	auto tIsValid = _isValid;
+	_hFile = f._hFile;
+	_isValid = f._isValid;
+	f._hFile = tHFile;
+	f._isValid = tIsValid;
+}
+
+void Luxko::FileSystem::File::Close()
+{
+	if (_isValid) {
+		CloseHandle(_hFile);
+	}
+	_isValid = false;
+}
+
+bool Luxko::FileSystem::File::SetPos(long long distance, FilePosition fp, long long * newPos /*= nullptr*/)
+{
+	LARGE_INTEGER det;
+	det.QuadPart = distance;
+	LARGE_INTEGER* p;
+	if (!SetFilePointerEx(_hFile, det, p, ToDword(fp)))
+	{
+		return false;
+	}
+	if (newPos != nullptr) {
+		*newPos = det.QuadPart;
+	}
+	return true;
+}
+
+long long Luxko::FileSystem::File::Size() const
+{
+	LARGE_INTEGER r;
+	GetFileSizeEx(_hFile, &r);
+	return r.QuadPart;
+}
+
+
+
+std::wstring Luxko::FileSystem::File::GetFullName(bool includeVolume) const
+{
+	wchar_t temp[1000];
+	DWORD mask = VOLUME_NAME_NONE;
+	if (includeVolume) {
+		mask = VOLUME_NAME_DOS;
+	}
+	auto length = GetFinalPathNameByHandle(_hFile, temp, 1000, mask);
+	if (length == 0) {
+		std::wstringstream wss;
+		wss << L"File Creation Failed. Error code: " << GetLastError() << std::flush;
+		throw wss.str().c_str();
+	}
+	temp[length] = L'\0';
+	return std::wstring(temp);
+}
+
+
+std::wstring Luxko::FileSystem::File::GetFileName() const
+{
+	struct FileName {
+		DWORD fileNameLength;
+		wchar_t temp[256];
+	}temp;
+	if (!GetFileInformationByHandleEx(_hFile, FILE_INFO_BY_HANDLE_CLASS::FileNameInfo, &temp, 255)) {
+
+		std::wstringstream wss;
+		wss << L"GetFileInfo Failed. Error code: " << GetLastError() << std::flush;
+		throw wss.str().c_str();
+
+	}
+	temp.temp[temp.fileNameLength/sizeof(wchar_t)] = L'\0';
+	return std::wstring(temp.temp);
+
+}
+
+bool Luxko::FileSystem::File::SetFileName(const std::wstring& newName)
+{
+	struct FileName {
+		DWORD fileNameLength;
+		wchar_t temp[256];
+	}temp;
+	temp.fileNameLength = newName.size();
+	if (temp.fileNameLength >= 256) {
+		return false;
+	}
+	std::wmemcpy(temp.temp, newName.c_str(), 255);
+	if (!SetFileInformationByHandle(_hFile, FILE_INFO_BY_HANDLE_CLASS::FileNameInfo, &temp, sizeof(temp))) {
+		return false;
+	}
+	return true;
+}
+
+Luxko::FileSystem::BasicFileInfo Luxko::FileSystem::File::GetBasicInfo() const
+{
+	FILE_BASIC_INFO fbi;
+	if (!GetFileInformationByHandleEx(_hFile, FILE_INFO_BY_HANDLE_CLASS::FileBasicInfo, &fbi,sizeof(fbi))) {
+
+		std::wstringstream wss;
+		wss << L"GetFileInfo Failed. Error code: " << GetLastError() << std::flush;
+		throw wss.str().c_str();
+
+	}
+	return fbi;
+}
+
+bool Luxko::FileSystem::File::SetBasicInfo(BasicFileInfo& bfi)
+{
+	if (!SetFileInformationByHandle(_hFile, FILE_INFO_BY_HANDLE_CLASS::FileBasicInfo, &bfi, sizeof(bfi))) {
+		return false;
+	}
+	return true;
+}
+
+bool Luxko::FileSystem::File::Read(void* data, DWORD bytesToRead, DWORD& bytesRead, OVERLAPPED& ov)
+{
+	return static_cast<bool>(ReadFile(_hFile, data, bytesToRead, &bytesRead, &ov));
+}
+
+bool Luxko::FileSystem::File::Write(void* data, DWORD bytesToWrite, DWORD& bytesWritten, OVERLAPPED& ov)
+{
+	return static_cast<bool>(WriteFile(_hFile, data, bytesToWrite, &bytesWritten, &ov));
+}
+
+long long Luxko::FileSystem::File::GetPos() const
+{
+	LARGE_INTEGER r;
+	r.QuadPart = 0x0;
+	SetFilePointerEx(_hFile, r, &r, FILE_CURRENT);
+	return r.QuadPart;
+}
+
+Luxko::FileSystem::FileAttribute Luxko::FileSystem::operator|(FileAttribute a, FileAttribute b)
+{
+	return static_cast<FileAttribute>(ToDword(a, b));
+}
+
+Luxko::FileSystem::MoveFileFlag Luxko::FileSystem::operator&(MoveFileFlag a, MoveFileFlag b)
+{
+	auto da = static_cast<DWORD>(a);
+	auto db = static_cast<DWORD>(b);
+	return static_cast<MoveFileFlag>(da&db);
+}
+
+Luxko::FileSystem::FileFlag Luxko::FileSystem::operator&(FileFlag a, FileFlag b)
+{
+	auto da = static_cast<DWORD>(a);
+	auto db = static_cast<DWORD>(b);
+	return static_cast<FileFlag>(da&db);
+}
+
+Luxko::FileSystem::FileAttribute Luxko::FileSystem::operator&(FileAttribute a, FileAttribute b)
+{
+	auto da = static_cast<DWORD>(a);
+	auto db = static_cast<DWORD>(b);
+	return static_cast<FileAttribute>(da&db);
+
+}
+
+Luxko::FileSystem::FileFlag Luxko::FileSystem::operator|(FileFlag a, FileFlag b)
+{
+	return static_cast<FileFlag>(ToDword(a, b));
+}
+
+Luxko::FileSystem::MoveFileFlag Luxko::FileSystem::operator|(MoveFileFlag a, MoveFileFlag b)
+{
+	return static_cast<MoveFileFlag>(ToDword(a, b));
+}
+
+void Luxko::FileSystem::swap(File& a, File& b)
+{
+	a.swap(b);
+}
+
+std::wstring Luxko::FileSystem::to_wstring(const Directory& d)
+{
+	return d.to_wstring();
+}
+
+bool Luxko::FileSystem::File::Delete(const std::wstring& absFileName)
+{
+	return static_cast<bool>(DeleteFile(absFileName.c_str()));
+}
+
+bool Luxko::FileSystem::File::Copy(const std::wstring& absSourceFileName, const std::wstring& absTargetName, bool replaceExists)
+{
+	return static_cast<bool>(CopyFile(absSourceFileName.c_str(), absTargetName.c_str(), static_cast<BOOL>(replaceExists)));
+}
+
+bool Luxko::FileSystem::File::HardLink(const std::wstring& linkName, const std::wstring& sourceFileName)
+{
+	return static_cast<bool>(::CreateHardLink(linkName.c_str(), sourceFileName.c_str(), nullptr));
+}
+
+bool Luxko::FileSystem::File::Move(const std::wstring& absOldFileName, const std::wstring& absNewFileName, MoveFileFlag moveFlags)
+{
+	return static_cast<bool>(MoveFileEx(absOldFileName.c_str(), absNewFileName.c_str(), ToDword(moveFlags)));
+}
+
+bool Luxko::FileSystem::CreateDir(const std::wstring& absDirectoryName)
+{
+	return static_cast<bool>(::CreateDirectory(absDirectoryName.c_str(), nullptr));
+}
+
+bool Luxko::FileSystem::RemoveDir(const std::wstring& absDirectoryName)
+{
+	return static_cast<bool>(::RemoveDirectory(absDirectoryName.c_str()));
+}
+
+bool Luxko::FileSystem::SetCurrentDir(const std::wstring& absDirctoryName)
+{
+	return static_cast<bool>(::SetCurrentDirectory(absDirctoryName.c_str()));
+}
+
+std::wstring Luxko::FileSystem::GetCurrentDir()
+{
+	wchar_t temp[1000];
+	if (::GetCurrentDirectory(1000, temp) == 0) {
+		throw L"Directory too Long!";
+	}
+	return std::wstring(temp);
+}
+
+std::wstring Luxko::FileSystem::Directory::to_wstring() const
+{
+	auto size = _stack.size();
+	std::wstringstream wss;
+	for (auto i = 0U; i < size; ++i) {
+		wss << _stack[i] << L"\\";
+	}
+	wss.flush();
+	return wss.str();
+}
+
+Luxko::FileSystem::FileTime::FileTime(const SystemTime& st)
+{
+	if (!SystemTimeToFileTime(&st.m_st, reinterpret_cast<LPFILETIME>(&m_ft))) {
+		throw L"ST to FT conversion Failed.";
+	}
+}
+
+Luxko::FileSystem::FileTime::FileTime(LARGE_INTEGER li)
+{
+	m_ft.dwLowDateTime = li.LowPart;
+	m_ft.dwHighDateTime = li.HighPart;
+}
+
+bool Luxko::FileSystem::FileTime::operator<(const FileTime& ft) const
+{
+	auto r = CompareFileTime(&m_ft, &ft.m_ft);
+	return r < 0;
+}
+
+Luxko::FileSystem::FileTime Luxko::FileSystem::FileTime::ToLocal() const
+{
+	FileTime result;
+	if (!FileTimeToLocalFileTime(&m_ft, &result.m_ft)) {
+		throw L"FT to LFT conversion Failed.";
+	}
+	return result;
+}
+
+Luxko::FileSystem::FileTime Luxko::FileSystem::FileTime::ToGlobal() const
+{
+	FileTime result;
+	if (!LocalFileTimeToFileTime(&m_ft, &result.m_ft)) {
+		throw L"FT to LFT conversion Failed.";
+	}
+	return result;
+}
+
+LARGE_INTEGER Luxko::FileSystem::FileTime::toLargeInteger() const
+{
+	LARGE_INTEGER result;
+	result.LowPart = m_ft.dwLowDateTime;
+	result.HighPart = m_ft.dwHighDateTime;
+	return result;
+}
+
+bool Luxko::FileSystem::FileTime::operator==(const FileTime& ft)const
+{
+	return std::memcmp(&m_ft, &ft.m_ft, sizeof(FILETIME)) == 0;
+}
+
+Luxko::FileSystem::SystemTime::SystemTime(const FileTime& ft)
+{
+	if (!FileTimeToSystemTime(&ft.m_ft, &m_st)) {
+		throw L"FT to ST conversion failed!";
+	}
+}
+
+bool Luxko::FileSystem::SystemTime::operator==(const SystemTime& st)const
+{
+	return std::memcmp(&m_st, &st.m_st, sizeof(SYSTEMTIME));
+}
+
+Luxko::FileSystem::BasicFileInfo::BasicFileInfo(const FILE_BASIC_INFO& fbi)
+{
+	std::memcpy(this, &fbi, sizeof(BasicFileInfo));
+}
