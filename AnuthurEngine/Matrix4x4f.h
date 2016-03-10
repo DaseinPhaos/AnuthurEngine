@@ -6,13 +6,18 @@
 //**********************************************************************
 
 #pragma once
+#ifdef ANUTHURMATH_EXPORTS
+#define ANUTHURMATH_API _declspec(dllexport)
+#else
+#define ANUTHURMATH_API _declspec(dllimport)
+#endif
 #include "CommonHeader.h"
 //#include "Vector3f.h"
 #include "Vector4f.h"
 #include "Matrix3x3f.h"
 
 namespace Luxko {
-	class Matrix4x4f {
+	class ANUTHURMATH_API Matrix4x4f {
 	public:
 		Matrix4x4f() {}
 		explicit Matrix4x4f(const float* data);
@@ -71,4 +76,5 @@ namespace Luxko {
 			__m128 m128[4];
 		};
 	};
+	ANUTHURMATH_API Matrix4x4f operator*(float f, const Matrix4x4f& m);
 }

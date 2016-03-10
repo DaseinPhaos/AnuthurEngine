@@ -19,6 +19,9 @@ namespace Luxko {
 	};
 
 	template<typename T, size_t M, size_t N>
+	ValResult<T, M + N> ValResultMerge(const ValResult<T, M>& tm, const ValResult<T, N>& tn);
+
+	template<typename T, size_t M, size_t N>
 	ValResult<T, M + N> ValResultMerge(const ValResult<T, M>& tm, const ValResult<T, N>& tn) {
 		ValResult<T, M + N> result;
 		result.count = tm.count + tn.count;

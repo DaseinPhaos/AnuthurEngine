@@ -19,9 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{76099858-376C-4DF4-A305-06FDEE5EBB31}</ProjectGuid>
+    <ProjectGuid>{95B6FE37-84DE-486D-A9FB-9D8782718E1E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>LuxkoUtility</RootNamespace>
+    <RootNamespace>AnuthurMath</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -71,14 +71,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)AnuthurEngine\;$(IncludePath)</IncludePath>
-    <SourcePath>$(SolutionDir)AnuthurEngine\;$(SourcePath)</SourcePath>
+    <IncludePath>$(SolutionDir)AnuthurEngine;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)AnuthurEngine;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -87,9 +87,9 @@
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;LUXKOUTILITY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ANUTHURMATH_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -102,7 +102,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;LUXKOUTILITY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;ANUTHURMATH_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -117,7 +117,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LUXKOUTILITY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ANUTHURMATH_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -134,7 +134,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;LUXKOUTILITY_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;ANUTHURMATH_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,15 +144,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\FileSystem.cpp" />
-    <ClCompile Include="..\AnuthurEngine\MemorySystem.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Timer.cpp" />
+    <ClInclude Include="..\AnuthurEngine\FloatsComparision.h" />
+    <ClInclude Include="..\AnuthurEngine\MathIO.h" />
+    <ClInclude Include="..\AnuthurEngine\Matrix3x3f.h" />
+    <ClInclude Include="..\AnuthurEngine\Matrix4x4f.h" />
+    <ClInclude Include="..\AnuthurEngine\Quaternionf.h" />
+    <ClInclude Include="..\AnuthurEngine\RootFinding.h" />
+    <ClInclude Include="..\AnuthurEngine\ValResult.h" />
+    <ClInclude Include="..\AnuthurEngine\Vector3f.h" />
+    <ClInclude Include="..\AnuthurEngine\Vector4f.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\AnuthurEngine\CommonHeader.h" />
-    <ClInclude Include="..\AnuthurEngine\FileSystem.h" />
-    <ClInclude Include="..\AnuthurEngine\MemorySystem.h" />
-    <ClInclude Include="..\AnuthurEngine\Timer.h" />
+    <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp" />
+    <ClCompile Include="..\AnuthurEngine\MathIO.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Matrix3x3f.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Matrix4x4f.cpp" />
+    <None Include="..\AnuthurEngine\Quaternionf.cpp" />
+    <ClCompile Include="..\AnuthurEngine\RootFinding.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Vector3f.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Vector4f.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

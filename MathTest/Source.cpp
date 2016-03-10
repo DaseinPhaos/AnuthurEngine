@@ -72,7 +72,7 @@ int main() {
 	//cout << "average = "<<sum / testTime << endl;
 	//getchar();
 
-	std::uniform_real_distribution<double> urd(-10,10);
+	std::uniform_real_distribution<float> urd(-10,10);
 	//std::uniform_int_distribution<int> urd(0);
 	//using namespace Luxko;
 	//auto Identity = Matrix4x4f::Identity();

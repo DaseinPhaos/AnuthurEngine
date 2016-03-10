@@ -11,9 +11,6 @@
     <Filter Include="Headers\Geometry">
       <UniqueIdentifier>{63d71732-eb60-4a68-b1ce-2446a855235e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\Math">
-      <UniqueIdentifier>{f73f4f7d-8e54-457c-b5bb-3ca9fe876d66}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headers\Utility">
       <UniqueIdentifier>{a30e7d3d-a82b-4e45-a894-07cbe657390b}</UniqueIdentifier>
     </Filter>
@@ -23,29 +20,8 @@
     <Filter Include="Source Files\Geometry">
       <UniqueIdentifier>{435f452f-9f6c-4a8d-a9d5-94d51cd9b059}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Math">
-      <UniqueIdentifier>{3fc4c072-60b0-4f29-89a8-d3f9ff36f7b6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Vector3f.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix3x3f.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="MathIO.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector4f.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Matrix4x4f.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="Quaternionf.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Point3DH.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
@@ -58,17 +34,8 @@
     <ClInclude Include="Plane3DH.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="FloatsComparision.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
     <ClInclude Include="Transform3DH.h">
       <Filter>Headers\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="RootFinding.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="ValResult.h">
-      <Filter>Headers\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -87,31 +54,5 @@
     <ClCompile Include="Vector3DH.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Vector4f.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector3f.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="RootFinding.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Matrix4x4f.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="Matrix3x3f.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="MathIO.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="FloatsComparision.cpp">
-      <Filter>Source Files\Math</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Quaternionf.cpp">
-      <Filter>Source Files\Math</Filter>
-    </None>
   </ItemGroup>
 </Project>

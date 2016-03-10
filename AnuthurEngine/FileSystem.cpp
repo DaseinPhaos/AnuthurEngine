@@ -1,10 +1,17 @@
+//**********************************************************************
+// This file is part of the Anuthur Engine. It is distributed under
+// the MIT license(https://opensource.org/licenses/MIT).
+//
+// Copyright (c) Dasein Phaos aka. Luxko.
+//**********************************************************************
+
 #include "FileSystem.h"
 #include <sstream>
 #include <cstring>
 
-inline DWORD ToDword() { return 0x0UL; }
+static DWORD ToDword() { return 0x0UL; }
 template<typename T, typename ... Types>
-DWORD ToDword(const T& t, const Types& ... types);
+static DWORD ToDword(const T& t, const Types& ... types);
 
 
 template<typename T, typename ... Types>
@@ -13,10 +20,10 @@ DWORD ToDword(const T& t, const Types& ... types)
 	return static_cast<DWORD>(t) | ToDword(types ...);
 }
 
-Luxko::FileSystem::File Luxko::FileSystem::File::Create(const std::wstring& fileName, FileAccess access /*= FileAccess::ReadWrite*/, FileShareMode shareMode /*= FileShareMode::NoSharing*/, FileCreationOption creationOp /*= FileCreationOption::CreateAlways*/, FileAttribute attribute /*= FileAttribute::Normal*/, FileFlag flags /*= FileFlag::NoFlags*/)
+Luxko::FileSystem::File Luxko::FileSystem::File::Create(const std::wstring& fileName, FileAccess access /*= FileAccess::ReadWrite*/, FileShareMode shareMode /*= FileShareMode::NoSharing*/, FileCreationOption creationOp /*= FileCreationOption::CreateAlways*/, FileAttribute attribute /*= FileAttribute::Normal*/, FileFlag flags /*= FileFlag::NoFlags*/, SECURITY_ATTRIBUTES* pSA /*= nullptr*/)
 {
 	File f;
-	f._hFile = CreateFile(fileName.c_str(), ToDword(access), ToDword(shareMode), nullptr, ToDword(creationOp),
+	f._hFile = CreateFile(fileName.c_str(), ToDword(access), ToDword(shareMode),pSA, ToDword(creationOp),
 		ToDword(attribute, flags), NULL);
 	f._isValid = (f._hFile != INVALID_HANDLE_VALUE);
 	if (!f._isValid) {
@@ -27,10 +34,10 @@ Luxko::FileSystem::File Luxko::FileSystem::File::Create(const std::wstring& file
 	return std::move(f);
 }
 
-Luxko::FileSystem::File Luxko::FileSystem::File::CreateAccordingTo(const std::wstring& fileName, const File& f, FileAccess access /*= FileAccess::ReadWrite*/, FileShareMode shareMode /*= FileShareMode::NoSharing*/)
+Luxko::FileSystem::File Luxko::FileSystem::File::CreateAccordingTo(const std::wstring& fileName, const File& f, FileAccess access /*= FileAccess::ReadWrite*/, FileShareMode shareMode /*= FileShareMode::NoSharing*/, SECURITY_ATTRIBUTES* pSA /*= nullptr*/)
 {
 	File file;
-	file._hFile = CreateFile(fileName.c_str(), ToDword(access), ToDword(shareMode), nullptr, CREATE_ALWAYS,
+	file._hFile = CreateFile(fileName.c_str(), ToDword(access), ToDword(shareMode), pSA, CREATE_ALWAYS,
 		0, f._hFile);
 	file._isValid = (f._hFile != INVALID_HANDLE_VALUE);
 	if (!f._isValid) {
@@ -85,8 +92,8 @@ bool Luxko::FileSystem::File::SetPos(long long distance, FilePosition fp, long l
 {
 	LARGE_INTEGER det;
 	det.QuadPart = distance;
-	LARGE_INTEGER* p;
-	if (!SetFilePointerEx(_hFile, det, p, ToDword(fp)))
+	
+	if (!SetFilePointerEx(_hFile, det, &det, ToDword(fp)))
 	{
 		return false;
 	}
@@ -181,12 +188,12 @@ bool Luxko::FileSystem::File::SetBasicInfo(BasicFileInfo& bfi)
 
 bool Luxko::FileSystem::File::Read(void* data, DWORD bytesToRead, DWORD& bytesRead, OVERLAPPED& ov)
 {
-	return static_cast<bool>(ReadFile(_hFile, data, bytesToRead, &bytesRead, &ov));
+	return ReadFile(_hFile, data, bytesToRead, &bytesRead, &ov) != 0;
 }
 
 bool Luxko::FileSystem::File::Write(void* data, DWORD bytesToWrite, DWORD& bytesWritten, OVERLAPPED& ov)
 {
-	return static_cast<bool>(WriteFile(_hFile, data, bytesToWrite, &bytesWritten, &ov));
+	return WriteFile(_hFile, data, bytesToWrite, &bytesWritten, &ov) != 0;
 }
 
 long long Luxko::FileSystem::File::GetPos() const
@@ -246,40 +253,40 @@ std::wstring Luxko::FileSystem::to_wstring(const Directory& d)
 
 bool Luxko::FileSystem::File::Delete(const std::wstring& absFileName)
 {
-	return static_cast<bool>(DeleteFile(absFileName.c_str()));
+	return DeleteFile(absFileName.c_str()) != 0;
 }
 
 bool Luxko::FileSystem::File::Copy(const std::wstring& absSourceFileName, const std::wstring& absTargetName, bool replaceExists)
 {
-	return static_cast<bool>(CopyFile(absSourceFileName.c_str(), absTargetName.c_str(), static_cast<BOOL>(replaceExists)));
+	return CopyFile(absSourceFileName.c_str(), absTargetName.c_str(), static_cast<BOOL>(replaceExists)) != 0;
 }
 
 bool Luxko::FileSystem::File::HardLink(const std::wstring& linkName, const std::wstring& sourceFileName)
 {
-	return static_cast<bool>(::CreateHardLink(linkName.c_str(), sourceFileName.c_str(), nullptr));
+	return CreateHardLink(linkName.c_str(), sourceFileName.c_str(), nullptr) != 0;
 }
 
 bool Luxko::FileSystem::File::Move(const std::wstring& absOldFileName, const std::wstring& absNewFileName, MoveFileFlag moveFlags)
 {
-	return static_cast<bool>(MoveFileEx(absOldFileName.c_str(), absNewFileName.c_str(), ToDword(moveFlags)));
+	return MoveFileEx(absOldFileName.c_str(), absNewFileName.c_str(), ToDword(moveFlags)) != 0;
 }
 
-bool Luxko::FileSystem::CreateDir(const std::wstring& absDirectoryName)
+bool Luxko::FileSystem::Directory::Create(const std::wstring& absDirectoryName)
 {
-	return static_cast<bool>(::CreateDirectory(absDirectoryName.c_str(), nullptr));
+	return CreateDirectory(absDirectoryName.c_str(), nullptr) != 0;
 }
 
-bool Luxko::FileSystem::RemoveDir(const std::wstring& absDirectoryName)
+bool Luxko::FileSystem::Directory::Remove(const std::wstring& absDirectoryName)
 {
-	return static_cast<bool>(::RemoveDirectory(absDirectoryName.c_str()));
+	return RemoveDirectory(absDirectoryName.c_str()) != 0;
 }
 
-bool Luxko::FileSystem::SetCurrentDir(const std::wstring& absDirctoryName)
+bool Luxko::FileSystem::Directory::SetCurrent(const std::wstring& absDirctoryName)
 {
-	return static_cast<bool>(::SetCurrentDirectory(absDirctoryName.c_str()));
+	return SetCurrentDirectory(absDirctoryName.c_str()) != 0;
 }
 
-std::wstring Luxko::FileSystem::GetCurrentDir()
+std::wstring Luxko::FileSystem::Directory::GetCurrent()
 {
 	wchar_t temp[1000];
 	if (::GetCurrentDirectory(1000, temp) == 0) {
@@ -358,10 +365,93 @@ Luxko::FileSystem::SystemTime::SystemTime(const FileTime& ft)
 
 bool Luxko::FileSystem::SystemTime::operator==(const SystemTime& st)const
 {
-	return std::memcmp(&m_st, &st.m_st, sizeof(SYSTEMTIME));
+	return std::memcmp(&m_st, &st.m_st, sizeof(SYSTEMTIME)) == 0;
 }
 
 Luxko::FileSystem::BasicFileInfo::BasicFileInfo(const FILE_BASIC_INFO& fbi)
 {
 	std::memcpy(this, &fbi, sizeof(BasicFileInfo));
+}
+
+Luxko::FileSystem::SearchResult::SearchResult(const WIN32_FIND_DATA& data)
+{
+	m_basicInfo.m_Attribute = static_cast<decltype(m_basicInfo.m_Attribute)>(data.dwFileAttributes);
+	m_basicInfo.m_CreationTime = data.ftCreationTime;
+	m_basicInfo.m_ChangeTime = data.ftLastWriteTime;
+	m_basicInfo.m_LastAccessTime = data.ftLastAccessTime;
+	m_basicInfo.m_LastWriteTime = data.ftLastWriteTime;
+
+	auto pLI = reinterpret_cast<LARGE_INTEGER*>(&m_fileSize);
+	pLI->LowPart = data.nFileSizeLow;
+	pLI->HighPart = data.nFileSizeHigh;
+
+	m_fileName = data.cFileName;
+}
+
+Luxko::FileSystem::Searching::Searching(const std::wstring& fileName)
+{
+	WIN32_FIND_DATA wfd;
+	_sHandle = FindFirstFile(fileName.c_str(), &wfd);
+	if (_sHandle == INVALID_HANDLE_VALUE) {
+		_isValid = false;
+	}
+	else {
+		_lastSearchResult = wfd;
+		_isValid = true;
+	}
+}
+
+Luxko::FileSystem::Searching::~Searching()
+{
+	Close();
+}
+
+
+
+bool Luxko::FileSystem::Searching::lastResultValid() const
+{
+	return _isValid;
+}
+
+Luxko::FileSystem::SearchResult Luxko::FileSystem::Searching::lastResult() const
+{
+	return _lastSearchResult;
+}
+
+bool Luxko::FileSystem::Searching::SearchNext()
+{
+	if (!_isValid) {
+		return false;
+	}
+	WIN32_FIND_DATA wfd;
+	_isValid = (FindNextFile(_sHandle, &wfd) != 0);
+	if (!_isValid) {
+		return false;
+	}
+	_lastSearchResult = wfd;
+	return true;
+}
+
+void Luxko::FileSystem::Searching::Close()
+{
+	FindClose(_sHandle);
+	_isValid = false;
+}
+
+Luxko::FileSystem::Searching::Searching(Searching&& s)
+{
+	_sHandle = s._sHandle;
+	_isValid = s._isValid;
+	_lastSearchResult = s._lastSearchResult;
+	s._isValid = false;
+}
+
+Luxko::FileSystem::Searching& Luxko::FileSystem::Searching::operator=(Searching&& s)
+{
+	Close();
+	_sHandle = s._sHandle;
+	_isValid = s._isValid;
+	_lastSearchResult = s._lastSearchResult;
+	s._isValid = false;
+	return *this;
 }

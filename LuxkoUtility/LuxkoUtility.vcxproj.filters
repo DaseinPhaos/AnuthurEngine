@@ -22,12 +22,18 @@
     <ClInclude Include="..\AnuthurEngine\FileSystem.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\MemorySystem.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\AnuthurEngine\FileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\MemorySystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

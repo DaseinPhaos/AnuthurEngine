@@ -7,14 +7,22 @@ int main() {
 	std::wcin.imbue(std::locale("chs"));
 	std::wcerr.imbue(std::locale("chs"));
 	using namespace Luxko::FileSystem;
-	auto currentDirectory = GetCurrentDir();
+	auto currentDirectory = Directory::GetCurrent();
 	std::wcout << L"当前路径：\n\t" <<currentDirectory<< std::endl;
-	if (SetCurrentDir(L"..\\")) {
-		currentDirectory = GetCurrentDir();
+	std::wcout << L"运动至父级路径..." << std::endl;
+	if (Directory::SetCurrent(L"..\\")) {
+		currentDirectory = Directory::GetCurrent();
 		std::wcout << L"当前路径：\n\t" << currentDirectory << std::endl;
 	}
 	getchar();
-	std::wcout << L"请输入一个文件名:" << std::endl;
+	std::wcout << L"枚举当前路径下文件..." << std::endl;
+	Searching search(Directory::GetCurrent()+L"\\*");
+	while (search.lastResultValid()) {
+		auto lastResult = search.lastResult();
+		std::wcout << L"\t" << lastResult.m_fileName << std::endl;
+		search.SearchNext();
+	}
+	std::wcout << L"\r\n请输入一个文件名:" << std::endl;
 	std::wstring fileName;
 	std::wcin >> fileName;
 	File outerfile;
@@ -61,8 +69,8 @@ int main() {
 
 	std::wcout << L"移动此文件至父目录?" << std::endl;
 	auto fileDir = currentDirectory;
-	SetCurrentDir(L"..\\");
-	currentDirectory = GetCurrentDir();
+	Directory::SetCurrent(L"..\\");
+	currentDirectory = Directory::GetCurrent();
 	getchar();
 	if (!File::Move(L"AnuthurEngine\\"+fileName, currentDirectory+L"\\MovedFile.txt")) {
 		std::wcout << L"移动失败！" << std::endl;
@@ -74,7 +82,7 @@ int main() {
 		std::wcout << L"创建硬链接失败!" << std::endl;
 	}
 
-	if (!File::Delete(GetCurrentDir() + L"\\MovedFile.txt")) {
+	if (!File::Delete(Directory::GetCurrent() + L"\\MovedFile.txt")) {
 		std::wcout << L"删除失败！" << std::endl;
 	}
 	getchar();

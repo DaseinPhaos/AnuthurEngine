@@ -6,6 +6,11 @@
 //**********************************************************************
 
 #pragma once
+#ifdef ANUTHURMATH_EXPORTS
+#define ANUTHURMATH_API _declspec(dllexport)
+#else
+#define ANUTHURMATH_API _declspec(dllimport)
+#endif
 #include "CommonHeader.h"
 #include "Vector4f.h"
 #include "Vector3f.h"
@@ -13,7 +18,7 @@
 #include "Matrix4x4f.h"
 
 namespace Luxko {
-	class Quaternionf {
+	class ANUTHURMATH_API Quaternionf {
 	public:
 		Quaternionf() {}
 		Quaternionf(float s, float vx, float vy, float vz);
