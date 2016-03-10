@@ -19,39 +19,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FloatsComparision.h" />
     <ClInclude Include="Line3DH.h" />
-    <ClInclude Include="Matrix4x4f.h" />
     <ClInclude Include="Plane3DH.h" />
     <ClInclude Include="Point3DH.h" />
-    <ClInclude Include="Quaternionf.h" />
-    <ClInclude Include="RootFinding.h" />
     <ClInclude Include="Transform3DH.h" />
-    <ClInclude Include="ValResult.h" />
     <ClInclude Include="Vector3DH.h" />
-    <ClInclude Include="Vector4f.h" />
-    <ClInclude Include="MathIO.h" />
-    <ClInclude Include="Matrix3x3f.h" />
-    <ClInclude Include="Vector3f.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FloatsComparision.cpp" />
     <ClCompile Include="Line3DH.cpp" />
-    <ClCompile Include="MathIO.cpp" />
-    <ClCompile Include="Matrix3x3f.cpp" />
-    <ClCompile Include="Matrix4x4f.cpp" />
     <ClCompile Include="Plane3DH.cpp" />
     <ClCompile Include="Point3DH.cpp" />
-    <ClCompile Include="RootFinding.cpp" />
     <ClCompile Include="Transform3DH.cpp" />
     <ClCompile Include="Vector3DH.cpp" />
-    <ClCompile Include="Vector3f.cpp" />
-    <ClCompile Include="Vector4f.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Quaternionf.cpp" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
+      <Project>{95b6fe37-84de-486d-a9fb-9d8782718e1e}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
       <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>
     </ProjectReference>

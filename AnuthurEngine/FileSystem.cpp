@@ -9,9 +9,9 @@
 #include <sstream>
 #include <cstring>
 
-inline DWORD ToDword() { return 0x0UL; }
+static DWORD ToDword() { return 0x0UL; }
 template<typename T, typename ... Types>
-DWORD ToDword(const T& t, const Types& ... types);
+static DWORD ToDword(const T& t, const Types& ... types);
 
 
 template<typename T, typename ... Types>
@@ -92,8 +92,8 @@ bool Luxko::FileSystem::File::SetPos(long long distance, FilePosition fp, long l
 {
 	LARGE_INTEGER det;
 	det.QuadPart = distance;
-	LARGE_INTEGER* p;
-	if (!SetFilePointerEx(_hFile, det, p, ToDword(fp)))
+	
+	if (!SetFilePointerEx(_hFile, det, &det, ToDword(fp)))
 	{
 		return false;
 	}
@@ -188,12 +188,12 @@ bool Luxko::FileSystem::File::SetBasicInfo(BasicFileInfo& bfi)
 
 bool Luxko::FileSystem::File::Read(void* data, DWORD bytesToRead, DWORD& bytesRead, OVERLAPPED& ov)
 {
-	return static_cast<bool>(ReadFile(_hFile, data, bytesToRead, &bytesRead, &ov));
+	return ReadFile(_hFile, data, bytesToRead, &bytesRead, &ov) != 0;
 }
 
 bool Luxko::FileSystem::File::Write(void* data, DWORD bytesToWrite, DWORD& bytesWritten, OVERLAPPED& ov)
 {
-	return static_cast<bool>(WriteFile(_hFile, data, bytesToWrite, &bytesWritten, &ov));
+	return WriteFile(_hFile, data, bytesToWrite, &bytesWritten, &ov) != 0;
 }
 
 long long Luxko::FileSystem::File::GetPos() const
@@ -253,37 +253,37 @@ std::wstring Luxko::FileSystem::to_wstring(const Directory& d)
 
 bool Luxko::FileSystem::File::Delete(const std::wstring& absFileName)
 {
-	return static_cast<bool>(DeleteFile(absFileName.c_str()));
+	return DeleteFile(absFileName.c_str()) != 0;
 }
 
 bool Luxko::FileSystem::File::Copy(const std::wstring& absSourceFileName, const std::wstring& absTargetName, bool replaceExists)
 {
-	return static_cast<bool>(CopyFile(absSourceFileName.c_str(), absTargetName.c_str(), static_cast<BOOL>(replaceExists)));
+	return CopyFile(absSourceFileName.c_str(), absTargetName.c_str(), static_cast<BOOL>(replaceExists)) != 0;
 }
 
 bool Luxko::FileSystem::File::HardLink(const std::wstring& linkName, const std::wstring& sourceFileName)
 {
-	return static_cast<bool>(::CreateHardLink(linkName.c_str(), sourceFileName.c_str(), nullptr));
+	return CreateHardLink(linkName.c_str(), sourceFileName.c_str(), nullptr) != 0;
 }
 
 bool Luxko::FileSystem::File::Move(const std::wstring& absOldFileName, const std::wstring& absNewFileName, MoveFileFlag moveFlags)
 {
-	return static_cast<bool>(MoveFileEx(absOldFileName.c_str(), absNewFileName.c_str(), ToDword(moveFlags)));
+	return MoveFileEx(absOldFileName.c_str(), absNewFileName.c_str(), ToDword(moveFlags)) != 0;
 }
 
 bool Luxko::FileSystem::Directory::Create(const std::wstring& absDirectoryName)
 {
-	return static_cast<bool>(::CreateDirectory(absDirectoryName.c_str(), nullptr));
+	return CreateDirectory(absDirectoryName.c_str(), nullptr) != 0;
 }
 
 bool Luxko::FileSystem::Directory::Remove(const std::wstring& absDirectoryName)
 {
-	return static_cast<bool>(::RemoveDirectory(absDirectoryName.c_str()));
+	return RemoveDirectory(absDirectoryName.c_str()) != 0;
 }
 
 bool Luxko::FileSystem::Directory::SetCurrent(const std::wstring& absDirctoryName)
 {
-	return static_cast<bool>(::SetCurrentDirectory(absDirctoryName.c_str()));
+	return SetCurrentDirectory(absDirctoryName.c_str()) != 0;
 }
 
 std::wstring Luxko::FileSystem::Directory::GetCurrent()
@@ -365,7 +365,7 @@ Luxko::FileSystem::SystemTime::SystemTime(const FileTime& ft)
 
 bool Luxko::FileSystem::SystemTime::operator==(const SystemTime& st)const
 {
-	return std::memcmp(&m_st, &st.m_st, sizeof(SYSTEMTIME));
+	return std::memcmp(&m_st, &st.m_st, sizeof(SYSTEMTIME)) == 0;
 }
 
 Luxko::FileSystem::BasicFileInfo::BasicFileInfo(const FILE_BASIC_INFO& fbi)
@@ -424,7 +424,7 @@ bool Luxko::FileSystem::Searching::SearchNext()
 		return false;
 	}
 	WIN32_FIND_DATA wfd;
-	_isValid = static_cast<bool>(FindNextFile(_sHandle, &wfd));
+	_isValid = (FindNextFile(_sHandle, &wfd) != 0);
 	if (!_isValid) {
 		return false;
 	}

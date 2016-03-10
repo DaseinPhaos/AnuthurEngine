@@ -694,3 +694,8 @@ Luxko::Matrix4x4f::Matrix4x4f(const Vector4f* data)
 		}
 	}
 }
+
+Luxko::Matrix4x4f Luxko::operator*(float f, const Matrix4x4f& m)
+{
+	return m*f;
+}

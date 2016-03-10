@@ -18,7 +18,8 @@
 
 namespace Luxko {
 	namespace FileSystem {
-#pragma region FileRelatedEnumerations
+
+#pragma region FileRelatedScopedEnums
 		enum class LUXKOUTILITY_API FileAccess :DWORD
 		{
 			Read = GENERIC_READ,
@@ -29,30 +30,60 @@ namespace Luxko {
 		enum class LUXKOUTILITY_API FileShareMode :DWORD
 		{
 			NoSharing = 0x0, // Prevents other processes from opening a file or device if they request delete, read, or write access.
+		
 			Read = FILE_SHARE_READ, // Enables subsequent open operations on a file or device to request write access.
+			
 			Write = FILE_SHARE_WRITE,  // Enables subsequent open operations on a file or device to request read access.
+			
 			Delete = FILE_SHARE_DELETE // Enables subsequent open operations on a file or device to request delete access.
 		};
 
 		enum class LUXKOUTILITY_API FileCreationOption : DWORD
 		{
 			CreateAlways = CREATE_ALWAYS,
+			
 			CreateNew = CREATE_NEW,
+			
 			OpenAlways = OPEN_ALWAYS,
+			
 			OpenExisting = OPEN_EXISTING,
+			
 			TruncateExisiting = TRUNCATE_EXISTING // Open a file and truncates it so that the size is zero, only if it exists.
 		};
 
 		enum class LUXKOUTILITY_API FileAttribute : DWORD
 		{
 			Archive = FILE_ATTRIBUTE_ARCHIVE, // The file should be archived. Applications use this attribute to mark files for backup or removal.
+			
 			Encryted = FILE_ATTRIBUTE_ENCRYPTED, // The file or directory is encrypted. For a file, this means that all data in the file is encrypted. For directory, this means that encryption is the default for its newly created files and subdirectories.
+			
 			Hidden = FILE_ATTRIBUTE_HIDDEN, // This file is hidden.
+			
 			Normal = FILE_ATTRIBUTE_NORMAL, // This file does not have other attributes set. Valid only if used alone.
+			
 			Offline = FILE_ATTRIBUTE_OFFLINE, // The data of a file is not immediately available.
+			
 			Readonly = FILE_ATTRIBUTE_READONLY, // The file is read only.
+			
 			System = FILE_ATTRIBUTE_SYSTEM, // The file is part of or used exclusively by an OS.
-			Temporary = FILE_ATTRIBUTE_TEMPORARY // The file is being used for temporary storage.
+			
+			Temporary = FILE_ATTRIBUTE_TEMPORARY, // The file is being used for temporary storage.
+
+			// The Following attributes can't be set upon file creation. Instead they could be returned by the system.
+			Compressed = FILE_ATTRIBUTE_COMPRESSED,
+			
+			Device = FILE_ATTRIBUTE_DEVICE, // This value is reserved for system use.
+			
+			Directory = FILE_ATTRIBUTE_DIRECTORY, // This value indicates that the handle identifies a directory.
+			
+			IntegrityStream = FILE_ATTRIBUTE_INTEGRITY_STREAM, // The directory or user data stream is configured with integrity (only supported on ReFS volumes). It is not included in an ordinary directory listing. 
+			
+			ReparsePoint = FILE_ATTRIBUTE_REPARSE_POINT, // This identity has an associated reparse point, or a file that is a symbolic link.
+			
+			SparseFile = FILE_ATTRIBUTE_SPARSE_FILE, // A sparse file.
+			
+			Virtual = FILE_ATTRIBUTE_VIRTUAL // The value is reserved for system use.
+
 		};
 
 		LUXKOUTILITY_API inline FileAttribute operator|(FileAttribute a, FileAttribute b);
@@ -61,28 +92,44 @@ namespace Luxko {
 		enum class LUXKOUTILITY_API FileFlag : DWORD
 		{
 			NoFlags = 0x0UL,
+			
 			BackupSemantics = FILE_FLAG_BACKUP_SEMANTICS, // The file is being opened for a backup or restore operation.
+			
 			DeleteOnClose = FILE_FLAG_DELETE_ON_CLOSE, // The file is to be deleted immediately after all of its handles are closed.
+			
 			NoBuffering = FILE_FLAG_NO_BUFFERING, // The file is being opened with no system caching for dataRW. Details at https://msdn.microsoft.com/en-us/library/windows/desktop/cc644950(v=vs.85).aspx .
+			
 			OpenNoRecall = FILE_FLAG_OPEN_NO_RECALL, // the file data is requested, but should continue to be located in remote storage. Used for remote storage systems.
+			
 			OpenReparsePoint = FILE_FLAG_OPEN_REPARSE_POINT, // Normal reparse point processing will not occur. If the file is not a reparse point, this flag is ignored. https://msdn.microsoft.com/en-us/library/windows/desktop/aa365503(v=vs.85).aspx
+			
 			Overlapped = FILE_FLAG_OVERLAPPED, // The file or device is being opened or created for asynchronous IO. https://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx#synchronous_and_asynchronous_i_o_handles
+			
 			PosixSemantics = FILE_FLAG_POSIX_SEMANTICS, // Access will occur according to POSIX rules.
-			RandomAccess = FILE_FLAG_RANDOM_ACCESS, // Access is intended to be random. No effiect if FILE_FLAG_NO_BUFFERING . https://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx#caching_behavior
+			
+			RandomAccess = FILE_FLAG_RANDOM_ACCESS, // Access is intended to be random. No effect if FILE_FLAG_NO_BUFFERING . https://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx#caching_behavior
+			
 			SessionAware = FILE_FLAG_SESSION_AWARE, // The file or device is being opened with session awareness.
+			
 			SequentialScan = FILE_FLAG_SEQUENTIAL_SCAN, // Access is intended to be sequential from beginning to end. Hint for file caching.
+		
 			WriteThrough = FILE_FLAG_WRITE_THROUGH, // Write operations will not go through any intermediate cache, but directly to disk.
 		};
+
 
 		LUXKOUTILITY_API inline FileFlag operator|(FileFlag a, FileFlag b);
 		LUXKOUTILITY_API inline FileFlag operator&(FileFlag a, FileFlag b);
 		enum class LUXKOUTILITY_API MoveFileFlag : DWORD
 		{
 			NoFlag = 0x0UL,
+			
 			ReplaceExisting = MOVEFILE_REPLACE_EXISTING, // Replace an existing file
+			
 			WriteThrough = MOVEFILE_WRITE_THROUGH, // The function won't return until the copied file is flushed through the disk
+			
 			AllowCopy = MOVEFILE_COPY_ALLOWED, // Use this flag to allow moving across volumes.
-			DelayUntilReboot = MOVEFILE_DELAY_UNTIL_REBOOT // Ensures that the file move happends during next reboot. Administrator only, can be used along with AllowCopy.
+			
+			DelayUntilReboot = MOVEFILE_DELAY_UNTIL_REBOOT // Ensures that the file move happens during next reboot. Administrator only, can be used along with AllowCopy.
 		};
 
 		LUXKOUTILITY_API inline MoveFileFlag operator|(MoveFileFlag a, MoveFileFlag b);
@@ -98,7 +145,8 @@ namespace Luxko {
 
 		
 
-#pragma endregion FileRelatedEnumerations
+#pragma endregion FileRelatedScopedEnums
+
 		class SystemTime;
 		class LUXKOUTILITY_API FileTime {
 		public:
@@ -213,11 +261,11 @@ namespace Luxko {
 			~SearchResult() = default;
 
 			BasicFileInfo m_basicInfo;
-			std::wstring m_fileName;
+			std::wstring m_fileName; // Generates Warning C4251, can be ignored according to https://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k(C4251)&rd=true
 			long long m_fileSize;
 		};
 
-		// @Luxko: Current Implementation on searching is BAD.
+		// @Luxko: Current Implementation on searching kinda sucks.
 		class LUXKOUTILITY_API Searching {
 		public:
 			Searching():_isValid(false) {}
@@ -259,7 +307,7 @@ namespace Luxko {
 
 			bool Valid()const;
 		private:
-			WSSTACK _stack;
+			WSSTACK _stack; // Generates Warning C4251, can be ignored according to https://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k(C4251)&rd=true
 		};
 
 		LUXKOUTILITY_API void swap(File& a, File& b);

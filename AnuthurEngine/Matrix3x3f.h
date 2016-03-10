@@ -6,10 +6,15 @@
 //**********************************************************************
 
 #pragma once
+#ifdef ANUTHURMATH_EXPORTS
+#define ANUTHURMATH_API _declspec(dllexport)
+#else
+#define ANUTHURMATH_API _declspec(dllimport)
+#endif
 #include "CommonHeader.h"
 #include "Vector3f.h"
 namespace Luxko {
-	class Matrix3x3f {
+	class ANUTHURMATH_API Matrix3x3f {
 	public:
 
 
@@ -62,5 +67,5 @@ namespace Luxko {
 	
 		float _data[9];
 	};
-	Matrix3x3f operator*(float f, const Matrix3x3f& m);
+	ANUTHURMATH_API Matrix3x3f operator*(float f, const Matrix3x3f& m);
 }

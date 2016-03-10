@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuxkoUtility", "LuxkoUtilit
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UtilityTest", "UtilityTest\UtilityTest.vcxproj", "{B2EF08A7-3F47-4D8B-943E-3E928972A287}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnuthurMath", "AnuthurMath\AnuthurMath.vcxproj", "{95B6FE37-84DE-486D-A9FB-9D8782718E1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{B2EF08A7-3F47-4D8B-943E-3E928972A287}.Release|x64.Build.0 = Release|x64
 		{B2EF08A7-3F47-4D8B-943E-3E928972A287}.Release|x86.ActiveCfg = Release|Win32
 		{B2EF08A7-3F47-4D8B-943E-3E928972A287}.Release|x86.Build.0 = Release|Win32
+		{95B6FE37-84DE-486D-A9FB-9D8782718E1E}.Debug|x64.ActiveCfg = Debug|x64
+		{95B6FE37-84DE-486D-A9FB-9D8782718E1E}.Debug|x64.Build.0 = Debug|x64
+		{95B6FE37-84DE-486D-A9FB-9D8782718E1E}.Debug|x86.ActiveCfg = Debug|Win32
+		{95B6FE37-84DE-486D-A9FB-9D8782718E1E}.Debug|x86.Build.0 = Debug|Win32
+		{95B6FE37-84DE-486D-A9FB-9D8782718E1E}.Release|x64.ActiveCfg = Release|x64
+		{95B6FE37-84DE-486D-A9FB-9D8782718E1E}.Release|x64.Build.0 = Release|x64
+		{95B6FE37-84DE-486D-A9FB-9D8782718E1E}.Release|x86.ActiveCfg = Release|Win32
+		{95B6FE37-84DE-486D-A9FB-9D8782718E1E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
