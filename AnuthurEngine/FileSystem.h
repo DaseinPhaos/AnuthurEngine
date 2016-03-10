@@ -1,3 +1,10 @@
+//**********************************************************************
+// This file is part of the Anuthur Engine. It is distributed under
+// the MIT license(https://opensource.org/licenses/MIT).
+//
+// Copyright (c) Dasein Phaos aka. Luxko.
+//**********************************************************************
+
 #pragma once
 #ifdef LUXKOUTILITY_EXPORTS
 #define LUXKOUTILITY_API _declspec(dllexport)
@@ -141,15 +148,26 @@ namespace Luxko {
 
 		class LUXKOUTILITY_API File {
 		public:
-			static File Create(const std::wstring& fileName, FileAccess access = FileAccess::ReadWrite,
-				FileShareMode shareMode = FileShareMode::NoSharing, FileCreationOption creationOp = FileCreationOption::CreateAlways,
-				FileAttribute attribute = FileAttribute::Normal, FileFlag flags = FileFlag::NoFlags);
+			// Creation
+			static File Create(const std::wstring& fileName, 
+							FileAccess access = FileAccess::ReadWrite,
+							FileShareMode shareMode = FileShareMode::NoSharing, 
+							FileCreationOption creationOp = FileCreationOption::CreateAlways,
+							FileAttribute attribute = FileAttribute::Normal, 
+							FileFlag flags = FileFlag::NoFlags,
+							SECURITY_ATTRIBUTES* pSA=nullptr);
+
 			static File CreateAccordingTo(const std::wstring& fileName, const File& f, 
-				FileAccess access = FileAccess::ReadWrite, FileShareMode shareMode = FileShareMode::NoSharing);
+									FileAccess access = FileAccess::ReadWrite, 
+									FileShareMode shareMode = FileShareMode::NoSharing,
+									SECURITY_ATTRIBUTES* pSA = nullptr);
+
+			// File Manipulation by Name
 			static bool Delete(const std::wstring& fileName);
 			static bool Copy(const std::wstring& sourceFileName, const std::wstring& targetName, bool replaceExists);
 			static bool HardLink(const std::wstring& linkName, const std::wstring& sourceFileName);
 			static bool Move(const std::wstring& oldFileName, const std::wstring& newFileName, MoveFileFlag moveFlags = MoveFileFlag::NoFlag);
+			
 			File() :_isValid(false) {}
 			~File();
 			File(const File& f) = delete;
@@ -157,10 +175,15 @@ namespace Luxko {
 			File& operator=(const File& f) = delete;
 			File& operator=(File&& f);
 			void swap(File& f);
+
+			// Handle Manipulation
 			bool Valid()const { return _isValid; }
 			HANDLE Handle()const { return _hFile; }
+			HANDLE Free() { return _hFile; _isValid = false; }
 			void Close();
 			
+
+			// File Manipulation by Handle
 			long long GetPos()const;
 			bool SetPos(long long distance, FilePosition fp, long long * newPos = nullptr);
 			long long Size()const;
@@ -179,8 +202,53 @@ namespace Luxko {
 			bool _isValid;
 		};
 
+		class LUXKOUTILITY_API SearchResult {
+		public:
+			SearchResult() {}
+			SearchResult(const BasicFileInfo& bfi, const std::wstring& fName, long long fileLength) :
+				m_basicInfo(bfi),m_fileName(fName),m_fileSize(fileLength) {}
+			SearchResult(const WIN32_FIND_DATA& data);
+			SearchResult(const SearchResult&) = default;
+			SearchResult& operator=(const SearchResult&) = default;
+			~SearchResult() = default;
+
+			BasicFileInfo m_basicInfo;
+			std::wstring m_fileName;
+			long long m_fileSize;
+		};
+
+		// @Luxko: Current Implementation on searching is BAD.
+		class LUXKOUTILITY_API Searching {
+		public:
+			Searching():_isValid(false) {}
+			Searching(const std::wstring& fileName);
+			Searching(Searching&& s);
+			Searching(const Searching&) = delete;
+			Searching& operator=(const Searching&) = delete;
+			Searching& operator=(Searching&&);
+			~Searching();
+			
+			bool lastResultValid()const;
+			SearchResult lastResult()const;
+			bool SearchNext();
+			
+			void Close();
+
+		private:
+			HANDLE _sHandle;
+			bool _isValid;
+			SearchResult _lastSearchResult;
+		};
+
 		class LUXKOUTILITY_API Directory {
 		public:
+			// Directory Manipulation by Name
+			static bool Create(const std::wstring& directoryName);
+			static bool Remove(const std::wstring& directoryName);
+			static bool SetCurrent(const std::wstring& dirctoryName);
+			static std::wstring GetCurrent();
+
+
 			using WSSTACK = std::vector<std::wstring>;
 			std::wstring to_wstring()const;
 
@@ -190,21 +258,11 @@ namespace Luxko {
 			void toChild(const std::wstring& childName);
 
 			bool Valid()const;
-
 		private:
 			WSSTACK _stack;
 		};
 
 		LUXKOUTILITY_API void swap(File& a, File& b);
 		LUXKOUTILITY_API std::wstring to_wstring(const Directory& d);
-		
-		
-		
-		LUXKOUTILITY_API bool CreateDir(const std::wstring& directoryName);
-		LUXKOUTILITY_API bool RemoveDir(const std::wstring& directoryName);
-		LUXKOUTILITY_API bool SetCurrentDir(const std::wstring& dirctoryName);
-		LUXKOUTILITY_API std::wstring GetCurrentDir();
-
-
 	}
 }
