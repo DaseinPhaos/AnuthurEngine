@@ -17,7 +17,7 @@
 
 namespace Luxko {
 	constexpr float _LUX_ABS_EPSILON = 1.f / 0x40000;
-	constexpr float _LUX_REL_EPSILON = 1.f / 0x4000;
+	constexpr float _LUX_REL_EPSILON = 1.f / 0x10000;
 	ANUTHURMATH_API bool IsValidFloat(float f);
 	ANUTHURMATH_API bool IsInfinityFloat(float f);
 	ANUTHURMATH_API bool AlmostEqualRelativeAndAbs(float x, float y,

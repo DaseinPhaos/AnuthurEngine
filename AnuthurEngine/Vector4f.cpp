@@ -86,8 +86,17 @@ Luxko::Vector4f& Luxko::Vector4f::operator/=(float f)noexcept
 
 bool Luxko::Vector4f::operator==(const Vector4f& v) const
 {
+	float absMax = 0.f;
 	for (int i = 0; i < 4; ++i) {
-		if (!AlmostEqualRelativeAndAbs(_data[i], v._data[i])) {
+		float k = std::fabs(_data[i]);
+		float d = std::fabs(v[i]);
+		auto m = max(k, d);
+		if (absMax < m) {
+			absMax = m;
+		}
+	}
+	for (int i = 0; i < 4; ++i) {
+		if (!AlmostEqualRelativeAndAbs(_data[i], v._data[i], absMax*_LUX_REL_EPSILON)) {
 			return false;
 		}
 	}

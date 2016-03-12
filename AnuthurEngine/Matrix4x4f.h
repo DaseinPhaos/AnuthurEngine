@@ -61,7 +61,7 @@ namespace Luxko {
 
 		bool operator==(const Matrix4x4f& m)const;
 
-		Matrix4x4f Transpose()const;
+		inline Matrix4x4f Transpose()const;
 		Vector4f Row(int i)const;
 		Vector4f Column(int i)const;
 		float At(int c, int r)const noexcept { return _data[c * 4 + r]; }
