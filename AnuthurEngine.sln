@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnuthurEngine", "AnuthurEngine\AnuthurEngine.vcxproj", "{775B46CD-66C4-4458-9AAA-349AB857D623}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MathTest", "MathTest\MathTest.vcxproj", "{C20A6F70-38DC-4859-8EF5-98AC76C614DE}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuxkoUtility", "LuxkoUtility\LuxkoUtility.vcxproj", "{76099858-376C-4DF4-A305-06FDEE5EBB31}"
@@ -21,14 +19,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{775B46CD-66C4-4458-9AAA-349AB857D623}.Debug|x64.ActiveCfg = Debug|x64
-		{775B46CD-66C4-4458-9AAA-349AB857D623}.Debug|x64.Build.0 = Debug|x64
-		{775B46CD-66C4-4458-9AAA-349AB857D623}.Debug|x86.ActiveCfg = Debug|Win32
-		{775B46CD-66C4-4458-9AAA-349AB857D623}.Debug|x86.Build.0 = Debug|Win32
-		{775B46CD-66C4-4458-9AAA-349AB857D623}.Release|x64.ActiveCfg = Release|x64
-		{775B46CD-66C4-4458-9AAA-349AB857D623}.Release|x64.Build.0 = Release|x64
-		{775B46CD-66C4-4458-9AAA-349AB857D623}.Release|x86.ActiveCfg = Release|Win32
-		{775B46CD-66C4-4458-9AAA-349AB857D623}.Release|x86.Build.0 = Release|Win32
 		{C20A6F70-38DC-4859-8EF5-98AC76C614DE}.Debug|x64.ActiveCfg = Debug|x64
 		{C20A6F70-38DC-4859-8EF5-98AC76C614DE}.Debug|x64.Build.0 = Debug|x64
 		{C20A6F70-38DC-4859-8EF5-98AC76C614DE}.Debug|x86.ActiveCfg = Debug|Win32

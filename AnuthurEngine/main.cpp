@@ -23,6 +23,7 @@
 #include "Timer.h"
 #include <iostream>
 #include <sstream>
+#include "FileSystem.h"
 
 float GetAve(const float* f, int n) {
 	double sum = 0.;
@@ -641,7 +642,9 @@ int main() {
 	//int pPoor[TEST_SIZE];
 	auto pPoor = new int[TEST_SIZE];
 	for (int index = 0; index < TEST_TIME; ++index) {
-		HANDLE hFile = CreateFile(L"Fuck.txt", GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+		using namespace FileSystem;
+		auto file = FileSystem::File::Create(L"Fuck.txt", FileAccess::ReadWrite, FileShareMode::NoSharing, FileCreationOption::CreateAlways, FileAttribute::Normal, FileFlag::NoFlags);
+		auto hFile = file.Handle();
 		if (hFile == INVALID_HANDLE_VALUE) {
 			return 1;
 		}
@@ -754,7 +757,7 @@ mPoor[i] = Matrix4x4f(df(dre), df(dre), df(dre), df(dre), df(dre), df(dre), df(d
 		vecT[index] = t.GetLastMs();
 		WriteFile(hFile, &vPoor, sizeof(Vector4f)*TEST_SIZE, &written, nullptr);
 		std::cout << "Vector multiplication using " << vecT[index] << " ms." << std::endl;
-		CloseHandle(hFile);
+		//CloseHandle(hFile);
 	}
 	delete[] floatPoor;
 	delete[] pPoor;

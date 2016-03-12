@@ -186,14 +186,14 @@ bool Luxko::FileSystem::File::SetBasicInfo(BasicFileInfo& bfi)
 	return true;
 }
 
-bool Luxko::FileSystem::File::Read(void* data, DWORD bytesToRead, DWORD& bytesRead, OVERLAPPED& ov)
+bool Luxko::FileSystem::File::Read(void* data, DWORD bytesToRead, DWORD& bytesRead)
 {
-	return ReadFile(_hFile, data, bytesToRead, &bytesRead, &ov) != 0;
+	return ReadFile(_hFile, data, bytesToRead, &bytesRead, nullptr) != 0;
 }
 
-bool Luxko::FileSystem::File::Write(void* data, DWORD bytesToWrite, DWORD& bytesWritten, OVERLAPPED& ov)
+bool Luxko::FileSystem::File::Write(void* data, DWORD bytesToWrite, DWORD& bytesWritten)
 {
-	return WriteFile(_hFile, data, bytesToWrite, &bytesWritten, &ov) != 0;
+	return WriteFile(_hFile, data, bytesToWrite, &bytesWritten, nullptr) != 0;
 }
 
 long long Luxko::FileSystem::File::GetPos() const
@@ -246,11 +246,6 @@ void Luxko::FileSystem::swap(File& a, File& b)
 	a.swap(b);
 }
 
-std::wstring Luxko::FileSystem::to_wstring(const Directory& d)
-{
-	return d.to_wstring();
-}
-
 bool Luxko::FileSystem::File::Delete(const std::wstring& absFileName)
 {
 	return DeleteFile(absFileName.c_str()) != 0;
@@ -295,15 +290,23 @@ std::wstring Luxko::FileSystem::Directory::GetCurrent()
 	return std::wstring(temp);
 }
 
-std::wstring Luxko::FileSystem::Directory::to_wstring() const
+std::wstring Luxko::FileSystem::Directory::GetParentUnlessRoot(const std::wstring& dirPath)
 {
-	auto size = _stack.size();
-	std::wstringstream wss;
-	for (auto i = 0U; i < size; ++i) {
-		wss << _stack[i] << L"\\";
+	auto pos = dirPath.find_last_of(L'\\');
+	auto possibleResult = dirPath.substr(0U, pos);
+	if (possibleResult.find(L'\\') == possibleResult.size()) {
+		return dirPath;
 	}
-	wss.flush();
-	return wss.str();
+	return possibleResult;
+}
+
+
+std::wstring Luxko::FileSystem::Directory::GetChild(const std::wstring& dirPath, const std::wstring& childPath)
+{
+	if (childPath[0] == L'\\') {
+		return dirPath + childPath;
+	}
+	return dirPath + L'\\' + childPath;
 }
 
 Luxko::FileSystem::FileTime::FileTime(const SystemTime& st)
@@ -455,3 +458,4 @@ Luxko::FileSystem::Searching& Luxko::FileSystem::Searching::operator=(Searching&
 	s._isValid = false;
 	return *this;
 }
+
