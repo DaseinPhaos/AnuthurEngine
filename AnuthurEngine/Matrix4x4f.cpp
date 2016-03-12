@@ -7,29 +7,119 @@
 
 #include "Matrix4x4f.h"
 #include "FloatsComparision.h"
+Luxko::Matrix4x4f::Matrix4x4f(float x00, float x01, float x02, float x03,
+	float x10, float x11, float x12, float x13,
+	float x20, float x21, float x22, float x23,
+	float x30, float x31, float x32, float x33)
+{
+	_data[0] = x00; _data[1] = x01; _data[2] = x02; _data[3] = x03;
+	_data[4] = x10; _data[5] = x11; _data[6] = x12; _data[7] = x13;
+	_data[8] = x20; _data[9] = x21; _data[10] = x22; _data[11] = x23;
+	_data[12] = x30; _data[13] = x31; _data[14] = x32; _data[15] = x33;
+}
+
 //#include <cstring>
 Luxko::Matrix4x4f::Matrix4x4f(const float* data)
 {
-	for (int i = 0; i < 4; ++i) {
-		m128[i] = _mm_loadu_ps(data + i);
-	}
+	//for (int i = 0; i < 4; ++i) {
+	//	m128[i] = _mm_loadu_ps(data + i);
+	//}
+
+	m128[0] = _mm_loadu_ps(data);
+	m128[1] = _mm_loadu_ps(data+4);
+	m128[2] = _mm_loadu_ps(data+8);
+	m128[3] = _mm_loadu_ps(data+12);
 	//std::memcpy(_data, data, sizeof(Matrix4x4f));
+}
+
+Luxko::Matrix4x4f::Matrix4x4f(const Vector4f& v1, const Vector4f& v2, const Vector4f& v3, const Vector4f& v4)
+{
+	//for (int i = 0; i < 4; ++i) {
+	//	_data[4 * i] = v1[i];
+	//	_data[4 * i + 1] = v2[i];
+	//	_data[4 * i + 2] = v3[i];
+	//	_data[4 * i + 3] = v4[i];
+	//}
+	_data[0] = v1[0];
+	_data[1] = v2[0];
+	_data[2] = v3[0];
+	_data[3] = v4[0];
+
+	_data[4] = v1[1];
+	_data[5] = v2[1];
+	_data[6] = v3[1];
+	_data[7] = v4[1];
+
+	_data[8] = v1[2];
+	_data[9] = v2[2];
+	_data[10] = v3[2];
+	_data[11] = v4[2];
+
+	_data[12] = v1[3];
+	_data[13] = v2[3];
+	_data[14] = v3[3];
+	_data[15] = v4[3];
+}
+
+Luxko::Matrix4x4f::Matrix4x4f(const Vector4f* data)
+{
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			_data[i + j * 4] = data[i]._data[j];
+		}
+	}
+
+
+	//auto& v1 = data[0];
+	//auto& v2 = data[1];
+	//auto& v3 = data[2];
+	//auto& v4 = data[3];
+	//_data[0] = v1[0];
+	//_data[1] = v2[0];
+	//_data[2] = v3[0];
+	//_data[3] = v4[0];
+
+	//_data[4] = v1[1];
+	//_data[5] = v2[1];
+	//_data[6] = v3[1];
+	//_data[7] = v4[1];
+
+	//_data[8] = v1[2];
+	//_data[9] = v2[2];
+	//_data[10] = v3[2];
+	//_data[11] = v4[2];
+
+	//_data[12] = v1[3];
+	//_data[13] = v2[3];
+	//_data[14] = v3[3];
+	//_data[15] = v4[3];
 }
 
 Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator=(const Matrix4x4f& m)noexcept
 {
-	for (int i = 0; i < 4; ++i) {
+	/*for (int i = 0; i < 4; ++i) {
 		_mm_storeu_ps(_data + i * 4, m.m128[i]);
-	}
+	}*/
+	
+	_mm_storeu_ps(_data , m.m128[0]);
+	_mm_storeu_ps(_data + 4, m.m128[1]);
+	_mm_storeu_ps(_data + 8, m.m128[2]);
+	_mm_storeu_ps(_data + 12, m.m128[3]);
 	/*std::memcpy(_data, m._data, sizeof(Matrix4x4f));*/
 	return *this;
 }
 
 Luxko::Matrix4x4f::Matrix4x4f(const Matrix4x4f& m)noexcept
 {
-	for (int i = 0; i < 4; ++i) {
-		_mm_storeu_ps(_data + i * 4, m.m128[i]);
-	}
+	//for (int i = 0; i < 4; ++i) {
+	//	_mm_storeu_ps(_data + i * 4, m.m128[i]);
+	//}
+
+	_mm_storeu_ps(_data, m.m128[0]);
+	_mm_storeu_ps(_data + 4, m.m128[1]);
+	_mm_storeu_ps(_data + 8, m.m128[2]);
+	_mm_storeu_ps(_data + 12, m.m128[3]);
+
 	/*std::memcpy(_data, m._data, sizeof(Matrix4x4f));*/
 }
 
@@ -504,18 +594,26 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::InverseTranspose() const
 Luxko::Matrix4x4f Luxko::Matrix4x4f::operator+(const Matrix4x4f& m) const
 {
 	Matrix4x4f result;
-	for (int i = 0; i < 4; ++i) {
-		result.m128[i] = _mm_add_ps(m128[i], m.m128[i]);
-	}
+	//for (int i = 0; i < 4; ++i) {
+	//	result.m128[i] = _mm_add_ps(m128[i], m.m128[i]);
+	//}
+	result.m128[0] = _mm_add_ps(m128[0], m.m128[0]);
+	result.m128[1] = _mm_add_ps(m128[1], m.m128[1]);
+	result.m128[2] = _mm_add_ps(m128[2], m.m128[2]);
+	result.m128[3] = _mm_add_ps(m128[3], m.m128[3]);
 	return result;
 }
 
 Luxko::Matrix4x4f Luxko::Matrix4x4f::operator-(const Matrix4x4f& m) const
 {
 	Matrix4x4f result;
-	for (int i = 0; i < 4; ++i) {
-		result.m128[i] = _mm_sub_ps(m128[i], m.m128[i]);
-	}
+	//for (int i = 0; i < 4; ++i) {
+	//	result.m128[i] = _mm_sub_ps(m128[i], m.m128[i]);
+	//}
+	result.m128[0] = _mm_sub_ps(m128[0], m.m128[0]);
+	result.m128[1] = _mm_sub_ps(m128[1], m.m128[1]);
+	result.m128[2] = _mm_sub_ps(m128[2], m.m128[2]);
+	result.m128[3] = _mm_sub_ps(m128[3], m.m128[3]);
 	return result;
 }
 
@@ -523,9 +621,106 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::operator*(float x) const
 {
 	auto f = _mm_load_ps1(&x);
 	Matrix4x4f result;
+	//for (int i = 0; i < 4; ++i) {
+	//	result.m128[i] = _mm_mul_ps(m128[i], f);
+	//}
+	result.m128[0] = _mm_mul_ps(m128[0], f);
+	result.m128[1] = _mm_mul_ps(m128[1], f);
+	result.m128[2] = _mm_mul_ps(m128[2], f);
+	result.m128[3] = _mm_mul_ps(m128[3], f);
+	return result;
+}
+
+Luxko::Matrix4x4f Luxko::Matrix4x4f::operator/(float x) const
+{
+	auto f = _mm_load_ps1(&x);
+	Matrix4x4f result;
+	result.m128[0] = _mm_div_ps(m128[0], f);
+	result.m128[1] = _mm_div_ps(m128[1], f);
+	result.m128[2] = _mm_div_ps(m128[2], f);
+	result.m128[3] = _mm_div_ps(m128[3], f);
+	return result;
+}
+
+Luxko::Vector4f Luxko::Matrix4x4f::operator*(const Vector4f& v) const
+{
+	Vector4f result;
+	//for (int i = 0; i < 4; ++i) {
+	//	auto a = _mm_mul_ps(m128[i], v.m128);
+	//	result[i] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
+	//}
+
+	auto a = _mm_mul_ps(m128[0], v.m128);
+	result[0] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
+	a = _mm_mul_ps(m128[1], v.m128);
+	result[1] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
+	a = _mm_mul_ps(m128[2], v.m128);
+	result[2] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
+	a = _mm_mul_ps(m128[3], v.m128);
+	result[3] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
+
+	return result;
+}
+
+Luxko::Matrix4x4f Luxko::Matrix4x4f::operator*(const Matrix4x4f& m) const
+{
+	//Matrix4x4f mT = m.Transpose();
+	Matrix4x4f result;
 	for (int i = 0; i < 4; ++i) {
-		result.m128[i] = _mm_mul_ps(m128[i], f);
+		auto a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(0, 0, 0, 0));
+		auto b = _mm_mul_ps(a, m.m128[0]);
+
+		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(1, 1, 1, 1));
+		b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[1]));
+		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(2, 2, 2, 2));
+		b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[2]));
+		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(3, 3, 3, 3));
+		result.m128[i] = _mm_add_ps(b, _mm_mul_ps(a, m.m128[3]));
 	}
+
+	/*auto a = _mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 0, 0, 0));
+	auto b = _mm_mul_ps(a, m.m128[0]);
+
+	a = _mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 1, 1));
+	b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[1]));
+	a = _mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 2, 2, 2));
+	b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[2]));
+	a = _mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(3, 3, 3, 3));
+	result.m128[0] = _mm_add_ps(b, _mm_mul_ps(a, m.m128[3]));
+
+
+	a = _mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 0, 0, 0));
+	b = _mm_mul_ps(a, m.m128[0]);
+
+	a = _mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 1, 1));
+	b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[1]));
+	a = _mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 2, 2, 2));
+	b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[2]));
+	a = _mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(3, 3, 3, 3));
+	result.m128[1] = _mm_add_ps(b, _mm_mul_ps(a, m.m128[3]));
+
+
+	a = _mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 0, 0, 0));
+	b = _mm_mul_ps(a, m.m128[0]);
+
+	a = _mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 1, 1));
+	b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[1]));
+	a = _mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 2, 2, 2));
+	b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[2]));
+	a = _mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(3, 3, 3, 3));
+	result.m128[2] = _mm_add_ps(b, _mm_mul_ps(a, m.m128[3]));
+
+
+	a = _mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 0, 0, 0));
+	b = _mm_mul_ps(a, m.m128[0]);
+
+	a = _mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 1, 1));
+	b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[1]));
+	a = _mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 2, 2, 2));
+	b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[2]));
+	a = _mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(3, 3, 3, 3));
+	result.m128[3] = _mm_add_ps(b, _mm_mul_ps(a, m.m128[3]));*/
+
 	return result;
 }
 
@@ -538,8 +733,14 @@ bool Luxko::Matrix4x4f::operator==(const Matrix4x4f& m) const
 	//	d /= 4096;
 	//else
 	//	d = 1.f / 4096;
-	for (int i = 0; i < 16; ++i) {
-		if (!AlmostEqualRelativeAndAbs(_data[i], m._data[i]/*,d*/)) {
+	//for (int i = 0; i < 16; ++i) {
+	//	if (!AlmostEqualRelativeAndAbs(_data[i], m._data[i]/*,d*/)) {
+	//		return false;
+	//	}
+	//}
+
+	for (int i = 0; i < 4; ++i) {
+		if (_vT[i] != m._vT[i]) {
 			return false;
 		}
 	}
@@ -568,21 +769,56 @@ Luxko::Matrix3x3f Luxko::Matrix4x4f::GetUpperLeft3x3() const
 		_data[8], _data[9], _data[10]);
 }
 
+Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator+=(const Matrix4x4f& m)noexcept
+{
+	//for (int i = 0; i < 4; ++i) {
+	//	m128[i] = _mm_add_ps(m128[i], m.m128[i]);
+	//}
+	m128[0] = _mm_add_ps(m128[0], m.m128[0]);
+	m128[1] = _mm_add_ps(m128[1], m.m128[1]);
+	m128[2] = _mm_add_ps(m128[2], m.m128[2]);
+	m128[3] = _mm_add_ps(m128[3], m.m128[3]);
+	return *this;
+}
+
+Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator-=(const Matrix4x4f& m)noexcept
+{
+	//for (int i = 0; i < 4; ++i) {
+	//	m128[i] = _mm_sub_ps(m128[i], m.m128[i]);
+	//}
+
+	m128[0] = _mm_sub_ps(m128[0], m.m128[0]);
+	m128[1] = _mm_sub_ps(m128[1], m.m128[1]);
+	m128[2] = _mm_sub_ps(m128[2], m.m128[2]);
+	m128[3] = _mm_sub_ps(m128[3], m.m128[3]);
+	return *this;
+}
+
 Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator/=(float x)noexcept
 {
 	auto f = _mm_load_ps1(&x);
-	for (int i = 0; i < 4; ++i) {
-		m128[i] = _mm_div_ps(m128[i], f);
-	}
+	//for (int i = 0; i < 4; ++i) {
+	//	m128[i] = _mm_div_ps(m128[i], f);
+	//}
+
+	m128[0] = _mm_div_ps(m128[0], f);
+	m128[1] = _mm_div_ps(m128[1], f);
+	m128[2] = _mm_div_ps(m128[2], f);
+	m128[3] = _mm_div_ps(m128[3], f);
 	return *this;
 }
 
 Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator*=(float x)noexcept
 {
 	auto f = _mm_load_ps1(&x);
-	for (int i = 0; i < 4; ++i) {
-		m128[i] = _mm_mul_ps(m128[i], f);
-	}
+	//for (int i = 0; i < 4; ++i) {
+	//	m128[i] = _mm_mul_ps(m128[i], f);
+	//}
+
+	m128[0] = _mm_mul_ps(m128[0], f);
+	m128[1] = _mm_mul_ps(m128[1], f);
+	m128[2] = _mm_mul_ps(m128[2], f);
+	m128[3] = _mm_mul_ps(m128[3], f);
 	return *this;
 }
 
@@ -602,97 +838,18 @@ Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator*=(const Matrix4x4f& m)noexcept
 	return *this;
 }
 
-Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator-=(const Matrix4x4f& m)noexcept
-{
-	for (int i = 0; i < 4; ++i) {
-		m128[i] = _mm_sub_ps(m128[i], m.m128[i]);
-	}
-	return *this;
-}
-
-Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator+=(const Matrix4x4f& m)noexcept
-{
-	for (int i = 0; i < 4; ++i) {
-		m128[i] = _mm_add_ps(m128[i], m.m128[i]);
-	}
-	return *this;
-}
-
-Luxko::Vector4f Luxko::Matrix4x4f::operator*(const Vector4f& v) const
-{
-	Vector4f result;
-	for (int i = 0; i < 4; ++i) {
-		auto a = _mm_mul_ps(m128[i], v.m128);
-		result[i] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
-	}
-	return result;
-}
-
-Luxko::Matrix4x4f Luxko::Matrix4x4f::operator*(const Matrix4x4f& m) const
-{
-	//Matrix4x4f mT = m.Transpose();
-	Matrix4x4f result;
-	for (int i = 0; i < 4; ++i) {
-		auto a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(0, 0, 0, 0));
-		auto b = _mm_mul_ps(a, m.m128[0]);
-
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(1, 1, 1, 1));
-		b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[1]));
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(2, 2, 2, 2));
-		b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[2]));
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(3, 3, 3, 3));
-		result.m128[i] = _mm_add_ps(b, _mm_mul_ps(a, m.m128[3]));
-	}
-	return result;
-}
-
-Luxko::Matrix4x4f Luxko::Matrix4x4f::operator/(float x) const
-{
-	auto f = _mm_load_ps1(&x);
-	Matrix4x4f result;
-	for (int i = 0; i < 4; ++i) {
-		result.m128[i] = _mm_div_ps(m128[i], f);
-	}
-	return result;
-}
-
 Luxko::Matrix4x4f Luxko::Matrix4x4f::operator-() const
 {
 	Matrix4x4f result;
-	for (int i = 0; i < 16; ++i) {
-		result._data[i] = -_data[i];
-	}
+	//for (int i = 0; i < 16; ++i) {
+	//	result._data[i] = -_data[i];
+	//}
+	auto a = _mm_set_ps1(-1.f);
+	result.m128[0] = _mm_mul_ps(a, m128[0]);
+	result.m128[1] = _mm_mul_ps(a, m128[1]);
+	result.m128[2] = _mm_mul_ps(a, m128[2]);
+	result.m128[3] = _mm_mul_ps(a, m128[3]);
 	return result;
-}
-
-Luxko::Matrix4x4f::Matrix4x4f(float x00, float x01, float x02, float x03,
-	float x10, float x11, float x12, float x13,
-	float x20, float x21, float x22, float x23,
-	float x30, float x31, float x32, float x33)
-{
-	_data[0] = x00; _data[1] = x01; _data[2] = x02; _data[3] = x03;
-	_data[4] = x10; _data[5] = x11; _data[6] = x12; _data[7] = x13;
-	_data[8] = x20; _data[9] = x21; _data[10] = x22; _data[11] = x23;
-	_data[12] = x30; _data[13] = x31; _data[14] = x32; _data[15] = x33;
-}
-
-Luxko::Matrix4x4f::Matrix4x4f(const Vector4f& v1, const Vector4f& v2, const Vector4f& v3, const Vector4f& v4)
-{
-	for (int i = 0; i < 4; ++i) {
-		_data[4 * i] = v1[i];
-		_data[4 * i + 1] = v2[i];
-		_data[4 * i + 2] = v3[i];
-		_data[4 * i + 3] = v4[i];
-	}
-}
-
-Luxko::Matrix4x4f::Matrix4x4f(const Vector4f* data)
-{
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			_data[i + j * 4] = data[i]._data[j];
-		}
-	}
 }
 
 Luxko::Matrix4x4f Luxko::operator*(float f, const Matrix4x4f& m)
