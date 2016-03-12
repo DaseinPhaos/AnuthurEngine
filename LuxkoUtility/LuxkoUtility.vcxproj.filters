@@ -25,6 +25,9 @@
     <ClInclude Include="..\AnuthurEngine\MemorySystem.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Threading.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\Timer.cpp">
@@ -34,6 +37,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\AnuthurEngine\MemorySystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Threading.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

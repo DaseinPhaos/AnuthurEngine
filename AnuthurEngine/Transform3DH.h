@@ -6,6 +6,11 @@
 //**********************************************************************
 
 #pragma once
+#ifdef ANUTHURMATH_EXPORTS
+#define ANUTHURMATH_API _declspec(dllexport)
+#else
+#define ANUTHURMATH_API _declspec(dllimport)
+#endif
 #include "CommonHeader.h"
 #include "Matrix4x4f.h"
 #include "Point3DH.h"
@@ -15,7 +20,7 @@
 #include "Quaternionf.h"
 
 namespace Luxko {
-	class Transform3DH {
+	class ANUTHURMATH_API Transform3DH {
 	public:
 		Transform3DH(const Transform3DH&) = default;
 		Transform3DH& operator=(const Transform3DH&) = default;

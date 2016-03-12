@@ -78,7 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)AnuthurEngine\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)AnuthurEngine;$(IncludePath)</IncludePath>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -144,12 +145,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AnuthurEngine\AnuthurEngine.vcxproj">
-      <Project>{775b46cd-66c4-4458-9aaa-349ab857d623}</Project>
+    <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
+      <Project>{95b6fe37-84de-486d-a9fb-9d8782718e1e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
+      <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="..\AnuthurEngine\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

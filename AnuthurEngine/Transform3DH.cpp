@@ -5,7 +5,9 @@
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
 
+#include "Quaternionf.h"
 #include "Transform3DH.h"
+
 #include "FloatsComparision.h"
 
 Luxko::Transform3DH Luxko::Transform3DH::New()

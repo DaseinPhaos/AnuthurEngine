@@ -13,11 +13,17 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Headers\Math">
-      <UniqueIdentifier>{eac9967d-1607-46c8-99e7-43b1ff23da11}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Math">
       <UniqueIdentifier>{4ac8b0c5-f057-46dd-aca9-d067e33afb93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Geometry">
+      <UniqueIdentifier>{8afe58ee-2b7a-44cd-9197-61734d284ac1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Geometry">
+      <UniqueIdentifier>{5a6c1f75-b9f8-4f8a-8779-b22dd3c1ffdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Math">
+      <UniqueIdentifier>{eac9967d-1607-46c8-99e7-43b1ff23da11}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -48,6 +54,21 @@
     <ClInclude Include="..\AnuthurEngine\ValResult.h">
       <Filter>Headers\Math</Filter>
     </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Line3DH.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Plane3DH.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Point3DH.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Transform3DH.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Vector3DH.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp">
@@ -70,6 +91,21 @@
     </ClCompile>
     <ClCompile Include="..\AnuthurEngine\Vector4f.cpp">
       <Filter>Source Files\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Line3DH.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Plane3DH.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Point3DH.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Transform3DH.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Vector3DH.cpp">
+      <Filter>Source Files\Geometry</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

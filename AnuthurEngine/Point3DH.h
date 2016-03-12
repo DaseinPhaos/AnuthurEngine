@@ -6,6 +6,11 @@
 //**********************************************************************
 
 #pragma once
+#ifdef ANUTHURMATH_EXPORTS
+#define ANUTHURMATH_API _declspec(dllexport)
+#else
+#define ANUTHURMATH_API _declspec(dllimport)
+#endif
 #include "CommonHeader.h"
 #include "Vector3f.h"
 #include "Vector4f.h"
@@ -17,7 +22,7 @@ namespace Luxko {
 	class Vector3DH;
 
 
-	class Point3DH {
+	class ANUTHURMATH_API Point3DH {
 	public:
 		friend class Transform3DH;
 		Point3DH() { _data.w = 1.f; }

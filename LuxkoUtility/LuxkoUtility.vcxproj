@@ -79,6 +79,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)AnuthurEngine;$(IncludePath)</IncludePath>
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -146,12 +148,14 @@
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\FileSystem.cpp" />
     <ClCompile Include="..\AnuthurEngine\MemorySystem.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Threading.cpp" />
     <ClCompile Include="..\AnuthurEngine\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AnuthurEngine\CommonHeader.h" />
     <ClInclude Include="..\AnuthurEngine\FileSystem.h" />
     <ClInclude Include="..\AnuthurEngine\MemorySystem.h" />
+    <ClInclude Include="..\AnuthurEngine\Threading.h" />
     <ClInclude Include="..\AnuthurEngine\Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

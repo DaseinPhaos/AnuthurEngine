@@ -13,7 +13,7 @@
 #endif
 #include "CommonHeader.h"
 #include <string>
-#include <vector>
+#include <utility>
 
 
 namespace Luxko {
@@ -227,7 +227,7 @@ namespace Luxko {
 			// Handle Manipulation
 			bool Valid()const { return _isValid; }
 			HANDLE Handle()const { return _hFile; }
-			HANDLE Free() { return _hFile; _isValid = false; }
+			HANDLE Free() { _isValid = false; return _hFile;  }
 			void Close();
 			
 
@@ -241,8 +241,10 @@ namespace Luxko {
 			BasicFileInfo GetBasicInfo()const;
 			bool SetBasicInfo( BasicFileInfo& bfi);
 
-			bool Read(void* data, DWORD bytesToRead, DWORD& bytesRead, OVERLAPPED& ov);
-			bool Write(void* data, DWORD bytesToWrite, DWORD& bytesWritten, OVERLAPPED& ov);
+			bool Read(void* data, DWORD bytesToRead, DWORD& bytesRead);
+			bool Write(void* data, DWORD bytesToWrite, DWORD& bytesWritten);
+			//bool Lock()
+
 
 		private:
 			
@@ -261,7 +263,7 @@ namespace Luxko {
 			~SearchResult() = default;
 
 			BasicFileInfo m_basicInfo;
-			std::wstring m_fileName; // Generates Warning C4251, can be ignored according to https://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k(C4251)&rd=true
+			std::wstring m_fileName; // Generates Warning C4251, can be safely ignored according to https://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k(C4251)&rd=true
 			long long m_fileSize;
 		};
 
@@ -295,22 +297,11 @@ namespace Luxko {
 			static bool Remove(const std::wstring& directoryName);
 			static bool SetCurrent(const std::wstring& dirctoryName);
 			static std::wstring GetCurrent();
-
-
-			using WSSTACK = std::vector<std::wstring>;
-			std::wstring to_wstring()const;
-
-			bool toFather();
-			Directory Father()const;
-			Directory Child(const std::wstring& subDirectoryName)const;
-			void toChild(const std::wstring& childName);
-
-			bool Valid()const;
-		private:
-			WSSTACK _stack; // Generates Warning C4251, can be ignored according to https://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k(C4251)&rd=true
+			static std::wstring GetParentUnlessRoot(const std::wstring& dirPath);
+			static std::wstring GetChild(const std::wstring& dirPath, const std::wstring& childPath);
 		};
 
 		LUXKOUTILITY_API void swap(File& a, File& b);
-		LUXKOUTILITY_API std::wstring to_wstring(const Directory& d);
+		
 	}
 }

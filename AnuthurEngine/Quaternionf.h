@@ -47,8 +47,31 @@ namespace Luxko {
 
 		bool operator==(const Quaternionf& q)const { return _data == q._data; }
 
-		Matrix3x3f ToMatrix3x3f()const;
-		Matrix4x4f ToMatrix4x4f()const;
+		Matrix3x3f ToMatrix3x3f()const {
+			Matrix3x3f result(1.f, -1.f, 1.f, 1.f, 1.f, -1.f, -1.f, 1.f, 1.f);
+			auto two = _mm_set_ps1(2.f);
+			auto a = _mm_mul_ps(_mm_shuffle_ps(_data.m128, _data.m128, _MM_SHUFFLE(1, 1, 1, 2)),
+				_mm_shuffle_ps(_data.m128, _data.m128, _MM_SHUFFLE(1, 3, 1, 1)));
+			auto b = _mm_div_ps(
+				_mm_mul_ps(_mm_shuffle_ps(_data.m128, _data.m128, _MM_SHUFFLE(0, 0, 0, 3)),
+					_mm_shuffle_ps(_data.m128, _data.m128, _MM_SHUFFLE(3, 2, 3, 3))),
+				_mm_loadu_ps(result._data));
+			_mm_storeu_ps(result._data, _mm_mul_ps(two, _mm_add_ps(a, b)));
+
+			a = _mm_mul_ps(_mm_shuffle_ps(_data.m128, _data.m128, _MM_SHUFFLE(2, 1, 2, 1)),
+				_mm_shuffle_ps(_data.m128, _data.m128, _MM_SHUFFLE(3, 3, 3, 1)));
+			b = _mm_div_ps(
+				_mm_mul_ps(_mm_shuffle_ps(_data.m128, _data.m128, _MM_SHUFFLE(0, 0, 0, 3)),
+					_mm_shuffle_ps(_data.m128, _data.m128, _MM_SHUFFLE(1, 2, 1, 3))),
+				_mm_loadu_ps(result._data + 4));
+			_mm_storeu_ps(result._data + 4, _mm_mul_ps(two, _mm_add_ps(a, b)));
+
+			result._data[0] = 1 - result._data[0];
+			result._data[4] = 1 - result._data[4];
+			result._data[8] = 1 - 2.f*_data._data[1] * _data._data[1] - 2.f*_data._data[2] * _data._data[2];
+			return result;
+		}
+		Matrix4x4f ToMatrix4x4f()const { return ToMatrix3x3f().ToHomoMatrix4x4f(); }
 
 
 		Vector4f _data;

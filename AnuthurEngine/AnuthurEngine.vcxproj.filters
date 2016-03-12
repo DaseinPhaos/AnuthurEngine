@@ -8,51 +8,16 @@
     <Filter Include="Headers">
       <UniqueIdentifier>{8b889343-cc13-4c61-a1a0-fe824d871b82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\Geometry">
-      <UniqueIdentifier>{63d71732-eb60-4a68-b1ce-2446a855235e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headers\Utility">
       <UniqueIdentifier>{a30e7d3d-a82b-4e45-a894-07cbe657390b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{ae8f0bd0-6a2c-4f29-b05f-7fdafd0ad1af}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Geometry">
-      <UniqueIdentifier>{435f452f-9f6c-4a8d-a9d5-94d51cd9b059}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Point3DH.h">
-      <Filter>Headers\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector3DH.h">
-      <Filter>Headers\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Line3DH.h">
-      <Filter>Headers\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Plane3DH.h">
-      <Filter>Headers\Geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform3DH.h">
-      <Filter>Headers\Geometry</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Line3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Plane3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Point3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Transform3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
-    </ClCompile>
-    <ClCompile Include="Vector3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

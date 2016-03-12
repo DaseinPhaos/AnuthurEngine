@@ -19,26 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Line3DH.h" />
-    <ClInclude Include="Plane3DH.h" />
-    <ClInclude Include="Point3DH.h" />
-    <ClInclude Include="Transform3DH.h" />
-    <ClInclude Include="Vector3DH.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Line3DH.cpp" />
-    <ClCompile Include="Plane3DH.cpp" />
-    <ClCompile Include="Point3DH.cpp" />
-    <ClCompile Include="Transform3DH.cpp" />
-    <ClCompile Include="Vector3DH.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
       <Project>{95b6fe37-84de-486d-a9fb-9d8782718e1e}</Project>
     </ProjectReference>
     <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
       <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{775B46CD-66C4-4458-9AAA-349AB857D623}</ProjectGuid>
@@ -48,7 +37,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
