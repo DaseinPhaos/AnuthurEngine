@@ -147,6 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\AnuthurEngine\FloatsComparision.h" />
+    <ClInclude Include="..\AnuthurEngine\Frame3DH.h" />
     <ClInclude Include="..\AnuthurEngine\Line3DH.h" />
     <ClInclude Include="..\AnuthurEngine\MathIO.h" />
     <ClInclude Include="..\AnuthurEngine\Matrix3x3f.h" />
@@ -163,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Frame3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\Line3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\MathIO.cpp" />
     <ClCompile Include="..\AnuthurEngine\Matrix3x3f.cpp" />

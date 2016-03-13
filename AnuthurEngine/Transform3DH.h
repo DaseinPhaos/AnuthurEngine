@@ -22,6 +22,7 @@
 namespace Luxko {
 	class ANUTHURMATH_API Transform3DH {
 	public:
+		friend class Frame3DH;
 		Transform3DH(const Transform3DH&) = default;
 		Transform3DH& operator=(const Transform3DH&) = default;
 		~Transform3DH() = default;
@@ -54,7 +55,7 @@ namespace Luxko {
 
 	private:
 		Transform3DH() {}
-		Transform3DH(const Matrix4x4f& m,bool isOrtho):_m(m),_subOrtho(isOrtho){}
+		Transform3DH(const Matrix4x4f& m, bool isOrtho) :_m(m), _subOrtho(isOrtho) {}
 		Matrix4x4f _m;
 		bool _subOrtho;
 	};

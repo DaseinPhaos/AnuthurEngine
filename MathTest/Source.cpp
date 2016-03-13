@@ -16,6 +16,7 @@
 #include "Matrix4x4f.h"
 #include "Line3DH.h"
 #include "Plane3DH.h"
+#include "Frame3DH.h"
 
 float CheckCubicResult(float a, float b, float c, const Luxko::CubicRoots& cr) {
 	double sum=0.;
@@ -34,7 +35,7 @@ float CheckQuarticResult(float a, float b, float c, float d, const Luxko::Quarti
 	return static_cast<float>(sum / qr.count);
 }
 
-int main() {
+int TestMatrix4x4f() {
 	constexpr size_t testTime = 100000;
 	//double epsilon[testTime];
 	//double sum = 0.;
@@ -146,5 +147,31 @@ int main() {
 	//timer.Elapse();
 
 	//cout << "average = "<<sum / count << endl<<"Time used = "<<timer.GetLastMs()<<endl;
+	getchar();
+	return 0;
+}
+
+int main() {
+	using namespace Luxko;
+	Vector3DH up = { 0.f,1.f,0.f };
+	Vector3DH look = { 0.f,0.f,-1.f };
+	Point3DH point = { 0.f,0.f,0.f };
+	Frame3DH f(look, up, point);
+	std::default_random_engine dre(88);
+	std::uniform_real_distribution<float> urd(-100.f, 100.f);
+	Point3DH rp = { urd(dre),urd(dre),urd(dre) };
+	auto leftHand = f.LeftHandTransform();
+	auto rightHand = f.RightHandTransform();
+	std::cout << "Left hand = " << leftHand.AsMatrix4x4() << std::endl
+		<< "right hand = " << rightHand.AsMatrix4x4() << std::endl;
+	std::cout << "rp = " << rp.AsVector4f() << std::endl
+		<< "rh*rp = " << (rightHand*rp).AsVector4f() << std::endl
+		<< "lh*rp = " << (leftHand*rp).AsVector4f() << std::endl;
+
+	assert(rp == rightHand*rp);
+	assert(AlmostEqualRelativeAndAbs(-rp.z(),(leftHand*rp).z()));
+
+
+
 	getchar();
 }
