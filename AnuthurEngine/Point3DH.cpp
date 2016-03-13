@@ -144,6 +144,11 @@ Luxko::Vector3f Luxko::Point3DH::ToVector3f() const
 	return Vector3f(_data._data);
 }
 
+Luxko::Vector3DH Luxko::Point3DH::ToVector3DH() const
+{
+	return Vector3DH(x(), y(), z());
+}
+
 float Luxko::Point3DH::Length() const
 {
 	return ToVector3f().Magnitude();

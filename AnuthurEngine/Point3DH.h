@@ -56,6 +56,7 @@ namespace Luxko {
 
 		Point3DH Cross(const Point3DH& p)const;
 		Vector3f ToVector3f()const;
+		Vector3DH ToVector3DH()const;
 		float Length()const;
 		Vector3DH Orientation()const;
 
