@@ -1,8 +1,9 @@
 #include "FileSystem.h"
 #include <iostream>
 #include <cassert>
+//#include "ApplicationHelper.h"
 
-int main() {
+int FileSystemTest() {
 	std::wcout.imbue(std::locale("chs"));
 	std::wcin.imbue(std::locale("chs"));
 	std::wcerr.imbue(std::locale("chs"));
@@ -85,5 +86,15 @@ int main() {
 	if (!File::Delete(Directory::GetCurrent() + L"\\MovedFile.txt")) {
 		std::wcout << L"É¾³ýÊ§°Ü£¡" << std::endl;
 	}
+	getchar();
+	return 0;
+}
+
+int main() {
+	using namespace Luxko::FileSystem;
+	FileFlag ff = FileFlag::BackupSemantics;
+	FileFlag fff = FileFlag::DeleteOnClose;
+	auto ffff = ff | fff;
+	std::cout << static_cast<DWORD>(ffff) << std::endl;
 	getchar();
 }
