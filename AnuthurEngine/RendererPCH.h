@@ -4,31 +4,24 @@
 //
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
-
 #pragma once
-#ifndef UNICODE
-#define UNICODE
+
+#ifdef ANUTHURRENDERER_EXPORTS
+#define ANUTHURRENDERER_API _declspec(dllexport)
+#else
+#define ANUTHURRENDERER_API _declspec(dllimport)
 #endif
-#ifndef _UNICODE
-#define _UNICODE
-#endif
-#ifndef STRICT
-#define STRICT
-#endif
+
 #ifndef WIN32_LEAN_AND_MEAN 
 #define WIN32_LEAN_AND_MEAN
 #endif
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES
-#endif
-#include <windows.h>
-#include <wrl.h>
-#include <vector>
-#include <string>
-#include <random>
-#include <cmath>
-#include <utility>
-#include <algorithm>
-#include <emmintrin.h>
 
-using namespace std::rel_ops;
+#include <windows.h>
+
+#include <d3d12.h>
+#include <dxgi1_4.h>
+#include <D3Dcompiler.h>
+
+
+#include <string>
+#include <wrl.h>

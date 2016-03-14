@@ -296,6 +296,7 @@ namespace Luxko {
 			static bool Create(const std::wstring& directoryName);
 			static bool Remove(const std::wstring& directoryName);
 			static bool SetCurrent(const std::wstring& dirctoryName);
+			static std::wstring GetExePath();
 			static std::wstring GetCurrent();
 			static std::wstring GetParentUnlessRoot(const std::wstring& dirPath);
 			static std::wstring GetChild(const std::wstring& dirPath, const std::wstring& childPath);

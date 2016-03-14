@@ -281,6 +281,17 @@ bool Luxko::FileSystem::Directory::SetCurrent(const std::wstring& absDirctoryNam
 	return SetCurrentDirectory(absDirctoryName.c_str()) != 0;
 }
 
+std::wstring Luxko::FileSystem::Directory::GetExePath()
+{
+	wchar_t temp[1000];
+	auto size = GetModuleFileName(nullptr, temp, 1000);
+	if (size == 0 || size == 1000) {
+		throw;
+	}
+	temp[size] = L'\0';
+	return std::wstring(temp);
+}
+
 std::wstring Luxko::FileSystem::Directory::GetCurrent()
 {
 	wchar_t temp[1000];
