@@ -21,21 +21,39 @@ Luxko::Application::BaseApp::~BaseApp()
 
 int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 {
+	//**********************************************************************
+	// @Luxko: 1stly, register the window class.
+	//			This job is delegates to the virtual function RegisterWindowClass.
 	auto windowClass = RegisterWindowClass(hInstance);
 	if (windowClass == NULL) {
 		throw "Window class Registration failed!";
 	}
+	//**********************************************************************
 
+
+	//**********************************************************************
+	// @Luxko: 2ndly, create a window instance with the help of a WindowDescriptor,
+	//			which encapsulates essential details for D3D window creation.
 	WindowDescriptor wd(WindowStyle::OverlappedWindow, ExtendedWindowStyle::LeftAligned,
 		0, 0,_width,_height);
 	_hWindow = wd.GenerateWindowByATOM(hInstance, windowClass, _title);
 	if (_hWindow == NULL) {
 		throw "Window Creation Fucking failed!";
 	}
+	//**********************************************************************
 
+	//**********************************************************************
+	// @Luxko: Now we're ready to show the window.
 	ShowWindow(_hWindow, nCmdShow);
+	//**********************************************************************
 
+	//**********************************************************************
+	// @Luxko: Do the initialization necessary for the application.
 	OnInit();
+	//**********************************************************************
+
+	//**********************************************************************
+	// @Luxko: go to the main loop.
 	MSG msg = { 0 };
 	while (true) {
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -54,9 +72,13 @@ int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 	}
 
 	OnDestroy();
+	//**********************************************************************
 
+	//**********************************************************************
+	// @Luxko: the returned value is thw wParam of the last received
+	//			WM_QUIT message.
 	return static_cast<char>(msg.wParam);
-	
+	//**********************************************************************
 }
 
 void Luxko::Application::BaseApp::SetCustomWindowText(const std::wstring& text)

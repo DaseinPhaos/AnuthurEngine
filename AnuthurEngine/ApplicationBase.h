@@ -20,7 +20,14 @@ namespace Luxko {
 			BaseApp(UINT width, UINT height, std::wstring name);
 			virtual ~BaseApp();
 
+			// @Luxko: Runs the application until quit.
+			//			This method should be ready to get called
+			//			after the application class instance's initialization.
+			//			It Delegates work to (in sequence)
+			//			RegisterWindowClass,
+			//			OnInit, OnEvent, OnUpdate, OnRender, OnDestroy.
 			int Run(HINSTANCE hInstance, int nCmdShow);
+
 			void SetCustomWindowText(const std::wstring& text);
 
 		protected:

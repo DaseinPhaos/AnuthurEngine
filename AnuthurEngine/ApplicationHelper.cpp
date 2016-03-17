@@ -294,3 +294,8 @@ HWND Luxko::Application::WindowDescriptor::GenerateWindowByATOM(HINSTANCE hInsta
 	return CreateWindowEx(exStyle, MAKEINTRESOURCE(atom), windowTitle.c_str(), style, x, y,
 		temp.right - temp.left, temp.bottom - temp.top, NULL, NULL, hInstance, NULL);
 }
+
+bool Luxko::Application::Message::operator==(UsefulWindowMessage a, int b)
+{
+	return static_cast<int>(a) == b;
+}
