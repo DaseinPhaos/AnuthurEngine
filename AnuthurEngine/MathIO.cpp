@@ -11,7 +11,7 @@
 std::ostream& operator<<(std::ostream& o, const Luxko::Vector3f& v) {
 	auto flags = o.flags();
 
-	o << "(" << std::setw(5) << v.x << ", " << v.y << ", " << v.z << ")" << std::flush;
+	o << "(" << std::setw(5) << v._x << ", " << v._y << ", " << v._z << ")" << std::flush;
 	o.setf(flags);
 	return o;
 }
@@ -29,7 +29,7 @@ std::ostream& operator<<(std::ostream& o, const Luxko::Vector4f& v)
 {
 	auto flags = o.flags();
 
-	o << "(" << std::setw(5) << v.x << ", " << v.y << ", " << v.z << ", " << v.w << ")" << std::flush;
+	o << "(" << std::setw(5) << v._x << ", " << v._y << ", " << v._z << ", " << v._w << ")" << std::flush;
 	o.setf(flags);
 	return o;
 }

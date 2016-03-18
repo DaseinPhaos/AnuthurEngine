@@ -20,9 +20,9 @@ Luxko::Vector3f Luxko::Vector3f::operator+(const Vector3f& v) const
 //	return Vector3f(x + v.x, y + v.y, z + v.z);
 	Vector3f sum;
 
-	sum.x = x + v.x;
-	sum.y = y + v.y;
-	sum.z = z + v.z;
+	sum._x = _x + v._x;
+	sum._y = _y + v._y;
+	sum._z = _z + v._z;
 
 	return(sum);
 }
@@ -35,7 +35,7 @@ Luxko::Vector3f Luxko::Vector3f::operator-(const Vector3f& v) const
 	//float a[4];
 	//_mm_storeu_ps(a, result);
 	//return Vector3f(a);
-	return Vector3f(x - v.x, y - v.y, z - v.z);
+	return Vector3f(_x - v._x, _y - v._y, _z - v._z);
 }
 
 Luxko::Vector3f Luxko::Vector3f::operator*(float s) const
@@ -46,7 +46,7 @@ Luxko::Vector3f Luxko::Vector3f::operator*(float s) const
 	//auto result = _mm_mul_ps(dBy, data);
 	//_mm_storeu_ps(by, result);
 	//return Vector3f(by);
-	return Vector3f(x*s, y*s, z*s);
+	return Vector3f(_x*s, _y*s, _z*s);
 }
 
 
@@ -59,38 +59,38 @@ Luxko::Vector3f Luxko::Vector3f::operator/(float s) const
 	//auto result = _mm_div_ps(data, dBy);
 	//_mm_storeu_ps(by, result);
 	//return Vector3f(by);
-	return Vector3f(x / s, y / s, z / s);
+	return Vector3f(_x / s, _y / s, _z / s);
 }
 
 Luxko::Vector3f& Luxko::Vector3f::operator-=(const Vector3f& v)noexcept
 {
-	x -= v.x;
-	y -= v.y;
-	z -= v.z;
+	_x -= v._x;
+	_y -= v._y;
+	_z -= v._z;
 	return *this;
 }
 
 Luxko::Vector3f& Luxko::Vector3f::operator+=(const Vector3f& v)noexcept
 {
-	x += v.x;
-	y += v.y;
-	z += v.z;
+	_x += v._x;
+	_y += v._y;
+	_z += v._z;
 	return *this;
 }
 
 Luxko::Vector3f& Luxko::Vector3f::operator*=(float f)noexcept
 {
-	x *= f;
-	y *= f;
-	z *= f;
+	_x *= f;
+	_y *= f;
+	_z *= f;
 	return *this;
 }
 
 Luxko::Vector3f& Luxko::Vector3f::operator/=(float f)noexcept
 {
-	x /= f;
-	y /= f;
-	z /= f;
+	_x /= f;
+	_y /= f;
+	_z /= f;
 	return *this;
 }
 
@@ -151,6 +151,16 @@ Luxko::Vector3f Luxko::Vector3f::Normalize() const
 	return Vector3f(f);
 }
 
+Luxko::Vector3f Luxko::Vector3f::ElementWideMultiply(const Vector3f& v) const
+{
+	return Vector3f(_x*v._x, _y*v._y, _z*v._z);
+}
+
+Luxko::Vector3f Luxko::Vector3f::ElementWideMultiply(float byX, float byY, float byZ) const
+{
+	return Vector3f(_x*byX, _y*byY, _z*byZ);
+}
+
 float Luxko::Vector3f::Dot(const Vector3f& v) const
 {
 	//auto data = _mm_loadu_ps(_data);
@@ -159,7 +169,7 @@ float Luxko::Vector3f::Dot(const Vector3f& v) const
 	//float a[4];
 	//_mm_storeu_ps(a, result);
 	//return a[0] + a[1] + a[2];
-	return x*v.x + y*v.y + z*v.z;
+	return _x*v._x + _y*v._y + _z*v._z;
 }
 
 Luxko::Vector3f Luxko::Vector3f::Cross(const Vector3f& v) const
@@ -179,7 +189,7 @@ Luxko::Vector3f Luxko::Vector3f::Cross(const Vector3f& v) const
 	//float f[4];
 	//_mm_storeu_ps(f, r);
 	//return Vector3f(f);
-	return Vector3f(y*v.z - z*v.y, z*v.x - x*v.z, x*v.y - y*v.x);
+	return Vector3f(_y*v._z - _z*v._y, _z*v._x - _x*v._z, _x*v._y - _y*v._x);
 }
 
 Luxko::Vector3f Luxko::Vector3f::ProjectionAlong(const Vector3f v) const
@@ -189,21 +199,21 @@ Luxko::Vector3f Luxko::Vector3f::ProjectionAlong(const Vector3f v) const
 
 Luxko::Matrix3x3f Luxko::Vector3f::ToCrossMatrix() const
 {
-	return Matrix3x3f(0.f, -z, y,
-		z, 0.f, -x,
-		-y, x, 0.f);
+	return Matrix3x3f(0.f, -_z, _y,
+		_z, 0.f, -_x,
+		-_y, _x, 0.f);
 }
 
 Luxko::Matrix3x3f Luxko::Vector3f::ToHomoMatrix() const
 {
-	return Matrix3x3f(x*x, x*y, x*z,
-		x*y, y*y, y*z,
-		x*z, y*z, z*z);
+	return Matrix3x3f(_x*_x, _x*_y, _x*_z,
+		_x*_y, _y*_y, _y*_z,
+		_x*_z, _y*_z, _z*_z);
 }
 
 Luxko::Vector3f Luxko::Vector3f::operator-() const
 {
-	return Vector3f(-x, -y, -z);
+	return Vector3f(-_x, -_y, -_z);
 }
 
 Luxko::Vector3f Luxko::operator*(float s, const Vector3f& v)

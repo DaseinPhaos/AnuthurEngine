@@ -61,7 +61,7 @@ float Luxko::Plane3DH::Distance(const Line3DH& l) const noexcept
 {
 	auto dot = GetNormal()*l.Orientation();
 	if (AlmostEqualRelativeAndAbs(dot, 0.f)) {
-		return Distance(l.S);
+		return Distance(l._S);
 	}
 	return 0.f;
 }
@@ -77,7 +77,7 @@ bool Luxko::Plane3DH::Contain(const Line3DH& l) const noexcept
 	if (!l.Perpendicular(GetNormal())) {
 		return false;
 	}
-	if (!Contain(l.S)) {
+	if (!Contain(l._S)) {
 		return false;
 	}
 	return true;
@@ -117,8 +117,8 @@ bool Luxko::Plane3DH::Perpendicular(const Vector3DH& v) const noexcept
 
 Luxko::Point3DH Luxko::Plane3DH::Intersect(const Line3DH& l) const
 {
-	auto t = (_L.Dot(l.S.AsVector4f())) / (_L.Dot(l.Orientation().AsVector4f()));
-	return l.S - t*l.Orientation();
+	auto t = (_L.Dot(l._S.AsVector4f())) / (_L.Dot(l.Orientation().AsVector4f()));
+	return l._S - t*l.Orientation();
 }
 
 Luxko::Line3DH Luxko::Plane3DH::Intersect(const Plane3DH& p) const
@@ -130,7 +130,7 @@ Luxko::Line3DH Luxko::Plane3DH::Intersect(const Plane3DH& p) const
 		l.Orientation().x(), l.Orientation().y(), l.Orientation().z());
 	auto P = Vector3f(_L[3], p._L[3], 0.f);
 	auto Q = M.Inverse()*P;
-	l.S = Point3DH(Q);
+	l._S = Point3DH(Q);
 	return l;
 }
 

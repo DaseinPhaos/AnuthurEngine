@@ -20,8 +20,8 @@ namespace Luxko {
 
 	class ANUTHURMATH_API Vector3f {
 	public:
-		Vector3f(float a, float b, float c) { x = a; y = b; z = c; }
-		explicit Vector3f(const float* data) { x = data[0]; y = data[1]; z = data[2]; }
+		Vector3f(float a, float b, float c) { _x = a; _y = b; _z = c; }
+		explicit Vector3f(const float* data) { _x = data[0]; _y = data[1]; _z = data[2]; }
 		Vector3f() {}
 		Vector3f(const Vector3f& v)/* { x = v.x; y = v.y;z=v.z; }*/=default;
 		Vector3f& operator=(const Vector3f& v)/* { x = v.x; y = v.y; z = v.z; return *this; }*/=default;
@@ -48,7 +48,8 @@ namespace Luxko {
 		Vector3f& NormalizeInPlace()noexcept;
 		Vector3f Normalize()const;
 
-
+		Vector3f ElementWideMultiply(const Vector3f& v)const;
+		Vector3f ElementWideMultiply(float byX, float byY, float byZ)const;
 		float Dot(const Vector3f& v)const;
 		Vector3f Cross(const Vector3f& v)const;
 		Vector3f ProjectionAlong(const Vector3f v)const;
@@ -57,7 +58,7 @@ namespace Luxko {
 
 		union {
 			struct {
-				float x, y, z;
+				float _x, _y, _z;
 			};
 			float _data[3];
 		};

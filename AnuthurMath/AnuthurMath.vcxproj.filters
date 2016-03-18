@@ -25,6 +25,12 @@
     <Filter Include="Headers\Math">
       <UniqueIdentifier>{eac9967d-1607-46c8-99e7-43b1ff23da11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Object">
+      <UniqueIdentifier>{074e2c35-4563-4968-bad7-a5402e9f8823}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers\Object">
+      <UniqueIdentifier>{c48af213-682e-415f-a1d5-4b87ee8f9ac3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AnuthurEngine\FloatsComparision.h">
@@ -72,6 +78,24 @@
     <ClInclude Include="..\AnuthurEngine\Frame3DH.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Triangle3DH.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\OrientedObject.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Box.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Ellipsoid.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Sphere.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Cylinder.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp">
@@ -112,6 +136,21 @@
     </ClCompile>
     <ClCompile Include="..\AnuthurEngine\Frame3DH.cpp">
       <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Triangle3DH.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Box.cpp">
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Ellipsoid.cpp">
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Sphere.cpp">
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Cylinder.cpp">
+      <Filter>Source Files\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

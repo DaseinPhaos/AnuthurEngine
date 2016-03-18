@@ -73,7 +73,7 @@ namespace Luxko {
 		union {
 			float _data[16];
 			Vector4f _vT[4];
-			__m128 m128[4];
+			__m128 _m128[4];
 		};
 	};
 	ANUTHURMATH_API Matrix4x4f operator*(float f, const Matrix4x4f& m);

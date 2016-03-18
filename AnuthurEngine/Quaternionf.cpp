@@ -44,7 +44,7 @@ Luxko::Quaternionf& Luxko::Quaternionf::InverseInPlace() noexcept
 {
 	auto magSq = _mm_set_ps1(_data.MagSquare());
 	Conjugatify();
-	_data.m128 = _mm_div_ps(_data.m128, magSq);
+	_data._m128 = _mm_div_ps(_data._m128, magSq);
 	return *this;
 
 }
@@ -53,29 +53,29 @@ Luxko::Quaternionf Luxko::Quaternionf::Inverse() const
 {
 	auto magSq = _mm_set_ps1(_data.MagSquare());
 	auto result = GetConjugate();
-	result._data.m128 = _mm_div_ps(_data.m128, magSq);
+	result._data._m128 = _mm_div_ps(_data._m128, magSq);
 	return result;
 }
 
 
 Luxko::Vector3f Luxko::Quaternionf::ApplyRotationOn(const Vector3f& v) const
 {
-	Quaternionf vQ(0.f, v.x, v.y, v.z);
+	Quaternionf vQ(0.f, v._x, v._y, v._z);
 	auto rQ = this->operator*(vQ)*Inverse();
 	return Vector3f(rQ._data._data + 1);
 }
 
 Luxko::Vector4f Luxko::Quaternionf::ApplyRotationOn(const Vector4f& v) const
 {
-	Quaternionf vQ(0.f, v.x, v.y, v.z);
+	Quaternionf vQ(0.f, v._x, v._y, v._z);
 	auto rQ = this->operator*(vQ)*Inverse();
-	return Vector4f(rQ._data.y, rQ._data.z, rQ._data.w, v.w);
+	return Vector4f(rQ._data._y, rQ._data._z, rQ._data._w, v._w);
 
 }
 
 Luxko::Vector3f Luxko::Quaternionf::ApplyRotationOnN(const Vector3f& v) const
 {
-	Quaternionf vQ(0.f, v.x, v.y, v.z);
+	Quaternionf vQ(0.f, v._x, v._y, v._z);
 	auto rQ = this->operator*(vQ)*GetConjugate();
 	return Vector3f(rQ._data._data + 1);
 }
@@ -83,9 +83,9 @@ Luxko::Vector3f Luxko::Quaternionf::ApplyRotationOnN(const Vector3f& v) const
 
 Luxko::Vector4f Luxko::Quaternionf::ApplyRotationOnN(const Vector4f& v) const
 {
-	Quaternionf vQ(0.f, v.x, v.y, v.z);
+	Quaternionf vQ(0.f, v._x, v._y, v._z);
 	auto rQ = this->operator*(vQ)*GetConjugate();
-	return Vector4f(rQ._data.y, rQ._data.z, rQ._data.w, v.w);
+	return Vector4f(rQ._data._y, rQ._data._z, rQ._data._w, v._w);
 }
 
 Luxko::Quaternionf Luxko::Quaternionf::FromRotationN(float theta, const Vector3f& normalizedAxis)
@@ -94,10 +94,10 @@ Luxko::Quaternionf Luxko::Quaternionf::FromRotationN(float theta, const Vector3f
 	float s = std::sinf(theta);
 	float c = std::cosf(theta);
 	Quaternionf result;
-	result._data.y = normalizedAxis.x*s;
-	result._data.z = normalizedAxis.y*s;
-	result._data.w = normalizedAxis.z*s;
-	result._data.x = c;
+	result._data._y = normalizedAxis._x*s;
+	result._data._z = normalizedAxis._y*s;
+	result._data._w = normalizedAxis._z*s;
+	result._data._x = c;
 	return result;
 }
 
@@ -107,10 +107,10 @@ Luxko::Quaternionf Luxko::Quaternionf::FromRotationN(float theta, float nAxisX, 
 	float s = std::sinf(theta);
 	float c = std::cosf(theta);
 	Quaternionf result;
-	result._data.y = nAxisX*s;
-	result._data.z = nAxisY*s;
-	result._data.w = nAxisZ*s;
-	result._data.x = c;
+	result._data._y = nAxisX*s;
+	result._data._z = nAxisY*s;
+	result._data._w = nAxisZ*s;
+	result._data._x = c;
 	return result;
 }
 
@@ -138,19 +138,19 @@ Luxko::Quaternionf Luxko::Quaternionf::FromRotation(float theta, float axisX, fl
 Luxko::Quaternionf Luxko::Quaternionf::operator*(const Quaternionf& q) const
 {
 	// *this = s1 + v1; q = s2 + v2
-	auto a = _mm_load_ps1(&q._data.w); // a = (s2,s2,s2,s2)
-	a = _mm_move_ss(a, q._data.m128); // a = (s1, s2, s2, s2)
-	auto b = _mm_move_ss(_data.m128, q._data.m128); // b = (s2; v1)
+	auto a = _mm_load_ps1(&q._data._w); // a = (s2,s2,s2,s2)
+	a = _mm_move_ss(a, q._data._m128); // a = (s1, s2, s2, s2)
+	auto b = _mm_move_ss(_data._m128, q._data._m128); // b = (s2; v1)
 	a = _mm_mul_ps(a, b); // a = (s1s2; s2v1)
 	float dotP = _data._data[1] * q._data._data[1]
 		+ _data._data[2] * q._data._data[2] + _data._data[3] * q._data._data[3];
 	b = _mm_set_ps1(-dotP);
-	b = _mm_move_ss(q._data.m128, b); // b = (-v1v2; v2)
+	b = _mm_move_ss(q._data._m128, b); // b = (-v1v2; v2)
 	b = _mm_mul_ps(b, _mm_move_ss(_mm_load_ps1(_data._data), _mm_set_ss(1.f))); // b=(-v1v2; s2v2)
 	a = _mm_add_ps(a, b);
 
-	b = _mm_move_ss(_data.m128, _mm_setzero_ps()); // b=(0;v1);
-	auto c = _mm_move_ss(q._data.m128, _mm_setzero_ps()); // c = (0;v2);
+	b = _mm_move_ss(_data._m128, _mm_setzero_ps()); // b=(0;v1);
+	auto c = _mm_move_ss(q._data._m128, _mm_setzero_ps()); // c = (0;v2);
 	auto r = _mm_mul_ps(_mm_shuffle_ps(b, b, _MM_SHUFFLE(1, 3, 2, 0)),
 		_mm_shuffle_ps(c, c, _MM_SHUFFLE(2, 1, 3, 0)));
 	r = _mm_sub_ps(r,
@@ -159,7 +159,7 @@ Luxko::Quaternionf Luxko::Quaternionf::operator*(const Quaternionf& q) const
 	a = _mm_add_ps(a, r);
 
 	Quaternionf result;
-	result._data.m128 = a;
+	result._data._m128 = a;
 	return result;
 }
 
@@ -196,25 +196,25 @@ Luxko::Quaternionf Luxko::Quaternionf::operator*(const Quaternionf& q) const
 
 Luxko::Quaternionf& Luxko::Quaternionf::operator*=(const Quaternionf& q)noexcept
 {
-	auto a = _mm_load_ps1(&q._data.w); // a = (s2,s2,s2,s2)
-	a = _mm_move_ss(a, q._data.m128); // a = (s1, s2, s2, s2)
-	auto b = _mm_move_ss(_data.m128, q._data.m128); // b = (s2; v1)
+	auto a = _mm_load_ps1(&q._data._w); // a = (s2,s2,s2,s2)
+	a = _mm_move_ss(a, q._data._m128); // a = (s1, s2, s2, s2)
+	auto b = _mm_move_ss(_data._m128, q._data._m128); // b = (s2; v1)
 	a = _mm_mul_ps(a, b); // a = (s1s2; s2v1)
 	float dotP = _data._data[1] * q._data._data[1]
 		+ _data._data[2] * q._data._data[2] + _data._data[3] * q._data._data[3];
 	b = _mm_set_ps1(-dotP);
-	b = _mm_move_ss(q._data.m128, b); // b = (-v1v2; v2)
+	b = _mm_move_ss(q._data._m128, b); // b = (-v1v2; v2)
 	b = _mm_mul_ps(b, _mm_move_ss(_mm_load_ps1(_data._data), _mm_set_ss(1.f))); // b=(-v1v2; s2v2)
 	a = _mm_add_ps(a, b);
 
-	b = _mm_move_ss(_data.m128, _mm_setzero_ps()); // b=(0;v1);
-	auto c = _mm_move_ss(q._data.m128, _mm_setzero_ps()); // c = (0;v2);
+	b = _mm_move_ss(_data._m128, _mm_setzero_ps()); // b=(0;v1);
+	auto c = _mm_move_ss(q._data._m128, _mm_setzero_ps()); // c = (0;v2);
 	auto r = _mm_mul_ps(_mm_shuffle_ps(b, b, _MM_SHUFFLE(1, 3, 2, 0)),
 		_mm_shuffle_ps(c, c, _MM_SHUFFLE(2, 1, 3, 0)));
 	r = _mm_sub_ps(r,
 		_mm_mul_ps(_mm_shuffle_ps(b, b, _MM_SHUFFLE(2, 1, 3, 0)),
 			_mm_shuffle_ps(c, c, _MM_SHUFFLE(1, 3, 2, 0)))); // r=(0;v1.cross(v2)
 	a = _mm_add_ps(a, r);
-	_data.m128 = a;
+	_data._m128 = a;
 	return *this;
 }

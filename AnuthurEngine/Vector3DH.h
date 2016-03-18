@@ -22,7 +22,7 @@ namespace Luxko {
 	class ANUTHURMATH_API Vector3DH {
 	public:
 		friend class Transform3DH;
-		Vector3DH() { _data.w = 0.f; }
+		Vector3DH() { _data._w = 0.f; }
 		explicit Vector3DH(const Vector3f& v);
 		Vector3DH(float x, float y, float z);
 		explicit Vector3DH(const float* data);
@@ -61,9 +61,9 @@ namespace Luxko {
 
 		float& operator[](int i);
 		float operator[](int i)const;
-		float x()const { return _data.x; }
-		float y()const { return _data.y; }
-		float z()const { return _data.z; }
+		float x()const { return _data._x; }
+		float y()const { return _data._y; }
+		float z()const { return _data._z; }
 		const Vector4f& AsVector4f()const noexcept{ return _data; }
 
 	private:

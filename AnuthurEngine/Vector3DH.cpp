@@ -11,10 +11,10 @@
 
 Luxko::Vector3DH::Vector3DH(const Vector3f& v)
 {
-	_data.x = v.x;
-	_data.y = v.y;
-	_data.z = v.z;
-	_data.w = 0.f;
+	_data._x = v._x;
+	_data._y = v._y;
+	_data._z = v._z;
+	_data._w = 0.f;
 }
 
 Luxko::Vector3DH::Vector3DH(const Vector4f& d)
@@ -24,18 +24,18 @@ Luxko::Vector3DH::Vector3DH(const Vector4f& d)
 
 Luxko::Vector3DH::Vector3DH(const float* data)
 {
-	_data.x = data[0];
-	_data.y = data[1];
-	_data.z = data[2];
-	_data.w = 0.f;
+	_data._x = data[0];
+	_data._y = data[1];
+	_data._z = data[2];
+	_data._w = 0.f;
 }
 
 Luxko::Vector3DH::Vector3DH(float x, float y, float z)
 {
-	_data.x = x;
-	_data.y = y;
-	_data.z = z;
-	_data.w = 0.f;
+	_data._x = x;
+	_data._y = y;
+	_data._z = z;
+	_data._w = 0.f;
 }
 
 Luxko::Vector3DH Luxko::Vector3DH::Zero()

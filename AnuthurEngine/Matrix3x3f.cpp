@@ -18,17 +18,17 @@ Luxko::Matrix3x3f::Matrix3x3f(float x00, float x01, float x02, float x10, float 
 
 Luxko::Matrix3x3f::Matrix3x3f(const Vector3f& v1, const Vector3f& v2, const Vector3f& v3)
 {
-	_data[0] = v1.x; _data[1] = v2.x; _data[2] = v3.x;
-	_data[3] = v1.y; _data[4] = v2.y; _data[5] = v3.y;
-	_data[6] = v1.z; _data[7] = v2.z; _data[8] = v3.z;
+	_data[0] = v1._x; _data[1] = v2._x; _data[2] = v3._x;
+	_data[3] = v1._y; _data[4] = v2._y; _data[5] = v3._y;
+	_data[6] = v1._z; _data[7] = v2._z; _data[8] = v3._z;
 }
 
 Luxko::Matrix3x3f::Matrix3x3f(const Vector3f* data)
 {
 	for (int i = 0; i < 3; ++i) {
-		_data[i] = data[i].x;
-		_data[i + 3] = data[i].y;
-		_data[i + 6] = data[i].z;
+		_data[i] = data[i]._x;
+		_data[i + 3] = data[i]._y;
+		_data[i + 6] = data[i]._z;
 	}
 }
 
@@ -57,9 +57,9 @@ Luxko::Matrix3x3f Luxko::Matrix3x3f::RotationN(const Vector3f& by, float theta)
 {
 	auto s = std::sinf(theta);
 	auto c = std::cosf(theta);
-	return Matrix3x3f(c + (1.f - c)*by.x*by.x, (1.f - c)*by.x*by.y - s*by.z, (1.f - c)*by.x*by.z + s*by.y,
-		(1.f - c)*by.x*by.y + s*by.z, c + (1.f - c)*by.y*by.y, (1.f - c)*by.y*by.z - s*by.x,
-		(1.f - c)*by.x*by.z - s*by.y, (1.f - c)*by.y*by.z + s*by.x, c + (1.f - c)*by.z*by.z);
+	return Matrix3x3f(c + (1.f - c)*by._x*by._x, (1.f - c)*by._x*by._y - s*by._z, (1.f - c)*by._x*by._z + s*by._y,
+		(1.f - c)*by._x*by._y + s*by._z, c + (1.f - c)*by._y*by._y, (1.f - c)*by._y*by._z - s*by._x,
+		(1.f - c)*by._x*by._z - s*by._y, (1.f - c)*by._y*by._z + s*by._x, c + (1.f - c)*by._z*by._z);
 }
 
 Luxko::Matrix3x3f Luxko::Matrix3x3f::Rotation(const Vector3f& by, float theta)
@@ -76,9 +76,9 @@ Luxko::Matrix3x3f Luxko::Matrix3x3f::ScaleN(float by)
 
 Luxko::Matrix3x3f Luxko::Matrix3x3f::Scale(const Vector3f& by)
 {
-	return Matrix3x3f(by.x, 0.f, 0.f,
-		0.f, by.y, 0.f,
-		0.f, 0.f, by.z);
+	return Matrix3x3f(by._x, 0.f, 0.f,
+		0.f, by._y, 0.f,
+		0.f, 0.f, by._z);
 }
 
 Luxko::Matrix3x3f Luxko::Matrix3x3f::Scale(float xBy, float yBy, float zBy)

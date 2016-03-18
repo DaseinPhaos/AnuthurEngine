@@ -25,7 +25,7 @@ namespace Luxko {
 	class ANUTHURMATH_API Point3DH {
 	public:
 		friend class Transform3DH;
-		Point3DH() { _data.w = 1.f; }
+		Point3DH() { _data._w = 1.f; }
 		explicit Point3DH(const Vector3f& v);
 		Point3DH(float x, float y, float z);
 		explicit Point3DH(const float* data);
@@ -62,9 +62,9 @@ namespace Luxko {
 
 		float& operator[](int i);
 		float operator[](int i)const;
-		float x()const { return _data.x; }
-		float y()const{return _data.y;}
-		float z()const{return _data.z;}
+		float x()const { return _data._x; }
+		float y()const{return _data._y;}
+		float z()const{return _data._z;}
 		const Vector4f& AsVector4f()const noexcept{ return _data; }
 	private:
 		Point3DH(const Vector4f& d);

@@ -111,10 +111,38 @@ Luxko::Vector3DH Luxko::Transform3DH::ApplyOnNormal(const Vector3DH& v) const
 	return Vector3DH(V);
 }
 
+Luxko::Line3DH Luxko::Transform3DH::ApplyOnLine(const Line3DH& l) const
+{
+	return Line3DH((*this)*l._S, (*this)*l.Orientation());
+}
+
 Luxko::Plane3DH Luxko::Transform3DH::ApplyOnPlane(const Plane3DH& p) const
 {
 	auto F = this->Inverse()._m.Transpose();
 	return Plane3DH(F*p.AsVector4f());
+}
+
+Luxko::Triangle3DH Luxko::Transform3DH::ApplyOnTriangle(const Triangle3DH& t) const
+{
+	Triangle3DH result;
+	result._P0 = (*this)*t._P0;
+	result._P1 = (*this)*t._P1;
+	result._P2 = (*this)*t._P2;
+
+	return result;
+}
+
+Luxko::Frame3DH Luxko::Transform3DH::ApplyOnFrame(const Frame3DH& f) const
+{
+	auto nPos = (*this)*f.Position();
+	auto nUp = (*this)*f.Up();
+	auto nLook = (*this)*f.Look();
+	if (_subOrtho) {
+		return Frame3DH::FromN(nLook, nUp, nPos);
+	}
+	else {
+		return Frame3DH(nLook, nUp, nPos);
+	}
 }
 
 Luxko::Transform3DH Luxko::Transform3DH::Inverse() const

@@ -28,6 +28,8 @@ namespace Luxko {
 		Frame3DH& operator=(const Frame3DH&);
 		~Frame3DH() = default;
 
+		static Frame3DH GetStandardRightHandFrame();
+
 		const Vector3DH& Look()const { return _look; }
 		const Vector3DH& Up()const { return _up; }
 		const Vector3DH& Right()const { return _right; }

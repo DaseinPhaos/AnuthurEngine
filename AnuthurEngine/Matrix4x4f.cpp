@@ -25,10 +25,10 @@ Luxko::Matrix4x4f::Matrix4x4f(const float* data)
 	//	m128[i] = _mm_loadu_ps(data + i);
 	//}
 
-	m128[0] = _mm_loadu_ps(data);
-	m128[1] = _mm_loadu_ps(data+4);
-	m128[2] = _mm_loadu_ps(data+8);
-	m128[3] = _mm_loadu_ps(data+12);
+	_m128[0] = _mm_loadu_ps(data);
+	_m128[1] = _mm_loadu_ps(data+4);
+	_m128[2] = _mm_loadu_ps(data+8);
+	_m128[3] = _mm_loadu_ps(data+12);
 	//std::memcpy(_data, data, sizeof(Matrix4x4f));
 }
 
@@ -101,10 +101,10 @@ Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator=(const Matrix4x4f& m)noexcept
 		_mm_storeu_ps(_data + i * 4, m.m128[i]);
 	}*/
 	
-	_mm_storeu_ps(_data , m.m128[0]);
-	_mm_storeu_ps(_data + 4, m.m128[1]);
-	_mm_storeu_ps(_data + 8, m.m128[2]);
-	_mm_storeu_ps(_data + 12, m.m128[3]);
+	_mm_storeu_ps(_data , m._m128[0]);
+	_mm_storeu_ps(_data + 4, m._m128[1]);
+	_mm_storeu_ps(_data + 8, m._m128[2]);
+	_mm_storeu_ps(_data + 12, m._m128[3]);
 	/*std::memcpy(_data, m._data, sizeof(Matrix4x4f));*/
 	return *this;
 }
@@ -115,10 +115,10 @@ Luxko::Matrix4x4f::Matrix4x4f(const Matrix4x4f& m)noexcept
 	//	_mm_storeu_ps(_data + i * 4, m.m128[i]);
 	//}
 
-	_mm_storeu_ps(_data, m.m128[0]);
-	_mm_storeu_ps(_data + 4, m.m128[1]);
-	_mm_storeu_ps(_data + 8, m.m128[2]);
-	_mm_storeu_ps(_data + 12, m.m128[3]);
+	_mm_storeu_ps(_data, m._m128[0]);
+	_mm_storeu_ps(_data + 4, m._m128[1]);
+	_mm_storeu_ps(_data + 8, m._m128[2]);
+	_mm_storeu_ps(_data + 12, m._m128[3]);
 
 	/*std::memcpy(_data, m._data, sizeof(Matrix4x4f));*/
 }
@@ -150,9 +150,9 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::RotationN(const Vector3f& by, float theta)
 {
 	auto s = std::sinf(theta);
 	auto c = std::cosf(theta);
-	return Matrix4x4f(c + (1.f - c)*by.x*by.x, (1.f - c)*by.x*by.y - s*by.z, (1.f - c)*by.x*by.z + s*by.y, 0.f,
-		(1.f - c)*by.x*by.y + s*by.z, c + (1.f - c)*by.y*by.y, (1.f - c)*by.y*by.z - s*by.x, 0.f,
-		(1.f - c)*by.x*by.z - s*by.y, (1.f - c)*by.y*by.z + s*by.x, c + (1.f - c)*by.z*by.z, 0.f,
+	return Matrix4x4f(c + (1.f - c)*by._x*by._x, (1.f - c)*by._x*by._y - s*by._z, (1.f - c)*by._x*by._z + s*by._y, 0.f,
+		(1.f - c)*by._x*by._y + s*by._z, c + (1.f - c)*by._y*by._y, (1.f - c)*by._y*by._z - s*by._x, 0.f,
+		(1.f - c)*by._x*by._z - s*by._y, (1.f - c)*by._y*by._z + s*by._x, c + (1.f - c)*by._z*by._z, 0.f,
 		0.f, 0.f, 0.f, 1.f);
 }
 
@@ -171,9 +171,9 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::ScaleN(float by)
 
 Luxko::Matrix4x4f Luxko::Matrix4x4f::Scale(const Vector3f& by)
 {
-	return Matrix4x4f(by.x, 0.f, 0.f, 0.f,
-		0.f, by.y, 0.f, 0.f,
-		0.f, 0.f, by.z, 0.f,
+	return Matrix4x4f(by._x, 0.f, 0.f, 0.f,
+		0.f, by._y, 0.f, 0.f,
+		0.f, 0.f, by._z, 0.f,
 		0.f, 0.f, 0.f, 1.f);
 }
 
@@ -187,9 +187,9 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::Scale(float xBy, float yBy, float zBy)
 
 Luxko::Matrix4x4f Luxko::Matrix4x4f::Translation(const Vector3f& by)
 {
-	return Matrix4x4f(1.f, 0.f, 0.f, by.x,
-		0.f, 1.f, 0.f, by.y,
-		0.f, 0.f, 1.f, by.z,
+	return Matrix4x4f(1.f, 0.f, 0.f, by._x,
+		0.f, 1.f, 0.f, by._y,
+		0.f, 0.f, 1.f, by._z,
 		0.f, 0.f, 0.f, 1.f);
 }
 
@@ -208,46 +208,46 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::Projection(float n, float f, float l, float
 		0.f, 0.f, f + n, 2.f*n*f,
 		0.f, 0.f, 1.f, 0.f);
 	auto m_rml = _mm_set_ps1(l - r);
-	result.m128[0] = _mm_div_ps(result.m128[0], m_rml);
+	result._m128[0] = _mm_div_ps(result._m128[0], m_rml);
 	auto m_tmb = _mm_set_ps1(b - t);
-	result.m128[1] = _mm_div_ps(result.m128[1], m_tmb);
+	result._m128[1] = _mm_div_ps(result._m128[1], m_tmb);
 	auto fmn = _mm_set_ps1(f - n);
-	result.m128[2] = _mm_div_ps(result.m128[2], fmn);
+	result._m128[2] = _mm_div_ps(result._m128[2], fmn);
 	return result;
 }
 
 float Luxko::Matrix4x4f::Determinant() const noexcept
 {
 	auto a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	auto b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	a = _mm_mul_ps(m128[0], a);
+	a = _mm_mul_ps(_m128[0], a);
 	return a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
 }
 
@@ -317,138 +317,138 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::Inverse() const
 	//return InverseTranspose().Transpose();
 	Matrix4x4f resultT;
 	auto a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	auto b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	auto c = _mm_mul_ps(m128[0], a);
+	auto c = _mm_mul_ps(_m128[0], a);
 	float d = c.m128_f32[0] + c.m128_f32[1] + c.m128_f32[2] + c.m128_f32[3];
 	auto det = _mm_load_ps1(&d);
-	resultT.m128[0] = _mm_div_ps(a, det);
+	resultT._m128[0] = _mm_div_ps(a, det);
 
 	//**********************************************************************
 
 	a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	resultT.m128[1] = _mm_div_ps(a, det);
+	resultT._m128[1] = _mm_div_ps(a, det);
 
 	//**********************************************************************
 
 	a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	resultT.m128[2] = _mm_div_ps(a, det);
+	resultT._m128[2] = _mm_div_ps(a, det);
 
 	//**********************************************************************
 	a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2))));
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3))));
 
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	resultT.m128[3] = _mm_div_ps(a, det);
+	resultT._m128[3] = _mm_div_ps(a, det);
 	return resultT.Transpose();
 }
 
@@ -456,138 +456,138 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::InverseTranspose() const
 {
 	Matrix4x4f resultT;
 	auto a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	auto b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	auto c = _mm_mul_ps(m128[0], a);
+	auto c = _mm_mul_ps(_m128[0], a);
 	float d = c.m128_f32[0] + c.m128_f32[1] + c.m128_f32[2] + c.m128_f32[3];
 	auto det = _mm_load_ps1(&d);
-	resultT.m128[0] = _mm_div_ps(a, det);
+	resultT._m128[0] = _mm_div_ps(a, det);
 
 	//**********************************************************************
 
 	a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	resultT.m128[1] = _mm_div_ps(a, det);
+	resultT._m128[1] = _mm_div_ps(a, det);
 
 	//**********************************************************************
 
 	a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[3], m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[3], _m128[3], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	resultT.m128[2] = _mm_div_ps(a, det);
+	resultT._m128[2] = _mm_div_ps(a, det);
 
 	//**********************************************************************
 	a = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2))));
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_add_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(0, 3, 0, 3))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(2, 0, 3, 1)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(1, 1, 2, 2)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(0, 3, 0, 3))));
 
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(2, 0, 3, 1))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(1, 1, 2, 2)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(0, 3, 0, 3)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(2, 0, 3, 1))));
 	a = _mm_sub_ps(a, b);
 	b = _mm_mul_ps(
-		_mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
-		_mm_mul_ps(_mm_shuffle_ps(m128[1], m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
-			_mm_shuffle_ps(m128[2], m128[2], _MM_SHUFFLE(1, 1, 2, 2))));
+		_mm_shuffle_ps(_m128[0], _m128[0], _MM_SHUFFLE(0, 3, 0, 3)),
+		_mm_mul_ps(_mm_shuffle_ps(_m128[1], _m128[1], _MM_SHUFFLE(2, 0, 3, 1)),
+			_mm_shuffle_ps(_m128[2], _m128[2], _MM_SHUFFLE(1, 1, 2, 2))));
 	a = _mm_sub_ps(a, b);
-	resultT.m128[3] = _mm_div_ps(a, det);
+	resultT._m128[3] = _mm_div_ps(a, det);
 	return resultT;
 }
 
@@ -597,10 +597,10 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::operator+(const Matrix4x4f& m) const
 	//for (int i = 0; i < 4; ++i) {
 	//	result.m128[i] = _mm_add_ps(m128[i], m.m128[i]);
 	//}
-	result.m128[0] = _mm_add_ps(m128[0], m.m128[0]);
-	result.m128[1] = _mm_add_ps(m128[1], m.m128[1]);
-	result.m128[2] = _mm_add_ps(m128[2], m.m128[2]);
-	result.m128[3] = _mm_add_ps(m128[3], m.m128[3]);
+	result._m128[0] = _mm_add_ps(_m128[0], m._m128[0]);
+	result._m128[1] = _mm_add_ps(_m128[1], m._m128[1]);
+	result._m128[2] = _mm_add_ps(_m128[2], m._m128[2]);
+	result._m128[3] = _mm_add_ps(_m128[3], m._m128[3]);
 	return result;
 }
 
@@ -610,10 +610,10 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::operator-(const Matrix4x4f& m) const
 	//for (int i = 0; i < 4; ++i) {
 	//	result.m128[i] = _mm_sub_ps(m128[i], m.m128[i]);
 	//}
-	result.m128[0] = _mm_sub_ps(m128[0], m.m128[0]);
-	result.m128[1] = _mm_sub_ps(m128[1], m.m128[1]);
-	result.m128[2] = _mm_sub_ps(m128[2], m.m128[2]);
-	result.m128[3] = _mm_sub_ps(m128[3], m.m128[3]);
+	result._m128[0] = _mm_sub_ps(_m128[0], m._m128[0]);
+	result._m128[1] = _mm_sub_ps(_m128[1], m._m128[1]);
+	result._m128[2] = _mm_sub_ps(_m128[2], m._m128[2]);
+	result._m128[3] = _mm_sub_ps(_m128[3], m._m128[3]);
 	return result;
 }
 
@@ -624,10 +624,10 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::operator*(float x) const
 	//for (int i = 0; i < 4; ++i) {
 	//	result.m128[i] = _mm_mul_ps(m128[i], f);
 	//}
-	result.m128[0] = _mm_mul_ps(m128[0], f);
-	result.m128[1] = _mm_mul_ps(m128[1], f);
-	result.m128[2] = _mm_mul_ps(m128[2], f);
-	result.m128[3] = _mm_mul_ps(m128[3], f);
+	result._m128[0] = _mm_mul_ps(_m128[0], f);
+	result._m128[1] = _mm_mul_ps(_m128[1], f);
+	result._m128[2] = _mm_mul_ps(_m128[2], f);
+	result._m128[3] = _mm_mul_ps(_m128[3], f);
 	return result;
 }
 
@@ -635,10 +635,10 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::operator/(float x) const
 {
 	auto f = _mm_load_ps1(&x);
 	Matrix4x4f result;
-	result.m128[0] = _mm_div_ps(m128[0], f);
-	result.m128[1] = _mm_div_ps(m128[1], f);
-	result.m128[2] = _mm_div_ps(m128[2], f);
-	result.m128[3] = _mm_div_ps(m128[3], f);
+	result._m128[0] = _mm_div_ps(_m128[0], f);
+	result._m128[1] = _mm_div_ps(_m128[1], f);
+	result._m128[2] = _mm_div_ps(_m128[2], f);
+	result._m128[3] = _mm_div_ps(_m128[3], f);
 	return result;
 }
 
@@ -650,13 +650,13 @@ Luxko::Vector4f Luxko::Matrix4x4f::operator*(const Vector4f& v) const
 	//	result[i] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
 	//}
 
-	auto a = _mm_mul_ps(m128[0], v.m128);
+	auto a = _mm_mul_ps(_m128[0], v._m128);
 	result[0] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
-	a = _mm_mul_ps(m128[1], v.m128);
+	a = _mm_mul_ps(_m128[1], v._m128);
 	result[1] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
-	a = _mm_mul_ps(m128[2], v.m128);
+	a = _mm_mul_ps(_m128[2], v._m128);
 	result[2] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
-	a = _mm_mul_ps(m128[3], v.m128);
+	a = _mm_mul_ps(_m128[3], v._m128);
 	result[3] = a.m128_f32[0] + a.m128_f32[1] + a.m128_f32[2] + a.m128_f32[3];
 
 	return result;
@@ -667,15 +667,15 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::operator*(const Matrix4x4f& m) const
 	//Matrix4x4f mT = m.Transpose();
 	Matrix4x4f result;
 	for (int i = 0; i < 4; ++i) {
-		auto a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(0, 0, 0, 0));
-		auto b = _mm_mul_ps(a, m.m128[0]);
+		auto a = _mm_shuffle_ps(_m128[i], _m128[i], _MM_SHUFFLE(0, 0, 0, 0));
+		auto b = _mm_mul_ps(a, m._m128[0]);
 
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(1, 1, 1, 1));
-		b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[1]));
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(2, 2, 2, 2));
-		b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[2]));
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(3, 3, 3, 3));
-		result.m128[i] = _mm_add_ps(b, _mm_mul_ps(a, m.m128[3]));
+		a = _mm_shuffle_ps(_m128[i], _m128[i], _MM_SHUFFLE(1, 1, 1, 1));
+		b = _mm_add_ps(b, _mm_mul_ps(a, m._m128[1]));
+		a = _mm_shuffle_ps(_m128[i], _m128[i], _MM_SHUFFLE(2, 2, 2, 2));
+		b = _mm_add_ps(b, _mm_mul_ps(a, m._m128[2]));
+		a = _mm_shuffle_ps(_m128[i], _m128[i], _MM_SHUFFLE(3, 3, 3, 3));
+		result._m128[i] = _mm_add_ps(b, _mm_mul_ps(a, m._m128[3]));
 	}
 
 	/*auto a = _mm_shuffle_ps(m128[0], m128[0], _MM_SHUFFLE(0, 0, 0, 0));
@@ -774,10 +774,10 @@ Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator+=(const Matrix4x4f& m)noexcept
 	//for (int i = 0; i < 4; ++i) {
 	//	m128[i] = _mm_add_ps(m128[i], m.m128[i]);
 	//}
-	m128[0] = _mm_add_ps(m128[0], m.m128[0]);
-	m128[1] = _mm_add_ps(m128[1], m.m128[1]);
-	m128[2] = _mm_add_ps(m128[2], m.m128[2]);
-	m128[3] = _mm_add_ps(m128[3], m.m128[3]);
+	_m128[0] = _mm_add_ps(_m128[0], m._m128[0]);
+	_m128[1] = _mm_add_ps(_m128[1], m._m128[1]);
+	_m128[2] = _mm_add_ps(_m128[2], m._m128[2]);
+	_m128[3] = _mm_add_ps(_m128[3], m._m128[3]);
 	return *this;
 }
 
@@ -787,10 +787,10 @@ Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator-=(const Matrix4x4f& m)noexcept
 	//	m128[i] = _mm_sub_ps(m128[i], m.m128[i]);
 	//}
 
-	m128[0] = _mm_sub_ps(m128[0], m.m128[0]);
-	m128[1] = _mm_sub_ps(m128[1], m.m128[1]);
-	m128[2] = _mm_sub_ps(m128[2], m.m128[2]);
-	m128[3] = _mm_sub_ps(m128[3], m.m128[3]);
+	_m128[0] = _mm_sub_ps(_m128[0], m._m128[0]);
+	_m128[1] = _mm_sub_ps(_m128[1], m._m128[1]);
+	_m128[2] = _mm_sub_ps(_m128[2], m._m128[2]);
+	_m128[3] = _mm_sub_ps(_m128[3], m._m128[3]);
 	return *this;
 }
 
@@ -801,10 +801,10 @@ Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator/=(float x)noexcept
 	//	m128[i] = _mm_div_ps(m128[i], f);
 	//}
 
-	m128[0] = _mm_div_ps(m128[0], f);
-	m128[1] = _mm_div_ps(m128[1], f);
-	m128[2] = _mm_div_ps(m128[2], f);
-	m128[3] = _mm_div_ps(m128[3], f);
+	_m128[0] = _mm_div_ps(_m128[0], f);
+	_m128[1] = _mm_div_ps(_m128[1], f);
+	_m128[2] = _mm_div_ps(_m128[2], f);
+	_m128[3] = _mm_div_ps(_m128[3], f);
 	return *this;
 }
 
@@ -815,25 +815,25 @@ Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator*=(float x)noexcept
 	//	m128[i] = _mm_mul_ps(m128[i], f);
 	//}
 
-	m128[0] = _mm_mul_ps(m128[0], f);
-	m128[1] = _mm_mul_ps(m128[1], f);
-	m128[2] = _mm_mul_ps(m128[2], f);
-	m128[3] = _mm_mul_ps(m128[3], f);
+	_m128[0] = _mm_mul_ps(_m128[0], f);
+	_m128[1] = _mm_mul_ps(_m128[1], f);
+	_m128[2] = _mm_mul_ps(_m128[2], f);
+	_m128[3] = _mm_mul_ps(_m128[3], f);
 	return *this;
 }
 
 Luxko::Matrix4x4f& Luxko::Matrix4x4f::operator*=(const Matrix4x4f& m)noexcept
 {
 	for (int i = 0; i < 4; ++i) {
-		auto a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(0, 0, 0, 0));
-		auto b = _mm_mul_ps(a, m.m128[0]);
+		auto a = _mm_shuffle_ps(_m128[i], _m128[i], _MM_SHUFFLE(0, 0, 0, 0));
+		auto b = _mm_mul_ps(a, m._m128[0]);
 
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(1, 1, 1, 1));
-		b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[1]));
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(2, 2, 2, 2));
-		b = _mm_add_ps(b, _mm_mul_ps(a, m.m128[2]));
-		a = _mm_shuffle_ps(m128[i], m128[i], _MM_SHUFFLE(3, 3, 3, 3));
-		m128[i] = _mm_add_ps(b, _mm_mul_ps(a, m.m128[3]));
+		a = _mm_shuffle_ps(_m128[i], _m128[i], _MM_SHUFFLE(1, 1, 1, 1));
+		b = _mm_add_ps(b, _mm_mul_ps(a, m._m128[1]));
+		a = _mm_shuffle_ps(_m128[i], _m128[i], _MM_SHUFFLE(2, 2, 2, 2));
+		b = _mm_add_ps(b, _mm_mul_ps(a, m._m128[2]));
+		a = _mm_shuffle_ps(_m128[i], _m128[i], _MM_SHUFFLE(3, 3, 3, 3));
+		_m128[i] = _mm_add_ps(b, _mm_mul_ps(a, m._m128[3]));
 	}
 	return *this;
 }
@@ -845,10 +845,10 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::operator-() const
 	//	result._data[i] = -_data[i];
 	//}
 	auto a = _mm_set_ps1(-1.f);
-	result.m128[0] = _mm_mul_ps(a, m128[0]);
-	result.m128[1] = _mm_mul_ps(a, m128[1]);
-	result.m128[2] = _mm_mul_ps(a, m128[2]);
-	result.m128[3] = _mm_mul_ps(a, m128[3]);
+	result._m128[0] = _mm_mul_ps(a, _m128[0]);
+	result._m128[1] = _mm_mul_ps(a, _m128[1]);
+	result._m128[2] = _mm_mul_ps(a, _m128[2]);
+	result._m128[3] = _mm_mul_ps(a, _m128[3]);
 	return result;
 }
 

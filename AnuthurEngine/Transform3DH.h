@@ -18,6 +18,8 @@
 #include "Line3DH.h"
 #include "Plane3DH.h"
 #include "Quaternionf.h"
+#include "Triangle3DH.h"
+#include "Frame3DH.h"
 
 namespace Luxko {
 	class ANUTHURMATH_API Transform3DH {
@@ -42,8 +44,13 @@ namespace Luxko {
 		Transform3DH& operator*=(const Transform3DH& t)noexcept;
 		Vector3DH operator*(const Vector3DH& v)const;
 		Point3DH operator*(const Point3DH& v)const;
+
 		Vector3DH ApplyOnNormal(const Vector3DH& v)const;
+
+		Line3DH ApplyOnLine(const Line3DH& l)const;
 		Plane3DH ApplyOnPlane(const Plane3DH& p)const;
+		Triangle3DH ApplyOnTriangle(const Triangle3DH& t)const;
+		Frame3DH ApplyOnFrame(const Frame3DH& f)const;
 
 		bool operator==(const Transform3DH& t)const;
 

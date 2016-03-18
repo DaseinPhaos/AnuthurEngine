@@ -11,17 +11,17 @@
 
 Luxko::Line3DH::Line3DH(const Point3DH& p, const Vector3DH& v)
 {
-	S = p;
-	V = v.Normalize();
+	_S = p;
+	_V = v.Normalize();
 }
 
 bool Luxko::Line3DH::operator==(const Line3DH& l) const
 {
-	if (l.V != V) {
+	if (l._V != _V) {
 		return false;
 	}
 
-	if ((S - l.S).Normalize() == V) {
+	if ((_S - l._S).Normalize() == _V) {
 		return true;
 	}
 	return false;
@@ -34,14 +34,14 @@ Luxko::Point3DH Luxko::Line3DH::Intersect(const Plane3DH& p) const
 
 void Luxko::Line3DH::InitializeN(const Point3DH& p, const Vector3DH& v)
 {
-	S = p;
-	V = v;
+	_S = p;
+	_V = v;
 }
 
 float Luxko::Line3DH::Distance(const Point3DH& p) const noexcept
 {
-	auto sp = p - S;
-	return (sp - (sp*V)*V).Length();
+	auto sp = p - _S;
+	return (sp - (sp*_V)*_V).Length();
 }
 
 float Luxko::Line3DH::Distance(const Plane3DH& p) const noexcept
@@ -52,32 +52,32 @@ float Luxko::Line3DH::Distance(const Plane3DH& p) const noexcept
 float Luxko::Line3DH::Distance(const Line3DH& l) const noexcept
 {
 	if (Parallel(l)) {
-		return Distance(l.S);
+		return Distance(l._S);
 	}
 
-	auto M00 = -(l.V*l.V);
-	auto M01 = V*l.V;
+	auto M00 = -(l._V*l._V);
+	auto M01 = _V*l._V;
 	auto M10 = -M01;
-	auto M11 = V*V;
-	auto v0 = (l.S - S)*V;
-	auto v1 = (l.S - S)*l.V;
+	auto M11 = _V*_V;
+	auto v0 = (l._S - _S)*_V;
+	auto v1 = (l._S - _S)*l._V;
 	auto det = M01*M01 + M11*M00;
 	auto t0 = (M00*v0 + M01*v1) / det;
-	auto P0 = S + t0*V;
+	auto P0 = _S + t0*_V;
 	auto t1 = (M10*v0 + M11*v1) / det;
-	auto P1 = l.S + t1 * l.V;
+	auto P1 = l._S + t1 * l._V;
 	return (P1 - P0).Length();
 }
 
 bool Luxko::Line3DH::Contain(const Point3DH& p) const noexcept
 {
-	auto v = (p - S).Normalize();
-	return v == V || -v == V;
+	auto v = (p - _S).Normalize();
+	return v == _V || -v == _V;
 }
 
 bool Luxko::Line3DH::Parallel(const Plane3DH& p) const noexcept
 {
-	auto dot = V*p.GetNormal();
+	auto dot = _V*p.GetNormal();
 	if (AlmostEqualRelativeAndAbs(dot, 0.f)) {
 		return true;
 	}
@@ -86,15 +86,15 @@ bool Luxko::Line3DH::Parallel(const Plane3DH& p) const noexcept
 
 bool Luxko::Line3DH::Parallel(const Vector3DH& v) const noexcept
 {
-	return V.Parallel(v);
+	return _V.Parallel(v);
 }
 
 bool Luxko::Line3DH::Parallel(const Line3DH& l) const noexcept
 {
-	if (V == l.V) {
+	if (_V == l._V) {
 		return true;
 	}
-	if (-V == l.V) {
+	if (-_V == l._V) {
 		return true;
 	}
 	return false;
@@ -116,7 +116,7 @@ bool Luxko::Line3DH::skew(const Line3DH& l) const noexcept
 
 bool Luxko::Line3DH::Perpendicular(const Line3DH& l) const noexcept
 {
-	auto dot = V*l.V;
+	auto dot = _V*l._V;
 	if (AlmostEqualRelativeAndAbs(dot, 0.f)) {
 		return true;
 	}
@@ -125,20 +125,20 @@ bool Luxko::Line3DH::Perpendicular(const Line3DH& l) const noexcept
 
 Luxko::Point3DH Luxko::Line3DH::operator()(float t) const
 {
-	return S + t*V;
+	return _S + t*_V;
 }
 
 bool Luxko::Line3DH::Perpendicular(const Vector3DH& v) const noexcept
 {
-	return AlmostEqualRelativeAndAbs(V*v, 0.f);
+	return AlmostEqualRelativeAndAbs(_V*v, 0.f);
 }
 
 bool Luxko::Line3DH::Perpendicular(const Plane3DH& p) const noexcept
 {
-	if (V == p.GetNormal()) {
+	if (_V == p.GetNormal()) {
 		return true;
 	}
-	if (-V == p.GetNormal()) {
+	if (-_V == p.GetNormal()) {
 		return true;
 	}
 	return false;
@@ -146,10 +146,10 @@ bool Luxko::Line3DH::Perpendicular(const Plane3DH& p) const noexcept
 
 void Luxko::Line3DH::Orientation(const Vector3DH& v)
 {
-	V = v.Normalize();
+	_V = v.Normalize();
 }
 
 void Luxko::Line3DH::OrientationN(const Vector3DH& vN)
 {
-	V = vN;
+	_V = vN;
 }

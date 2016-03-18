@@ -16,6 +16,16 @@ Luxko::Frame3DH::Frame3DH(const Vector3DH& look, const Vector3DH& up, const Poin
 
 }
 
+Luxko::Frame3DH Luxko::Frame3DH::GetStandardRightHandFrame()
+{
+	Frame3DH r;
+	r._look = Vector3DH(0.f, 0.f, -1.f);
+	r._right = Vector3DH(1.f, 0.f, 0.f);
+	r._up = Vector3DH(0.f, 1.f, 0.f);
+	r._Pos = Point3DH(0.f, 0.f, 0.f);
+	return r;
+}
+
 Luxko::Frame3DH& Luxko::Frame3DH::operator=(const Frame3DH& f)
 {
 	_data = f._data;

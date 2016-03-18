@@ -148,6 +148,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\AnuthurEngine\Box.h" />
+    <ClInclude Include="..\AnuthurEngine\Cylinder.h" />
+    <ClInclude Include="..\AnuthurEngine\Ellipsoid.h" />
+    <ClInclude Include="..\AnuthurEngine\OrientedObject.h" />
     <ClInclude Include="..\AnuthurEngine\FloatsComparision.h" />
     <ClInclude Include="..\AnuthurEngine\Frame3DH.h" />
     <ClInclude Include="..\AnuthurEngine\Line3DH.h" />
@@ -158,13 +162,18 @@
     <ClInclude Include="..\AnuthurEngine\Point3DH.h" />
     <ClInclude Include="..\AnuthurEngine\Quaternionf.h" />
     <ClInclude Include="..\AnuthurEngine\RootFinding.h" />
+    <ClInclude Include="..\AnuthurEngine\Sphere.h" />
     <ClInclude Include="..\AnuthurEngine\Transform3DH.h" />
+    <ClInclude Include="..\AnuthurEngine\Triangle3DH.h" />
     <ClInclude Include="..\AnuthurEngine\ValResult.h" />
     <ClInclude Include="..\AnuthurEngine\Vector3DH.h" />
     <ClInclude Include="..\AnuthurEngine\Vector3f.h" />
     <ClInclude Include="..\AnuthurEngine\Vector4f.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\AnuthurEngine\Box.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Cylinder.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Ellipsoid.cpp" />
     <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp" />
     <ClCompile Include="..\AnuthurEngine\Frame3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\Line3DH.cpp" />
@@ -175,7 +184,9 @@
     <ClCompile Include="..\AnuthurEngine\Plane3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\Point3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\RootFinding.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Sphere.cpp" />
     <ClCompile Include="..\AnuthurEngine\Transform3DH.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Triangle3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\Vector3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\Vector3f.cpp" />
     <ClCompile Include="..\AnuthurEngine\Vector4f.cpp" />
