@@ -25,6 +25,14 @@ namespace Luxko {
 
 		virtual ~OrientedObject(){}
 
+		Point3DH ToObjectSpace(const Point3DH& p)const {
+			auto OST = GetObjectSpaceTransform();
+			return OST*p;
+		}
+		Vector3DH ToObjectSpace(const Vector3DH& v)const {
+			auto OST = GetObjectSpaceTransform();
+			return OST*v;
+		}
 
 		Point3DH GetPosition()const { return _Orientation.Position(); }
 		Vector3DH GetLookDirection()const { return _Orientation.Look(); }
@@ -37,4 +45,5 @@ namespace Luxko {
 		// Data members
 		Frame3DH _Orientation;
 	};
+
 }

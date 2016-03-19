@@ -31,8 +31,20 @@ namespace Luxko {
 
 		virtual ~Cylinder() = default;
 
-		bool FrontIntersect(const Line3DH& line, Point3DH& at)const;
+		bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const;
+		
+		bool Contain(const Point3DH& p)const;
+		bool Contain(float x, float y, float z)const { return Contain(Point3DH(x, y, z)); }
+		
 
+		// (x, y, z) should lie on the lateral surface.
+		Vector3DH GetNormalAt_ObjectSpace(float x, float y, float z)const;
+		Vector3DH GetNormalAt_ObjectSpace(const Point3DH& p)const { return GetNormalAt_ObjectSpace(p.x(), p.y(), p.z()); }
+
+		Vector3DH GetNormalAt(float x, float y, float z)const { return GetNormalAt(Point3DH(x, y, z)); }
+		Vector3DH GetNormalAt(const Point3DH& p)const { return GetNormalAt_ObjectSpace(ToObjectSpace(p)); }
+
+		
 		// data members
 		union {
 			struct {

@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\AnuthurEngine\Box.h" />
+    <ClInclude Include="..\AnuthurEngine\Cone.h" />
     <ClInclude Include="..\AnuthurEngine\Cylinder.h" />
     <ClInclude Include="..\AnuthurEngine\Ellipsoid.h" />
     <ClInclude Include="..\AnuthurEngine\OrientedObject.h" />
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\Box.cpp" />
+    <ClCompile Include="..\AnuthurEngine\Cone.cpp" />
     <ClCompile Include="..\AnuthurEngine\Cylinder.cpp" />
     <ClCompile Include="..\AnuthurEngine\Ellipsoid.cpp" />
     <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp" />
@@ -181,6 +183,7 @@
     <ClCompile Include="..\AnuthurEngine\Matrix3x3f.cpp" />
     <ClCompile Include="..\AnuthurEngine\Matrix4x4f.cpp" />
     <None Include="..\AnuthurEngine\Quaternionf.cpp" />
+    <ClCompile Include="..\AnuthurEngine\OrientedObject.cpp" />
     <ClCompile Include="..\AnuthurEngine\Plane3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\Point3DH.cpp" />
     <ClCompile Include="..\AnuthurEngine\RootFinding.cpp" />

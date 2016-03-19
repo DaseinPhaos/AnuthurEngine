@@ -36,7 +36,7 @@ namespace Luxko {
 		//using RayBoxIntersectionResult = ValResult<float, 2U>;
 		//RayBoxIntersectionResult Intersect(const Line3DH& line)const;
 
-		bool FrontIntersect(const Line3DH& line, Point3DH& at)const;
+		bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const;
 
 		// Data members
 		union {

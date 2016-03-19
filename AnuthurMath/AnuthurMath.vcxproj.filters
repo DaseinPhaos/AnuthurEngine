@@ -96,6 +96,9 @@
     <ClInclude Include="..\AnuthurEngine\Cylinder.h">
       <Filter>Headers\Object</Filter>
     </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Cone.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp">
@@ -150,6 +153,12 @@
       <Filter>Source Files\Object</Filter>
     </ClCompile>
     <ClCompile Include="..\AnuthurEngine\Cylinder.cpp">
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\OrientedObject.cpp">
+      <Filter>Source Files\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\Cone.cpp">
       <Filter>Source Files\Object</Filter>
     </ClCompile>
   </ItemGroup>

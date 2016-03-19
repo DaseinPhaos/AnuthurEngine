@@ -19,7 +19,7 @@
 //}
 
 
-bool Luxko::Box::FrontIntersect(const Line3DH& line, Point3DH& at) const
+bool Luxko::Box::GetFirstIfIntersect(const Line3DH& line, Point3DH& at) const
 {
 	auto ObjectSpaceTransform = GetObjectSpaceTransform();
 	auto lineOS = ObjectSpaceTransform.ApplyOnLine(line);
