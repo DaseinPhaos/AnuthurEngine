@@ -84,3 +84,35 @@ bool Luxko::Box::GetFirstIfIntersect(const Line3DH& line, Point3DH& at) const
 
 	return false;
 }
+
+bool Luxko::Box::Contain(const Point3DH& p) const
+{
+	return p.x() >= 0.f && p.x() <= _width
+		&& p.y() >= 0.f && p.y() <= _height
+		&& p.z() <= 0.f && p.z() >= -_length;
+
+}
+
+Luxko::Vector3DH Luxko::Box::GetNormalAt_ObjectSpace(float x, float y, float z) const
+{
+	if (AlmostEqualRelativeAndAbs(x, 0.f)) {
+		return Vector3DH(-1.f, 0.f, 0.f);
+	}
+	if (AlmostEqualRelativeAndAbs(x, _width)) {
+		return Vector3DH(1.f, 0.f, 0.f);
+	}
+	if (AlmostEqualRelativeAndAbs(y, 0.f)) {
+		return Vector3DH(0.f, -1.f, 0.f);
+	}
+	if (AlmostEqualRelativeAndAbs(y, _height)) {
+		return Vector3DH(0.f, 1.f, 0.f);
+	}
+	if (AlmostEqualRelativeAndAbs(z, 0.f)) {
+		return Vector3DH(0.f, 0.f, 1.f);
+	}
+	if (AlmostEqualRelativeAndAbs(z, _length)) {
+		return Vector3DH(0.f, 0.f, -1.f);
+	}
+
+	throw "Point ain't on box!";
+}

@@ -20,13 +20,13 @@
 #include "ValResult.h"
 
 namespace Luxko {
-	class ANUTHURMATH_API Box : public OrientedObject {
+	class ANUTHURMATH_API Box : public ConvexObject {
 	public:
 		Box() {}
 		Box(float width, float height, float length, const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
-			:OrientedObject(f), _width(width), _height(height), _length(length) {}
+			:ConvexObject(f), _width(width), _height(height), _length(length) {}
 		explicit Box(const Vector3f& data, const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
-			:_data(data),OrientedObject(f) {}
+			:_data(data),ConvexObject(f) {}
 		Box(const Box&) = default;
 		Box& operator=(const Box&) = default;
 		virtual ~Box() = default;
@@ -36,7 +36,11 @@ namespace Luxko {
 		//using RayBoxIntersectionResult = ValResult<float, 2U>;
 		//RayBoxIntersectionResult Intersect(const Line3DH& line)const;
 
-		bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const;
+		virtual bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const override;
+
+		virtual bool Contain(const Point3DH& p)const override;
+
+		virtual Vector3DH GetNormalAt_ObjectSpace(float x, float y, float z)const override;
 
 		// Data members
 		union {

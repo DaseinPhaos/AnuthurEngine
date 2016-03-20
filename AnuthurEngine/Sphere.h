@@ -18,28 +18,25 @@
 #include "Line3DH.h"
 
 namespace Luxko {
-	class ANUTHURMATH_API Sphere : public OrientedObject {
+	class ANUTHURMATH_API Sphere : public ConvexObject {
 	public:
 		Sphere(){}
-		Sphere(float r,const Frame3DH& f = Frame3DH::GetStandardRightHandFrame()):_r(r),OrientedObject(f) {}
+		Sphere(float r,const Frame3DH& f = Frame3DH::GetStandardRightHandFrame()):_r(r),ConvexObject(f) {}
 		Sphere(const Sphere&) = default;
 		Sphere& operator=(const Sphere&) = default;
 		virtual ~Sphere() = default;
 
 
-		bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const;
+		virtual bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const override;
 
 
-		bool Contain(const Point3DH& p)const;
-		bool Contain(float x, float y, float z)const { return Contain(Point3DH(x, y, z)); }
+		virtual bool Contain(const Point3DH& p)const override;
+		
 
 
 		// (x, y, z) should lie on the ellipsoid.
-		Vector3DH GetNormalAt_ObjectSpace(float x, float y, float z)const { return Vector3DH(2.f*x, 2.f*y, 2.f*z); }
-		Vector3DH GetNormalAt_ObjectSpace(const Point3DH& p)const { return GetNormalAt_ObjectSpace(p.x(), p.y(), p.z()); }
+		virtual Vector3DH GetNormalAt_ObjectSpace(float x, float y, float z)const override { return Vector3DH(2.f*x, 2.f*y, 2.f*z); }
 
-		Vector3DH GetNormalAt(float x, float y, float z)const { return GetNormalAt(Point3DH(x, y, z)); }
-		Vector3DH GetNormalAt(const Point3DH& p)const { return GetNormalAt_ObjectSpace(ToObjectSpace(p)); }
 
 
 		// Data members

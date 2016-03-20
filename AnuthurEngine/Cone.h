@@ -18,31 +18,27 @@
 #include "Line3DH.h"
 
 namespace Luxko {
-	class ANUTHURMATH_API Cone : public OrientedObject {
+	class ANUTHURMATH_API Cone : public ConvexObject {
 	public:
 		Cone() {}
 		Cone(float a, float b, float h,
 			const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
-			:_a(a), _b(b), _h(h), OrientedObject(f) {}
+			:_a(a), _b(b), _h(h), ConvexObject(f) {}
 		Cone(const Vector3f& v, const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
-			:_data(v), OrientedObject(f) {}
+			:_data(v), ConvexObject(f) {}
 		Cone(const Cone&) = default;
 		Cone& operator=(const Cone&) = default;
 
 		virtual ~Cone() = default;
 
-		bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const;
+		virtual bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const override;
 
-		bool Contain(const Point3DH& p)const;
-		bool Contain(float x, float y, float z)const { return Contain(Point3DH(x, y, z)); }
+
+		virtual bool Contain(const Point3DH& p)const override;
 
 
 		// (x, y, z) should lie on the lateral surface.
-		Vector3DH GetNormalAt_ObjectSpace(float x, float y, float z)const;
-		Vector3DH GetNormalAt_ObjectSpace(const Point3DH& p)const { return GetNormalAt_ObjectSpace(p.x(), p.y(), p.z()); }
-
-		Vector3DH GetNormalAt(float x, float y, float z)const { return GetNormalAt(Point3DH(x, y, z)); }
-		Vector3DH GetNormalAt(const Point3DH& p)const { return GetNormalAt_ObjectSpace(ToObjectSpace(p)); }
+		virtual Vector3DH GetNormalAt_ObjectSpace(float x, float y, float z)const override;
 
 
 		// data members

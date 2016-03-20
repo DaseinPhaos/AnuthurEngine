@@ -46,4 +46,27 @@ namespace Luxko {
 		Frame3DH _Orientation;
 	};
 
+
+	class ANUTHURMATH_API ConvexObject abstract:public OrientedObject {
+	public:
+		ConvexObject(){}
+		ConvexObject(const Frame3DH& f) :OrientedObject(f) {}
+		ConvexObject(const ConvexObject&) = default;
+		ConvexObject& operator=(const ConvexObject&) = default;
+		virtual ~ConvexObject() {}
+
+		virtual bool GetFirstIfIntersect(const Line3DH& line, Point3DH& at)const = 0;
+
+		virtual bool Contain(const Point3DH& p)const = 0;
+		bool Contain(float x, float y, float z)const { return Contain(Point3DH(x, y, z)); }
+
+
+		// (x, y, z) should lie on the lateral surface.
+		virtual Vector3DH GetNormalAt_ObjectSpace(float x, float y, float z)const = 0;
+		Vector3DH GetNormalAt_ObjectSpace(const Point3DH& p)const { return GetNormalAt_ObjectSpace(p.x(), p.y(), p.z()); }
+
+		Vector3DH GetNormalAt(float x, float y, float z)const { return GetNormalAt(Point3DH(x, y, z)); }
+		Vector3DH GetNormalAt(const Point3DH& p)const { return GetNormalAt_ObjectSpace(ToObjectSpace(p)); }
+
+	};
 }
