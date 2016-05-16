@@ -25,3 +25,5 @@
 
 #include <string>
 #include <wrl.h>
+#include "ApplicationBase.h"
+#include "ApplicationHelper.h"

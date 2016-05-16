@@ -4,12 +4,17 @@
 //
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
-
 #pragma once
+
 #include "RendererPCH.h"
 
-inline void ThrowIfFailed(HRESULT hr) {
-	if (FAILED(hr)) {
-		throw "Operation failed due to code " + hr;
+namespace Luxko {
+	namespace Anuthur {
+		inline void ThrowIfFailed(HRESULT hr, const wchar_t* wstr = nullptr) {
+			if (FAILED(hr)) {
+				if (wstr) throw std::wstring(wstr)+L"\nError code: "+std::to_wstring(hr);
+				else throw L"Operation failed!\nError code " + std::to_wstring(hr);
+			}
+		}
 	}
 }
