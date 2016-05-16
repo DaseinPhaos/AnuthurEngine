@@ -16,6 +16,9 @@
     <Filter Include="Headers\Utility">
       <UniqueIdentifier>{c5eee158-523e-48b5-bc77-c140f4f038cc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Application">
+      <UniqueIdentifier>{e1f24547-1054-45df-93c8-8b60d246fc3d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AnuthurEngine\HelperMethods.h">
@@ -24,13 +27,16 @@
     <ClInclude Include="..\AnuthurEngine\RendererPCH.h">
       <Filter>Headers\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\RendererDXGI.h">
-      <Filter>Headers</Filter>
+    <ClInclude Include="D3D12App.h">
+      <Filter>Headers\Application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\RendererDXGI.cpp">
+    <ClCompile Include="D3D12App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
