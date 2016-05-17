@@ -149,15 +149,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\AnuthurEngine\D3D12App.h" />
     <ClInclude Include="..\AnuthurEngine\HelperMethods.h" />
     <ClInclude Include="..\AnuthurEngine\RendererPCH.h" />
-    <ClInclude Include="D3D12App.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="D3D12App.cpp" />
+    <ClCompile Include="..\AnuthurEngine\D3D12App.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ProjectReference Include="..\AnuthurApplication\AnuthurApplication.vcxproj">
+      <Project>{ce3e9058-bfa0-4e30-b277-1f5104dedc56}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
+      <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

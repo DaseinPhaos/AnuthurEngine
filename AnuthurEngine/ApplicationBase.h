@@ -11,6 +11,7 @@
 #else
 #define ANUTHURAPPLICATION_API __declspec(dllimport)
 #endif
+//#define ANUTHURAPPLICATION_API
 #include "CommonHeader.h"
 
 namespace Luxko {
@@ -47,14 +48,14 @@ namespace Luxko {
 			
 
 			HWND _hWindow;
-
+			std::wstring _title;
 
 
 		private:
 			
 
 			std::wstring _assetsPath;
-			std::wstring _title;
+
 		};
 	}
 }

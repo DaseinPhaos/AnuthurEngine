@@ -11,12 +11,14 @@
 #else
 #define ANUTHURRENDERER_API _declspec(dllimport)
 #endif
+//#define ANUTHURRENDERER_API
 
 #ifndef WIN32_LEAN_AND_MEAN 
 #define WIN32_LEAN_AND_MEAN
 #endif
 
 #include <windows.h>
+#include <windowsx.h>
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -27,3 +29,7 @@
 #include <wrl.h>
 #include "ApplicationBase.h"
 #include "ApplicationHelper.h"
+
+#pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "D3D12.lib")
+#pragma comment(lib, "dxgi.lib")
