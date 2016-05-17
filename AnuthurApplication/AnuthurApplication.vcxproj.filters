@@ -15,18 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\AnuthurEngine\ApplicationBase.h">
+    <ClInclude Include="..\AnuthurEngine\ApplicationHelper.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\ApplicationHelper.h">
+    <ClInclude Include="..\AnuthurEngine\ApplicationBase.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\ApplicationBase.cpp">
+    <ClCompile Include="..\AnuthurEngine\ApplicationHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\ApplicationHelper.cpp">
+    <ClCompile Include="..\AnuthurEngine\ApplicationBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

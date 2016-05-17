@@ -16,6 +16,7 @@
 #else
 #define ANUTHURAPPLICATION_API __declspec(dllimport)
 #endif
+//#define ANUTHURAPPLICATION_API
 #include "CommonHeader.h"
 
 

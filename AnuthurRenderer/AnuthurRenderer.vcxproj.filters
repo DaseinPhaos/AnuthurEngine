@@ -27,16 +27,13 @@
     <ClInclude Include="..\AnuthurEngine\RendererPCH.h">
       <Filter>Headers\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="D3D12App.h">
+    <ClInclude Include="..\AnuthurEngine\D3D12App.h">
       <Filter>Headers\Application</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="D3D12App.cpp">
+    <ClCompile Include="..\AnuthurEngine\D3D12App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

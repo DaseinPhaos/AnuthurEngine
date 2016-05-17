@@ -34,22 +34,55 @@ int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 	//**********************************************************************
 	// @Luxko: 2ndly, create a window instance with the help of a WindowDescriptor,
 	//			which encapsulates essential details for D3D window creation.
-	WindowDescriptor wd(WindowStyle::OverlappedWindow, ExtendedWindowStyle::LeftAligned,
+	WindowDescriptor wd(WindowStyle::OverlappedWindow, ExtendedWindowStyle::OverlappedWindow,
 		0, 0,_width,_height);
 	_hWindow = wd.GenerateWindowByATOM(hInstance, windowClass, _title);
 	if (_hWindow == NULL) {
 		throw "Window Creation Fucking failed!";
 	}
 	//**********************************************************************
+#pragma region SHIT
+					//WNDCLASS wc;
+	//wc.style = CS_HREDRAW | CS_VREDRAW;
+	//wc.lpfnWndProc = Application::BaseApp::WindProc;
+	//wc.cbClsExtra = 0;
+	//wc.cbWndExtra = 0;
+	//wc.hInstance = hInstance;
+	//wc.hIcon = LoadIcon(0, IDI_APPLICATION);
+	//wc.hCursor = LoadCursor(0, IDC_ARROW);
+	//wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
+	//wc.lpszMenuName = 0;
+	//wc.lpszClassName = L"MainWnd";
+
+	//if (!RegisterClass(&wc))
+	//{
+	//	MessageBox(0, L"RegisterClass Failed.", 0, 0);
+	//	return false;
+	//}
+
+	//// Compute window rectangle dimensions based on requested client area dimensions.
+	//RECT R = { 0, 0, _width, _height };
+	//AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
+	//int width = R.right - R.left;
+	//int height = R.bottom - R.top;
+
+	//_hWindow = CreateWindow(L"MainWnd", _title.c_str(),
+	//	WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height,
+	//	0, 0, hInstance, 0); 
+#pragma endregion
+
+
 
 	//**********************************************************************
 	// @Luxko: Now we're ready to show the window.
 	ShowWindow(_hWindow, nCmdShow);
+	//UpdateWindow(_hWindow);
 	//**********************************************************************
 
 	//**********************************************************************
 	// @Luxko: Do the initialization necessary for the application.
 	OnInit();
+
 	//**********************************************************************
 
 	//**********************************************************************
@@ -75,7 +108,7 @@ int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 	//**********************************************************************
 
 	//**********************************************************************
-	// @Luxko: the returned value is thw wParam of the last received
+	// @Luxko: the returned value is the wParam of the last received
 	//			WM_QUIT message.
 	return static_cast<char>(msg.wParam);
 	//**********************************************************************
@@ -95,7 +128,10 @@ ATOM Luxko::Application::BaseApp::RegisterWindowClass(HINSTANCE hInstance)
 	windowClass.lpfnWndProc = WindProc;
 	windowClass.hInstance = hInstance;
 	windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+	windowClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
 	windowClass.lpszClassName = (L"WindowClass" + _title).c_str();
+	windowClass.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
+	//windowClass.lpszClassName = L"WindowClass028";
 	return RegisterClassEx(&windowClass);
 }
 
