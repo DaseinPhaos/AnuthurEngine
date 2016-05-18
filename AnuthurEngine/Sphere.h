@@ -21,7 +21,7 @@ namespace Luxko {
 	class ANUTHURMATH_API Sphere : public ConvexObject {
 	public:
 		Sphere(){}
-		Sphere(float r,const Frame3DH& f = Frame3DH::GetStandardRightHandFrame()):_r(r),ConvexObject(f) {}
+		Sphere(float r,const Frame3DH& f = Frame3DH::StandardRightHandFrame()):_r(r),ConvexObject(f) {}
 		Sphere(const Sphere&) = default;
 		Sphere& operator=(const Sphere&) = default;
 		virtual ~Sphere() = default;

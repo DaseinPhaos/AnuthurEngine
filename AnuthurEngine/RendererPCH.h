@@ -13,8 +13,20 @@
 #endif
 //#define ANUTHURRENDERER_API
 
+#ifndef UNICODE
+#define UNICODE
+#endif
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+#ifndef STRICT
+#define STRICT
+#endif
 #ifndef WIN32_LEAN_AND_MEAN 
 #define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
 #endif
 
 #include <windows.h>

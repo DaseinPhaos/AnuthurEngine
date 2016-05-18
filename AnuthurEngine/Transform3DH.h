@@ -38,7 +38,9 @@ namespace Luxko {
 		static Transform3DH Scale(float xBy, float yBy, float zBy);
 		static Transform3DH Translation(const Vector3DH& by);
 		static Transform3DH Translation(float byX, float byY, float byZ);
-		static Transform3DH Projection(float n, float f, float l, float r, float b, float t);
+		static Transform3DH HomoClipGL(float n, float f, float l, float r, float b, float t);
+		static Transform3DH HomoClipD3D(float n, float f, float r, float t);
+
 
 		Transform3DH operator*(const Transform3DH& t)const;
 		Transform3DH& operator*=(const Transform3DH& t)noexcept;

@@ -21,7 +21,7 @@
 
 bool Luxko::Box::GetFirstIfIntersect(const Line3DH& line, Point3DH& at) const
 {
-	auto ObjectSpaceTransform = GetObjectSpaceTransform();
+	auto ObjectSpaceTransform = TransformWtoO();
 	auto lineOS = ObjectSpaceTransform.ApplyOnLine(line);
 
 	

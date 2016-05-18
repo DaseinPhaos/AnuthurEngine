@@ -73,9 +73,14 @@ Luxko::Transform3DH Luxko::Transform3DH::Translation(float byX, float byY, float
 		0.f, 0.f, 0.f, 1.f), true);
 }
 
-Luxko::Transform3DH Luxko::Transform3DH::Projection(float n, float f, float l, float r, float b, float t)
+Luxko::Transform3DH Luxko::Transform3DH::HomoClipGL(float n, float f, float l, float r, float b, float t)
 {
-	return Transform3DH(Matrix4x4f::Projection(n, f, l, r, b, t), false);
+	return Transform3DH(Matrix4x4f::HomoClipGL(n, f, l, r, b, t), false);
+}
+
+Luxko::Transform3DH Luxko::Transform3DH::HomoClipD3D(float n, float f, float r, float t)
+{
+	return Transform3DH(Matrix4x4f::HomoClipD3D(n, f, r, t),false);
 }
 
 Luxko::Point3DH Luxko::Transform3DH::operator*(const Point3DH& v) const

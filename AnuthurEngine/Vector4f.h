@@ -35,6 +35,9 @@ namespace Luxko {
 		Vector4f operator*(float s)const;
 		Vector4f operator/(float s)const;
 
+		Vector4f Modulate(const Vector4f& v)const;
+
+
 		Vector4f& operator+=(const Vector4f& v)noexcept;
 		Vector4f& operator-=(const Vector4f& v)noexcept;
 		Vector4f& operator*=(float f)noexcept;
@@ -44,6 +47,8 @@ namespace Luxko {
 
 		float Magnitude()const;
 		float MagSquare()const;
+		Vector4f Clamp()const;
+		Vector4f& ClampInPlace()noexcept;
 		Vector4f& NormalizeInPlace()noexcept;
 		Vector4f& HomogenizeInPlace()noexcept;
 
@@ -51,7 +56,7 @@ namespace Luxko {
 		Vector4f MemberWideMultiply(const Vector4f& v)const;
 		Vector4f MemberWideMultiply(float x, float y, float z, float w)const;
 		Vector4f Normalize()const;
-		Vector4f Homogenerous()const;
+		Vector4f Homogenize()const;
 
 
 		float Dot(const Vector4f& v)const;

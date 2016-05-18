@@ -10,7 +10,7 @@
 
 bool Luxko::Sphere::GetFirstIfIntersect(const Line3DH& line, Point3DH& at) const
 {
-	auto ObjectSpaceTransform = GetObjectSpaceTransform();
+	auto ObjectSpaceTransform = TransformWtoO();
 	auto lineOS = ObjectSpaceTransform.ApplyOnLine(line);
 
 	Vector3f S = lineOS._S.AsVector4f().xyz();

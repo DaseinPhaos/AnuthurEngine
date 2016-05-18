@@ -24,9 +24,9 @@ namespace Luxko {
 		Ellipsoid(const Sphere& s) :ConvexObject(s._Orientation),
 			_m(1.f), _n(1.f), _r(s._r) {}
 		Ellipsoid(float r, float m = 0.f, float n = 0.f, 
-			const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
+			const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:_m(m), _n(n), _r(r),ConvexObject(f) {}
-		Ellipsoid(const Vector3f& v, const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
+		Ellipsoid(const Vector3f& v, const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:_data(v),ConvexObject(f) {}
 		Ellipsoid(const Ellipsoid&) = default;
 		Ellipsoid& operator=(const Ellipsoid&) = default;

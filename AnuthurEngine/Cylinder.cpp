@@ -11,7 +11,7 @@
 
 bool Luxko::Cylinder::GetFirstIfIntersect(const Line3DH& line, Point3DH& at) const
 {
-	auto ObjectSpaceTransform = GetObjectSpaceTransform();
+	auto ObjectSpaceTransform = TransformWtoO();
 	auto lineOS = ObjectSpaceTransform.ApplyOnLine(line);
 
 	auto m = _r / _s;

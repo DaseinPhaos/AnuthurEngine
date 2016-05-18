@@ -201,7 +201,7 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::Translation(float byX, float byY, float byZ
 		0.f, 0.f, 0.f, 1.f);
 }
 
-Luxko::Matrix4x4f Luxko::Matrix4x4f::Projection(float n, float f, float l, float r, float b, float t)
+Luxko::Matrix4x4f Luxko::Matrix4x4f::HomoClipGL(float n, float f, float l, float r, float b, float t)
 {
 	Matrix4x4f result(2.f*n, 0.f, r + l, 0.f,
 		0.f, 2.f*n, t + b, 0.f,
@@ -214,6 +214,14 @@ Luxko::Matrix4x4f Luxko::Matrix4x4f::Projection(float n, float f, float l, float
 	auto fmn = _mm_set_ps1(f - n);
 	result._m128[2] = _mm_div_ps(result._m128[2], fmn);
 	return result;
+}
+
+Luxko::Matrix4x4f Luxko::Matrix4x4f::HomoClipD3D(float n, float f, float r, float t)
+{
+	return Matrix4x4f(n / r, 0.f, 0.f, 0.f,
+		0.f, n / t, 0.f, 0.f,
+		0.f, 0.f, f / (f - n), f*n / (n - f),
+		0.f, 0.f, 1.f, 0.f);
 }
 
 float Luxko::Matrix4x4f::Determinant() const noexcept

@@ -53,7 +53,8 @@ namespace Luxko {
 		Point3DH& operator/=(float f)noexcept;
 
 		bool operator==(const Point3DH& p)const { return _data == p._data; }
-
+		Point3DH& HomogenizeInPlace()noexcept { _data.HomogenizeInPlace(); return (*this); }
+		Point3DH Homogenize()const { return Point3DH(_data.Homogenize()); }
 		Point3DH Cross(const Point3DH& p)const;
 		Vector3f ToVector3f()const;
 		Vector3DH ToVector3DH()const;
@@ -65,6 +66,7 @@ namespace Luxko {
 		float x()const { return _data._x; }
 		float y()const{return _data._y;}
 		float z()const{return _data._z;}
+		float w()const { return _data._w; }
 		const Vector4f& AsVector4f()const noexcept{ return _data; }
 	private:
 		Point3DH(const Vector4f& d);

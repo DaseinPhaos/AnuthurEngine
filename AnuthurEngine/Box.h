@@ -23,9 +23,9 @@ namespace Luxko {
 	class ANUTHURMATH_API Box : public ConvexObject {
 	public:
 		Box() {}
-		Box(float width, float height, float length, const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
+		Box(float width, float height, float length, const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:ConvexObject(f), _width(width), _height(height), _length(length) {}
-		explicit Box(const Vector3f& data, const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
+		explicit Box(const Vector3f& data, const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:_data(data),ConvexObject(f) {}
 		Box(const Box&) = default;
 		Box& operator=(const Box&) = default;

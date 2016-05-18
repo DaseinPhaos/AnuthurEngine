@@ -20,6 +20,11 @@
 
 
 namespace Luxko {
+
+	/// This class encapsulates a right-handed coordinate frame,
+	/// relative to a "world" frame, described by its look(-z-axis)
+	/// and up(y-axis). To obtain a DirectX-style left-handed 
+	/// transform matrix, method ToLeftHandTransform() is provided.
 	class ANUTHURMATH_API Frame3DH {
 	public:
 		Frame3DH(const Vector3DH& look, const Vector3DH& up, const Point3DH& pos);
@@ -28,15 +33,15 @@ namespace Luxko {
 		Frame3DH& operator=(const Frame3DH&);
 		~Frame3DH() = default;
 
-		static Frame3DH GetStandardRightHandFrame();
+		static Frame3DH StandardRightHandFrame();
 
 		const Vector3DH& Look()const { return _look; }
 		const Vector3DH& Up()const { return _up; }
 		const Vector3DH& Right()const { return _right; }
 		const Point3DH& Position()const { return _Pos; }
 
-		Transform3DH RightHandTransform()const;
-		Transform3DH LeftHandTransform()const;
+		Transform3DH GetTransform()const;
+		Transform3DH GetTransformLH()const;
 
 		
 		Matrix3x3f ToCompressedM3x3()const;
