@@ -1,4 +1,5 @@
 #include "D3D12App.h"
+
 using namespace Luxko;
 using namespace Luxko::Anuthur;
 class Demo : public D3D12App {

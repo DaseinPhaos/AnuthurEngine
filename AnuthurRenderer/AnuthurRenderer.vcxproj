@@ -22,7 +22,7 @@
     <ProjectGuid>{A8607237-E0DC-421E-8798-63572DB79728}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AnuthurRenderer</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\AnuthurEngine\Mesh.h" />
     <ClInclude Include="..\AnuthurEngine\PerspecCamera.h" />
     <ClInclude Include="..\AnuthurEngine\D3D12App.h" />
     <ClInclude Include="..\AnuthurEngine\HelperMethods.h" />
@@ -156,6 +157,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\D3D12App.cpp" />
+    <ClCompile Include="..\AnuthurEngine\HelperMethods.cpp" />
+    <ClCompile Include="..\AnuthurEngine\PerspecCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AnuthurApplication\AnuthurApplication.vcxproj">

@@ -36,9 +36,18 @@
     <ClInclude Include="..\AnuthurEngine\PerspecCamera.h">
       <Filter>Headers\SceneComponents</Filter>
     </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\Mesh.h">
+      <Filter>Headers\SceneComponents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\D3D12App.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\PerspecCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\AnuthurEngine\HelperMethods.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
