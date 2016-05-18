@@ -31,4 +31,7 @@
 #include <algorithm>
 #include <emmintrin.h>
 
+// constexpr auto Pi_f = static_cast<float>(M_PI);
+
+
 using namespace std::rel_ops;

@@ -22,9 +22,9 @@ namespace Luxko {
 	public:
 		Cone() {}
 		Cone(float a, float b, float h,
-			const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
+			const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:_a(a), _b(b), _h(h), ConvexObject(f) {}
-		Cone(const Vector3f& v, const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
+		Cone(const Vector3f& v, const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:_data(v), ConvexObject(f) {}
 		Cone(const Cone&) = default;
 		Cone& operator=(const Cone&) = default;

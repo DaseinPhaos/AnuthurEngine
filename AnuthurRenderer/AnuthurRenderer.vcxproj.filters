@@ -19,6 +19,9 @@
     <Filter Include="Headers\Application">
       <UniqueIdentifier>{e1f24547-1054-45df-93c8-8b60d246fc3d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\SceneComponents">
+      <UniqueIdentifier>{624ce38d-f90a-4974-8081-c983c131e1e8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\AnuthurEngine\HelperMethods.h">
@@ -29,6 +32,9 @@
     </ClInclude>
     <ClInclude Include="..\AnuthurEngine\D3D12App.h">
       <Filter>Headers\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AnuthurEngine\PerspecCamera.h">
+      <Filter>Headers\SceneComponents</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -22,9 +22,9 @@ namespace Luxko {
 	public:
 		Cylinder() {}
 		Cylinder(float r, float s, float h,
-			const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
+			const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:_r(r), _s(s), _h(h), ConvexObject(f) {}
-		Cylinder(const Vector3f& v, const Frame3DH& f = Frame3DH::GetStandardRightHandFrame())
+		Cylinder(const Vector3f& v, const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:_data(v), ConvexObject(f) {}
 		Cylinder(const Cylinder&) = default;
 		Cylinder& operator=(const Cylinder&) = default;

@@ -29,7 +29,7 @@ Luxko::Vector4f::Vector4f(const Vector4f& v)noexcept
 
 Luxko::Vector4f Luxko::Vector4f::operator+(const Vector4f& v) const
 {
-	
+
 	Vector4f result;
 	result._m128 = _mm_add_ps(_m128, v._m128);
 	return result;
@@ -55,6 +55,13 @@ Luxko::Vector4f Luxko::Vector4f::operator/(float s) const
 	auto r = _mm_load_ps1(&s);
 	Vector4f result;
 	result._m128 = _mm_div_ps(_m128, r);
+	return result;
+}
+
+Luxko::Vector4f Luxko::Vector4f::Modulate(const Vector4f& v) const
+{
+	Vector4f result;
+	result._m128 = _mm_mul_ps(_m128, v._m128);
 	return result;
 }
 
@@ -117,6 +124,25 @@ float Luxko::Vector4f::MagSquare() const
 
 
 
+Luxko::Vector4f Luxko::Vector4f::Clamp() const
+{
+	Vector4f result = (*this);
+	for (auto i = 0; i < 4; ++i) {
+		result._data[i] = (result._data[i] > 1.f) ? 1.f : result._data[i];
+		result._data[i] = (result._data[i] < 0.f) ? 0.f : result._data[i];
+	}
+	return result;
+}
+
+Luxko::Vector4f& Luxko::Vector4f::ClampInPlace() noexcept
+{
+	for (auto i = 0; i < 4; ++i) {
+		_data[i] = (_data[i] > 1.f) ? 1.f : _data[i];
+		_data[i] = (_data[i] < 0.f) ? 0.f : _data[i];
+	}
+	return *this;
+}
+
 Luxko::Vector4f& Luxko::Vector4f::NormalizeInPlace() noexcept
 {
 	float mag = Magnitude();
@@ -153,7 +179,7 @@ Luxko::Vector4f Luxko::Vector4f::Normalize() const
 	return result;
 }
 
-Luxko::Vector4f Luxko::Vector4f::Homogenerous() const
+Luxko::Vector4f Luxko::Vector4f::Homogenize() const
 {
 	Vector4f result;
 	auto a = _mm_load_ps1(&_w);

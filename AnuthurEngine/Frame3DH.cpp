@@ -16,7 +16,7 @@ Luxko::Frame3DH::Frame3DH(const Vector3DH& look, const Vector3DH& up, const Poin
 
 }
 
-Luxko::Frame3DH Luxko::Frame3DH::GetStandardRightHandFrame()
+Luxko::Frame3DH Luxko::Frame3DH::StandardRightHandFrame()
 {
 	Frame3DH r;
 	r._look = Vector3DH(0.f, 0.f, -1.f);
@@ -42,23 +42,26 @@ Luxko::Frame3DH Luxko::Frame3DH::FromN(const Vector3DH& lookN, const Vector3DH& 
 	return result;
 }
 
-Luxko::Transform3DH Luxko::Frame3DH::RightHandTransform() const
+Luxko::Transform3DH Luxko::Frame3DH::GetTransform() const
 {
-	auto translation = Transform3DH::Translation(_Pos.x(),_Pos.y(),_Pos.z());
+	auto translationInvert = Transform3DH::Translation(-_Pos.x(),-_Pos.y(),-_Pos.z());
 	Transform3DH rotation;
-	rotation._m = Matrix4x4f(_right.AsVector4f(), _up.AsVector4f(), -_look.AsVector4f(), Vector4f(0.f, 0.f, 0.f, 1.f));
+	rotation._m = Matrix4x4f(_right.AsVector4f(), _up.AsVector4f(), 
+		-_look.AsVector4f(), Vector4f(0.f, 0.f, 0.f, 1.f));
 	rotation._subOrtho = true;
-	return (translation.Inverse())*(rotation*translation);
-
+	//return (translation.Inverse())*(rotation*translation);
+	return rotation.Inverse()*translationInvert;
 }
 
-Luxko::Transform3DH Luxko::Frame3DH::LeftHandTransform() const
+Luxko::Transform3DH Luxko::Frame3DH::GetTransformLH() const
 {
-	auto translation = Transform3DH::Translation(_Pos.x(), _Pos.y(), _Pos.z());
+	auto translationInvert = Transform3DH::Translation(-_Pos.x(), -_Pos.y(), -_Pos.z());
 	Transform3DH rotation;
-	rotation._m = Matrix4x4f(_right.AsVector4f(), _up.AsVector4f(), _look.AsVector4f(), Vector4f(0.f, 0.f, 0.f, 1.f));
+	rotation._m = Matrix4x4f(_right.AsVector4f(), _up.AsVector4f(), 
+		_look.AsVector4f(), Vector4f(0.f, 0.f, 0.f, 1.f));
 	rotation._subOrtho = true;
-	return (translation.Inverse())*(rotation*translation);
+	//return (translation.Inverse())*(rotation*translation);
+	return rotation.Inverse()*translationInvert;
 }
 
 Luxko::Matrix3x3f Luxko::Frame3DH::ToCompressedM3x3() const

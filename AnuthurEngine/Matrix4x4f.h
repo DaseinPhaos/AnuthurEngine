@@ -40,7 +40,8 @@ namespace Luxko {
 		static Matrix4x4f Scale(float xBy, float yBy, float zBy);
 		static Matrix4x4f Translation(const Vector3f& by);
 		static Matrix4x4f Translation(float byX, float byY, float byZ);
-		static Matrix4x4f Projection(float n, float f, float l, float r, float b, float t);
+		static Matrix4x4f HomoClipGL(float n, float f, float l, float r, float b, float t);
+		static Matrix4x4f HomoClipD3D(float n, float f, float r, float t);
 
 		float Determinant()const noexcept;
 		Matrix4x4f Inverse()const;

@@ -11,7 +11,7 @@
 
 bool Luxko::Cone::GetFirstIfIntersect(const Line3DH& line, Point3DH& at) const
 {
-	auto OST = GetObjectSpaceTransform();
+	auto OST = TransformWtoO();
 	auto lineOS = OST.ApplyOnLine(line);
 
 	auto intersectionXY_t = -lineOS._S.z() / lineOS.Orientation().z();
