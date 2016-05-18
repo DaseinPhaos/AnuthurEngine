@@ -36,9 +36,11 @@
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 
-
+#include <vector>
 #include <string>
+#include <cassert>
 #include <wrl.h>
+#include "d3dx12.h"
 #include "ApplicationBase.h"
 #include "ApplicationHelper.h"
 

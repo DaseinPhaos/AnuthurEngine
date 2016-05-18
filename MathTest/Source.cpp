@@ -4,7 +4,7 @@
 //
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
-
+#include "PerspecCamera.h"
 #include "CommonHeader.h"
 #include "RootFinding.h"
 #include <iostream>
@@ -153,16 +153,22 @@ int TestMatrix4x4f() {
 
 int main() {
 	using namespace Luxko;
-	Vector3DH up = { 0.f,0.f,-1.f };
-	Vector3DH look = { 1.f,0.f,0.f };
-	Point3DH point = { 1.f,1.f,1.f };
+	Vector3DH up = { 0.f,1.f,0.f };
+	Vector3DH look = { 10.f,0.f,30.f };
+	Point3DH point = { -20.f,35.f,-50.f };
 	Frame3DH f(look, up, point);
 	auto right = f.Right();
-	auto leftHand = f.GetTransformLH();
-	auto rightHand = f.GetTransform();
+	auto leftHand = f.GetTransformLH().Inverse();
+	auto rightHand = f.GetTransform().Inverse();
 	std::cout << "right direc = " << right.AsVector4f() <<std::endl
 		<< "Left hand = " << leftHand.AsMatrix4x4() << std::endl
 		<< "right hand = " << rightHand.AsMatrix4x4() << std::endl;
+
+	auto camera = Anuthur::PerspecCamera::FromHFOVAndAspectRatio(1.f, 11.f, 4.f / 3.f, static_cast<float>(M_PI_4),
+		f);
+	camera.ApplyTransform(f.GetTransform());
+	std::cout << "View Transform= " << camera.TransformVtoH().AsMatrix4x4();
+
 	std::default_random_engine dre(88);
 	std::uniform_real_distribution<float> urd(-100.f, 100.f);
 	//Point3DH rp = { urd(dre),urd(dre),urd(dre) };

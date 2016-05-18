@@ -15,7 +15,7 @@ namespace Luxko {
 		/// This class defines a DirectX style camera.
 		class ANUTHURRENDERER_API PerspecCamera : public OrientedObject {
 		public:
-			PerspecCamera() :OrientedObject() {}
+			PerspecCamera() :OrientedObject(),_n(1.f),_f(10.f),_r(1.6f),_t(.9f) {}
 			PerspecCamera(float nearDistance, float farDistance, float rightDistance,
 				float topDistance, const Vector3DH& lookDirection,
 				const Vector3DH& upDirection, const Point3DH& position) :
@@ -23,33 +23,19 @@ namespace Luxko {
 				OrientedObject(Frame3DH(lookDirection, upDirection, position)) {}
 
 			PerspecCamera(float nearDistance, float farDistance,
-				float rightDistance, float topDistance, const Frame3DH& frame) :
+				float rightDistance, float topDistance,
+				const Frame3DH& frame = Frame3DH::StandardRightHandFrame()) :
 				_n(nearDistance), _f(farDistance), _r(rightDistance),
 				_t(topDistance), OrientedObject(frame) {}
 
-			static PerspecCamera FromAngleAndAspectRatio(
+			static PerspecCamera FromHFOVAndAspectRatio(
 				float nearDistance, float farDistance, float aspectRatio,
 				float angle, const Vector3DH& lookDirection,
-				const Vector3DH& upDirection, const Point3DH& position) {
-				if (angle >= M_PI_2) {
-					angle /= 2.f;
-				}
-				auto r = nearDistance / std::tan(angle);
-				auto t = r / aspectRatio;
-				return PerspecCamera(nearDistance, farDistance, r, t,
-					lookDirection, upDirection, position);
-			}
+				const Vector3DH& upDirection, const Point3DH& position);
 
-			static PerspecCamera FromAngleAndAspectRatio(
+			static PerspecCamera FromHFOVAndAspectRatio(
 				float nearDistance, float farDistance, float aspectRatio,
-				float angle, const Frame3DH& frame) {
-				if (angle >= M_PI_2) {
-					angle /= 2.f;
-				}
-				auto r = nearDistance / std::tan(angle);
-				auto t = r / aspectRatio;
-				return PerspecCamera(nearDistance, farDistance, r, t, frame);
-			}
+				float angle, const Frame3DH& frame = Frame3DH::StandardRightHandFrame());
 
 			PerspecCamera(const PerspecCamera&) = default;
 			PerspecCamera& operator=(const PerspecCamera&) = default;
@@ -57,18 +43,21 @@ namespace Luxko {
 
 			// As this is a DirectX style camera, the view transform
 			// returns coordinates in a left-handed frame.
-			Transform3DH TransformWtoV()const { return _Orientation.GetTransformLH(); }
-			Transform3DH TransformVtoH()const {
-				return Transform3DH::HomoClipD3D(_n, _f, _r, _t);
-			}
-			Transform3DH TransformWtoH()const {
-				return TransformVtoH()*TransformWtoV();
-			}
+			Transform3DH TransformWtoV()const;
+			Transform3DH TransformVtoH()const;
+			Transform3DH TransformWtoH()const;
 			Point3DH ApplyHomoClipTransform(const Point3DH& p) {
 				auto r = TransformWtoH()*p;
 				return r.HomogenizeInPlace();
 			}
 
+			float NearPlaneDistance()const noexcept { return _n; }
+			float FarPlaneDistance()const noexcept { return _f; }
+			float HorizontialFOV()const noexcept { return 2 * std::atan(_r / _n); }
+			float VerticalFOV()const noexcept { return 2 * std::atan(_t / _n); }
+			float AspectRatio()const noexcept { return _r / _t; }
+
+		private:
 			// Data members
 			float _n; // Distance from the near plane.
 			float _f; // Distance from the far plane.
