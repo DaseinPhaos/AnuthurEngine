@@ -1,4 +1,5 @@
 #include "D3D12App.h"
+#include "HelperMethods.h"
 
 using namespace Luxko;
 using namespace Luxko::Anuthur;
