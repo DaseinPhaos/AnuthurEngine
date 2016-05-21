@@ -39,6 +39,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include <cstring>
 #include <wrl.h>
 #include "d3dx12.h"
 #include "ApplicationBase.h"

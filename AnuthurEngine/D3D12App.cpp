@@ -11,7 +11,7 @@
 void Luxko::Anuthur::D3D12App::OnInit()
 {
 	BasicD3D12ElementsInitialization();
-	_mainTimer.Reset(true);
+	
 }
 
 void Luxko::Anuthur::D3D12App::BasicD3D12ElementsInitialization()
@@ -121,7 +121,7 @@ void Luxko::Anuthur::D3D12App::BasicD3D12ElementsInitialization()
 			0.f, 1.f);
 		SetMainScissorRect(0l, _width, 0l, _height);
 	}
-
+	_mainTimer.Reset(true);
 }
 
 void Luxko::Anuthur::D3D12App::ResetSwapChain(BOOL windowed)

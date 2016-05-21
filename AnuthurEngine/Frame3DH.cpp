@@ -59,6 +59,7 @@ Luxko::Transform3DH Luxko::Frame3DH::GetTransformLH() const
 	Transform3DH rotation;
 	rotation._m = Matrix4x4f(_right.AsVector4f(), _up.AsVector4f(), 
 		_look.AsVector4f(), Vector4f(0.f, 0.f, 0.f, 1.f));
+	auto det = rotation.AsMatrix4x4().Determinant();
 	rotation._subOrtho = true;
 	//return (translation.Inverse())*(rotation*translation);
 	return rotation.Inverse()*translationInvert;
