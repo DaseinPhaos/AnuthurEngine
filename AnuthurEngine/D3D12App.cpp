@@ -164,7 +164,7 @@ void Luxko::Anuthur::D3D12App::FlushCommandQueue()
 	if (_mainFence->GetCompletedValue() < _currentMainFenceCount) {
 		auto hEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
 		ThrowIfFailed(_mainFence->SetEventOnCompletion(_currentMainFenceCount, hEvent));
-		WaitForSingleObject(hEvent, INFINITY);
+		WaitForSingleObject(hEvent, INFINITE);
 		CloseHandle(hEvent);
 	}
 }
@@ -288,6 +288,7 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 		OnResize();
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::Sizing:
+
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::StyleChanged:
 		break;

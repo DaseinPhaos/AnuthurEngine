@@ -41,37 +41,6 @@ int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 		throw "Window Creation Fucking failed!";
 	}
 	//**********************************************************************
-#pragma region SHIT
-					//WNDCLASS wc;
-	//wc.style = CS_HREDRAW | CS_VREDRAW;
-	//wc.lpfnWndProc = Application::BaseApp::WindProc;
-	//wc.cbClsExtra = 0;
-	//wc.cbWndExtra = 0;
-	//wc.hInstance = hInstance;
-	//wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-	//wc.hCursor = LoadCursor(0, IDC_ARROW);
-	//wc.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
-	//wc.lpszMenuName = 0;
-	//wc.lpszClassName = L"MainWnd";
-
-	//if (!RegisterClass(&wc))
-	//{
-	//	MessageBox(0, L"RegisterClass Failed.", 0, 0);
-	//	return false;
-	//}
-
-	//// Compute window rectangle dimensions based on requested client area dimensions.
-	//RECT R = { 0, 0, _width, _height };
-	//AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
-	//int width = R.right - R.left;
-	//int height = R.bottom - R.top;
-
-	//_hWindow = CreateWindow(L"MainWnd", _title.c_str(),
-	//	WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, width, height,
-	//	0, 0, hInstance, 0); 
-#pragma endregion
-
-
 
 	//**********************************************************************
 	// @Luxko: Now we're ready to show the window.

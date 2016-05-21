@@ -62,7 +62,6 @@ namespace Luxko {
 			BOOL								_appPaused=false;
 			
 			ComPtr<IDXGIFactory4>				_dxgiFactory;
-			//ComPtr<IDXGIAdapter3>				_hardwareAdapter;
 			ComPtr<ID3D12Device>				_d3d12Device;
 			ComPtr<ID3D12Fence>					_mainFence;
 			ComPtr<ID3D12CommandQueue>			_cmdQueue;

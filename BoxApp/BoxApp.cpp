@@ -15,12 +15,18 @@ void BoxApp::OnInit()
 	InitializeShaders();
 	InitializeRootSignature();
 	InitializePipelineState();
-	InitializeHeaps();
+	InitializeBuffers();
 	//BindResourceViews();
+	
 	_mainCmdList->Close();
 	ID3D12CommandList* cmdlsts[] = { _mainCmdList.Get() };
 	_cmdQueue->ExecuteCommandLists(1u, cmdlsts);
 	FlushCommandQueue();
+
+	_mainScissorRect.left = _width / 4;
+	_mainScissorRect.right = 3 * _width / 4;
+	_mainScissorRect.top = _height / 4;
+	_mainScissorRect.bottom = _height * 3 / 4;
 }
 
 void BoxApp::OnDestroy()
@@ -41,6 +47,7 @@ void BoxApp::OnMouseDown(WPARAM wParam, int x, int y)
 	if (wParam&MK_MBUTTON) {
 		_mMouseDown = true;
 	}
+	SetCapture(_hWindow);
 	_mouseLastX = x;
 	_mouseLastY = y;
 }
@@ -82,6 +89,7 @@ void BoxApp::OnMouseMove(WPARAM wParam, int x, int y)
 
 void BoxApp::OnMouseUp(WPARAM wParam, int x, int y)
 {
+	ReleaseCapture();
 	_lMouseDown = false;
 	_rMouseDown = false;
 	_mMouseDown = false;
@@ -118,29 +126,52 @@ void BoxApp::OnRender()
 	/*FlushCommandQueue();*/
 	LogFPSToTitle();
 	// ThrowIfFailed(_mainCmdAllocator->Reset());
-	_mainCmdList->Reset(_mainCmdAllocator.Get(), _pipelineState.Get());
+	_mainCmdList->Reset(_mainCmdAllocator.Get(), _pCurrentPS);
 	_mainCmdList->RSSetViewports(1, &_mainViewport);
 	_mainCmdList->RSSetScissorRects(1, &_mainScissorRect);
+
+	//D3D12_VIEWPORT vp[2];
+	//vp[0].TopLeftX = 0.;
+	//vp[0].TopLeftY = 0.;
+	//vp[0].Width = _width / 2.;
+	//vp[0].Height = _height / 2.;
+	//vp[0].MinDepth = 0.;
+	//vp[0].MaxDepth = 1.;
+	//vp[1].TopLeftX = vp[0].Width;
+	//vp[1].TopLeftY = vp[0].Height;
+	//vp[1].Width = _width / 2.;
+	//vp[1].Height = _height / 2.;
+	//vp[1].MinDepth = 0.;
+	//vp[1].MaxDepth = 1.;
+	//_mainCmdList->RSSetViewports(2u, vp);
+
+	//D3D12_RECT scissorRect[2];
+	//scissorRect[0].top = 0;
+	//scissorRect[0].left = 0;
+	//scissorRect[0].right = _width / 2;
+	//scissorRect[0].bottom = _height / 2;
+	//scissorRect[1].top = scissorRect[0].bottom;
+	//scissorRect[1].left = scissorRect[0].left;
+	//scissorRect[1].bottom = _height;
+	//scissorRect[1].right = _width;
+	//_mainCmdList->RSSetScissorRects(2u, scissorRect);
+
+
+	
 	_mainCmdList->SetGraphicsRootSignature(_rootSignature.Get());
 	_mainCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	//BindResourceViews();
-
-	using namespace Luxko::Anuthur;
-	using namespace Luxko::Anuthur::D3D12Helper;
 	//_mainCmdList->SetGraphicsRootSignature(_rootSignature.Get());
 	VertexBuffersDescriptor vbd;
-	vbd.Push(_verticeBuffer->GetGPUVirtualAddress(), sizeof(Vertex) * _countof(_Box), sizeof(Vertex));
+	vbd.Push(_verticePositionBuffer->GetGPUVirtualAddress(), sizeof(Vertex) * _countof(_Box), sizeof(Vertex));
+	vbd.Push(_verticeAttributeBuffer->GetGPUVirtualAddress(), sizeof(Luxko::Vector4f)*_countof(_BoxColors), sizeof(Luxko::Vector4f));
 	vbd.Apply(_mainCmdList.Get(), 0u);
 
 	IndexBufferDescriptor ibd(_IndiceBuffer->GetGPUVirtualAddress(), sizeof(UINT16) * _countof(_Indice));
 	ibd.Apply(_mainCmdList.Get());
 
-
-	D3D12_RESOURCE_BARRIER barrier = {};
-	barrier.Transition.pResource = _swapChainBuffer[_currentBackBufferIndex].Get();
-	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_PRESENT;
-	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	_mainCmdList->ResourceBarrier(1u, &barrier);
+	_mainCmdList->ResourceBarrier(0u, &ResourceBarrier::TransitionBarrier(_swapChainBuffer[_currentBackBufferIndex].Get(),
+		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 	FLOAT color[4] = { 0.4f, .4f, .4f, .4f };
 	_mainCmdList->ClearRenderTargetView(GetCurrentBackBufferView(),
@@ -158,11 +189,11 @@ void BoxApp::OnRender()
 	_mainCmdList->SetGraphicsRootConstantBufferView(0u, _cbBuffer->GetGPUVirtualAddress());
 
 	_mainCmdList->DrawIndexedInstanced(36u, 1u, 0u, 0u, 0u);
-	D3D12_RESOURCE_BARRIER barrier1 = {};
-	barrier1.Transition.pResource = _swapChainBuffer[_currentBackBufferIndex].Get();
-	barrier1.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	barrier1.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	_mainCmdList->ResourceBarrier(1, &barrier1);
+	_mainCmdList->DrawIndexedInstanced((54u - 36u), 1u, 36u, 8u, 0u);
+	//_mainCmdList->DrawIndexedInstanced(54u, 1u, 0u, 0u, 0u);
+	_mainCmdList->ResourceBarrier(0u, &ResourceBarrier::TransitionBarrier(
+		_swapChainBuffer[_currentBackBufferIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_PRESENT));
 	ThrowIfFailed(_mainCmdList->Close());
 
 	ID3D12CommandList* cmdlsts[] = { _mainCmdList.Get() };
@@ -180,17 +211,25 @@ void BoxApp::InitializePipelineState()
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psDesc;
 	ZeroMemory(&psDesc, sizeof(psDesc));
 
+	//InputLayoutDescriptor ild;
+	//ild.PushElementDescription("POSITION", DXGI_FORMAT_R32G32B32A32_FLOAT);
+	//ild.PushElementDescription("COLOR", DXGI_FORMAT_R32G32B32A32_FLOAT);
+	//psDesc.InputLayout = ild.Get();
+
 	InputLayoutDescriptor ild;
-	ild.PushElementDescription("POSITION", DXGI_FORMAT_R32G32B32A32_FLOAT);
-	ild.PushElementDescription("COLOR", DXGI_FORMAT_R32G32B32A32_FLOAT);
+	ild.PushElementDescription("POSITION", DXGI_FORMAT_R32G32B32A32_FLOAT, 0u);
+	ild.PushElementDescription("COLOR", DXGI_FORMAT_R32G32B32A32_FLOAT, 1u);
+	psDesc.InputLayout = ild.Get();
+
+
 	psDesc.pRootSignature = _rootSignature.Get();
 	psDesc.VS = _vertexShader.Get();
 	psDesc.PS = _pixelShader.Get();
 	psDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psDesc.SampleMask = UINT_MAX;
-	psDesc.RasterizerState = RasterizerDescriptor(/*D3D12_FILL_MODE_WIREFRAME, D3D12_CULL_MODE_NONE*/);
+	psDesc.RasterizerState = RasterizerDescriptor(D3D12_FILL_MODE_WIREFRAME, D3D12_CULL_MODE_NONE);
 	psDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	psDesc.InputLayout = ild.Get();
+
 	psDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psDesc.NumRenderTargets = 1;
 	psDesc.RTVFormats[0] = _backBufferFormat;
@@ -198,8 +237,11 @@ void BoxApp::InitializePipelineState()
 	psDesc.SampleDesc.Count = 1;
 	psDesc.SampleDesc.Quality = 0;
 
-	ThrowIfFailed(_d3d12Device->CreateGraphicsPipelineState(&psDesc, IID_PPV_ARGS(_pipelineState.GetAddressOf())));
+	ThrowIfFailed(_d3d12Device->CreateGraphicsPipelineState(&psDesc, IID_PPV_ARGS(_pipelineStateWireFrame.GetAddressOf())));
+	psDesc.RasterizerState = RasterizerDescriptor();
+	ThrowIfFailed(_d3d12Device->CreateGraphicsPipelineState(&psDesc, IID_PPV_ARGS(_pipelineStateNormal.GetAddressOf())));
 
+	_pCurrentPS = _pipelineStateNormal.Get();
 }
 
 void BoxApp::InitializeRootSignature()
@@ -261,14 +303,44 @@ void BoxApp::InitializeSceneComponents()
 	// 		4, 3, 7
 	// 	};
 
-	_Box[0] = Vertex(0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
-	_Box[1] = Vertex(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-	_Box[2] = Vertex(1.f, 0.f, 1.f, 1.f, 0.f, 1.f);
-	_Box[3] = Vertex(0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
-	_Box[4] = Vertex(0.f, 1.f, 0.f, 0.f, 1.f, 0.f);
-	_Box[5] = Vertex(1.f, 1.f, 0.f, 1.f, 1.f, 0.f);
-	_Box[6] = Vertex(1.f, 1.f, 1.f, 1.f, 1.f, 1.f);
-	_Box[7] = Vertex(0.f, 1.f, 1.f, 0.f, 1.f, 1.f);
+	//_Box[0] = Vertex(0.f, 0.f, 0.f, 0.f, 0.f, 0.f);
+	//_Box[1] = Vertex(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+	//_Box[2] = Vertex(1.f, 0.f, 1.f, 1.f, 0.f, 1.f);
+	//_Box[3] = Vertex(0.f, 0.f, 1.f, 0.f, 0.f, 1.f);
+	//_Box[4] = Vertex(0.f, 1.f, 0.f, 0.f, 1.f, 0.f);
+	//_Box[5] = Vertex(1.f, 1.f, 0.f, 1.f, 1.f, 0.f);
+	//_Box[6] = Vertex(1.f, 1.f, 1.f, 1.f, 1.f, 1.f);
+	//_Box[7] = Vertex(0.f, 1.f, 1.f, 0.f, 1.f, 1.f);
+
+	using namespace Luxko;
+	_Box[0] = Vertex(0.f, 0.f, 0.f);
+	_Box[1] = Vertex(1.f, 0.f, 0.f);
+	_Box[2] = Vertex(1.f, 0.f, 1.f);
+	_Box[3] = Vertex(0.f, 0.f, 1.f);
+	_Box[4] = Vertex(0.f, 1.f, 0.f);
+	_Box[5] = Vertex(1.f, 1.f, 0.f);
+	_Box[6] = Vertex(1.f, 1.f, 1.f);
+	_Box[7] = Vertex(0.f, 1.f, 1.f);
+	_BoxColors[0] = Vector4f(0.f, 0.f, 0.f, 1.f);
+	_BoxColors[1] = Vector4f(1.f, 0.f, 0.f, 1.f);
+	_BoxColors[2] = Vector4f(1.f, 0.f, 1.f, 1.f);
+	_BoxColors[3] = Vector4f(0.f, 0.f, 1.f, 1.f);
+	_BoxColors[4] = Vector4f(0.f, 1.f, 0.f, 1.f);
+	_BoxColors[5] = Vector4f(1.f, 1.f, 0.f, 1.f);
+	_BoxColors[6] = Vector4f(1.f, 1.f, 1.f, 1.f);
+	_BoxColors[7] = Vector4f(0.f, 1.f, 1.f, 1.f);
+
+	_Box[8] = Vertex(-1.f, 0.f, 0.f);
+	_Box[9] = Vertex(-3.f, 0.f, 0.f);
+	_Box[10] = Vertex(-3.f, 0.f, 2.f);
+	_Box[11] = Vertex(-1.f, 0.f, 2.f);
+	_Box[12] = Vertex(-2.f, 3.f, 1.f);
+	_BoxColors[8] = Vector4f(0.f, 0.f, 1.f, 1.f);
+	_BoxColors[9] = Vector4f(0.f, 1.f, 0.f, 1.f);
+	_BoxColors[10] = Vector4f(1.f, 1.f, 0.f, 1.f);
+	_BoxColors[11] = Vector4f(1.f, 1.f, 1.f, 1.f);
+	_BoxColors[12] = Vector4f(0.f, 1.f, 1.f, 1.f);
+	
 
 	UINT16 indices[] = { 1,2,5,
 						2,6,5,
@@ -281,11 +353,20 @@ void BoxApp::InitializeSceneComponents()
 						7,4,5,
 						5,6,7,
 						2,1,0,
-						3,2,0};
+						3,2,0,
+						// Now the pyramid..
+						8,12,9,
+						9,12,10,
+						10,12,11,
+						11,12,8,
+						8,9,10,
+						8,10,11};
 
 	std::memcpy(_Indice, indices, sizeof(UINT16)*_countof(_Indice));
-
-	;
+	for (auto i = 36u; i < _countof(_Indice); ++i) {
+		_Indice[i] -= 8u;
+	}
+	
 
 	_mainCamera = Luxko::Anuthur::PerspecCamera::FromHFOVAndAspectRatio(1.f, 1000.f, 4.f / 3.f, 2.f*M_PI / 3.f, Luxko::Frame3DH(Luxko::Vector3DH(-1.f, -2.f, 1.f), Luxko::Vector3DH(0.f, 1.f, 0.f),
 		Luxko::Point3DH(2.f, 4.f, -2.f)));
@@ -301,28 +382,31 @@ void BoxApp::InitializeShaders()
 	ThrowIfFailed(_pixelShader.CompileFromFile(L"shaders.hlsl", "PS", "ps_5_0"));
 }
 
-void BoxApp::InitializeHeaps()
+void BoxApp::InitializeBuffers()
 {
 	using namespace Luxko;
 	using namespace Luxko::Anuthur;
 	using namespace Luxko::Anuthur::D3D12Helper;
 
-	//ThrowIfFailed(_d3d12Device->CreateCommittedResource(&HeapProperties(), D3D12_HEAP_FLAG_NONE,
-	//	&ResourceDescriptor(D3D12_RESOURCE_DIMENSION_BUFFER, sizeof(Vertex)*_countof(_Box)),
-	//	D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(_verticeHeap.GetAddressOf())));
-	_mainCmdList->Reset(_mainCmdAllocator.Get(), _pipelineState.Get());
-	_verticeBuffer = CreateDefaultBuffer(_d3d12Device.Get(), _mainCmdList.Get(),
+	_uploadBuffers.emplace_back(nullptr);
+	auto& _uploadBuffer = _uploadBuffers[0];
+	_mainCmdList->Reset(_mainCmdAllocator.Get(), _pipelineStateWireFrame.Get());
+	_verticePositionBuffer = CreateDefaultBuffer(_d3d12Device.Get(), _mainCmdList.Get(),
 		static_cast<void*>(_Box), static_cast<UINT64>(sizeof(Vertex) * _countof(_Box)), _uploadBuffer);
 
-	// 	ID3D12CommandList* const cmdLists[] = { _mainCmdList.Get() };
-	// 	_cmdQueue->ExecuteCommandLists(1u, cmdLists );
-	// 	
-	// 	FlushCommandQueue();
 
-
+	_uploadBuffers.emplace_back(nullptr);
+	auto& _uploadBuffer1 = _uploadBuffers[1];
 	_IndiceBuffer = CreateDefaultBuffer(_d3d12Device.Get(), _mainCmdList.Get(),
 		static_cast<void*>(_Indice), static_cast<UINT64>(sizeof(UINT16) * _countof(_Indice)),
 		_uploadBuffer1);
+
+	_uploadBuffers.emplace_back(nullptr);
+	_verticeAttributeBuffer = CreateDefaultBuffer(_d3d12Device.Get(), _mainCmdList.Get(),
+		static_cast<void*>(_BoxColors), static_cast<UINT64>(sizeof(Vector4f)*_countof(_BoxColors)),
+		_uploadBuffers[2]);
+
+
 	_cbBufferSize = D3D12Helper::GetCBSizeAligned(sizeof(Matrix4x4f));
 	auto cbHeapDesc = ResourceDescriptor::Buffer(_cbBufferSize);
 	ThrowIfFailed(_d3d12Device->CreateCommittedResource(
@@ -349,7 +433,7 @@ void BoxApp::BindResourceViews()
 	using namespace Luxko::Anuthur::D3D12Helper;
 	//_mainCmdList->SetGraphicsRootSignature(_rootSignature.Get());
 	VertexBuffersDescriptor vbd;
-	vbd.Push(_verticeBuffer->GetGPUVirtualAddress(), sizeof(Vertex) * _countof(_Box), sizeof(Vertex));
+	vbd.Push(_verticePositionBuffer->GetGPUVirtualAddress(), sizeof(Vertex) * _countof(_Box), sizeof(Vertex));
 	vbd.Apply(_mainCmdList.Get(), 0u);
 
 	IndexBufferDescriptor ibd(_IndiceBuffer->GetGPUVirtualAddress(), sizeof(UINT16) * _countof(_Indice));
@@ -357,4 +441,18 @@ void BoxApp::BindResourceViews()
 
 	//_mainCmdList->SetGraphicsRootConstantBufferView(0u, _cbBuffer->GetGPUVirtualAddress());
 
+}
+
+bool BoxApp::OnEvent(MSG msg)
+{
+	//static auto constexpr bitMask = 0x1 << 31;
+	if (msg.message == WM_KEYUP) {
+		if (msg.wParam == VK_SPACE) {
+			if (_pCurrentPS == _pipelineStateWireFrame.Get()) _pCurrentPS = _pipelineStateNormal.Get();
+			else _pCurrentPS = _pipelineStateWireFrame.Get();
+			return true;
+		}
+	}
+
+	return D3D12App::OnEvent(msg);
 }

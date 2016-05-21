@@ -295,9 +295,8 @@ namespace Luxko {
 					D3D12_CULL_MODE cullMode = D3D12_CULL_MODE_BACK,
 					BOOL frontCounterClockwise = FALSE, INT depthBias = 0,
 					FLOAT depthBiaClamp = 0.f, FLOAT slopeScaledDepthBias = 0.f,
-					BOOL depthClipEnable = TRUE, BOOL scissorEnable = FALSE,
-					BOOL msEnable = FALSE, BOOL antiAliasEnable = FALSE,
-					UINT forcedSampleCount = 0u,
+					BOOL depthClipEnable = TRUE,BOOL msEnable = FALSE, 
+					BOOL antiAliasEnable = FALSE, UINT forcedSampleCount = 0u,
 					D3D12_CONSERVATIVE_RASTERIZATION_MODE crMode = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF);
 			};
 
