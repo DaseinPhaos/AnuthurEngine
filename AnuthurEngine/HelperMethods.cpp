@@ -462,7 +462,7 @@ UINT Luxko::Anuthur::D3D12Helper::DxgiFormatSize(DXGI_FORMAT format)
 	}
 
 
-	Luxko::Anuthur::D3D12Helper::RasterizerDescriptor::RasterizerDescriptor(D3D12_FILL_MODE fillMode /*= D3D12_FILL_MODE_SOLID*/, D3D12_CULL_MODE cullMode /*= D3D12_CULL_MODE_BACK*/, BOOL frontCounterClockwise /*= FALSE*/, INT depthBias /*= 0*/, FLOAT depthBiaClamp /*= 0.f*/, FLOAT slopeScaledDepthBias /*= 0.f*/, BOOL depthClipEnable /*= TRUE*/, BOOL scissorEnable /*= FALSE*/, BOOL msEnable /*= FALSE*/, BOOL antiAliasEnable /*= FALSE*/, UINT forcedSampleCount /*= 0u*/, D3D12_CONSERVATIVE_RASTERIZATION_MODE crMode /*= D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF*/)
+	Luxko::Anuthur::D3D12Helper::RasterizerDescriptor::RasterizerDescriptor(D3D12_FILL_MODE fillMode /*= D3D12_FILL_MODE_SOLID*/, D3D12_CULL_MODE cullMode /*= D3D12_CULL_MODE_BACK*/, BOOL frontCounterClockwise /*= FALSE*/, INT depthBias /*= 0*/, FLOAT depthBiaClamp /*= 0.f*/, FLOAT slopeScaledDepthBias /*= 0.f*/, BOOL depthClipEnable /*= TRUE*/, BOOL msEnable /*= FALSE*/, BOOL antiAliasEnable /*= FALSE*/, UINT forcedSampleCount /*= 0u*/, D3D12_CONSERVATIVE_RASTERIZATION_MODE crMode /*= D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF*/)
 		:D3D12_RASTERIZER_DESC{ fillMode, cullMode, frontCounterClockwise, depthBias, depthBiaClamp, slopeScaledDepthBias, depthClipEnable, msEnable, antiAliasEnable, forcedSampleCount, crMode } {}
 
 	HRESULT Luxko::Anuthur::D3D12Helper::ShaderByteCode::CompileFromFile(LPCWSTR filename, LPCSTR entryPoint, LPCSTR target, const D3D_SHADER_MACRO* pDefines /*= nullptr*/, ID3DInclude* include /*= D3D_COMPILE_STANDARD_FILE_INCLUDE*/)
