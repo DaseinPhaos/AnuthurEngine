@@ -24,7 +24,7 @@ namespace Luxko {
 	public:
 		Box() {}
 		Box(float width, float height, float length, const Frame3DH& f = Frame3DH::StandardRightHandFrame())
-			:ConvexObject(f), _width(width), _height(height), _length(length) {}
+			:ConvexObject(f), _width(width), _height(height), _length(-length) {}
 		explicit Box(const Vector3f& data, const Frame3DH& f = Frame3DH::StandardRightHandFrame())
 			:_data(data),ConvexObject(f) {}
 		Box(const Box&) = default;

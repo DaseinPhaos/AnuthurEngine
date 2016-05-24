@@ -114,6 +114,7 @@ namespace Luxko {
 			class ANUTHURRENDERER_API VertexBuffersDescriptor {
 			public:
 				VertexBuffersDescriptor() {}
+				~VertexBuffersDescriptor() = default;
 				void Pop();
 				void Push(D3D12_GPU_VIRTUAL_ADDRESS bufferLocation, UINT sizeInBytes, UINT strideInBytes);
 				void Apply(ID3D12GraphicsCommandList* cmdlst, UINT startSlot)const;
@@ -300,19 +301,6 @@ namespace Luxko {
 					D3D12_CONSERVATIVE_RASTERIZATION_MODE crMode = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF);
 			};
 
-			ANUTHURRENDERER_API Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(
-				ID3D12Device* device, ID3D12GraphicsCommandList* cmdlst,
-				const void* data, UINT64 sizeInBytes,
-				Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer);
-
-			ANUTHURRENDERER_API UINT GetCBSizeAligned(size_t sizeOfObject);
-
-			ANUTHURRENDERER_API HRESULT CompileShader(LPCWSTR filename,
-				LPCSTR entryPoint, LPCSTR target,
-				ID3DBlob** ppCompiled, ID3DBlob** ppErrorMsg = nullptr,
-				const D3D_SHADER_MACRO* pDefines = nullptr,
-				ID3DInclude* include = D3D_COMPILE_STANDARD_FILE_INCLUDE);
-
 			class ANUTHURRENDERER_API ShaderByteCode {
 			public:
 				ShaderByteCode() {}
@@ -326,7 +314,40 @@ namespace Luxko {
 				Microsoft::WRL::ComPtr<ID3DBlob> _shaderBytes;
 			};
 
-			ANUTHURRENDERER_API UINT DxgiFormatSize(DXGI_FORMAT format);
+			ANUTHURRENDERER_API Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(
+				ID3D12Device* device, ID3D12GraphicsCommandList* cmdlst,
+				const void* data, UINT64 sizeInBytes,
+				Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer);
+
+			ANUTHURRENDERER_API UINT GetCBSizeAligned(size_t sizeOfObject);
+
+			ANUTHURRENDERER_API HRESULT CompileShader(LPCWSTR filename,
+				LPCSTR entryPoint, LPCSTR target,
+				ID3DBlob** ppCompiled, ID3DBlob** ppErrorMsg = nullptr,
+				const D3D_SHADER_MACRO* pDefines = nullptr,
+				ID3DInclude* include = D3D_COMPILE_STANDARD_FILE_INCLUDE);
+
+			ANUTHURRENDERER_API UINT DxgiFormatBitSize(DXGI_FORMAT format);
+
+			template<typename RT>
+			class UpdateBuffer {
+			public:
+				UpdateBuffer() {}
+				UpdateBuffer(ID3D12Device* device/*, const RT& data*/) {
+					ThrowIfFailed(device->CreateCommittedResource(&HeapProperties(D3D12_HEAP_TYPE_UPLOAD),
+						D3D12_HEAP_FLAG_NONE, &ResourceDescriptor::Buffer(GetCBSizeAligned(sizeof(RT))),
+						D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(_buffer.GetAddressOf())));
+					ThrowIfFailed(_buffer->Map(0u, nullptr, reinterpret_cast<void**>(&_bufferPtr)));
+				}
+				~UpdateBuffer() { _buffer->Unmap(0u, nullptr); }
+				void Update(const RT& data) {
+					CopyMemory(_bufferPtr, &data, /*GetCBSizeAligned(sizeof(RT))*/ sizeof(RT));
+				}
+				ID3D12Resource* Get()const { return _buffer.Get(); }
+			private:
+				Microsoft::WRL::ComPtr<ID3D12Resource>	_buffer;
+				BYTE*									_bufferPtr;
+			};
 		}
 	}
 }

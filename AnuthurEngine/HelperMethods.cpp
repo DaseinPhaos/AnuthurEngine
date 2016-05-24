@@ -16,7 +16,7 @@ void Luxko::Anuthur::D3D12Helper::InputLayoutDescriptor::PushElementDescription(
 	assert(inputSlot < MaxInputSlotCount);
 	_ilds.emplace_back(semanticName, format, _currentSlotOffset[inputSlot],
 		inputSlot, semanticIndex, instanceDataSR, classification);
-	auto size = DxgiFormatSize(format);
+	auto size = DxgiFormatBitSize(format);
 	size /= 8u;
 	while (size % 4 != 0u) size++;
 	_currentSlotOffset[inputSlot] += size;
@@ -105,7 +105,7 @@ HRESULT Luxko::Anuthur::D3D12Helper::CompileShader(LPCWSTR filename, LPCSTR entr
 	return D3DCompileFromFile(filename, pDefines, include, entryPoint, target, flags1, 0, ppCompiled, ppErrorMsg);
 }
 
-UINT Luxko::Anuthur::D3D12Helper::DxgiFormatSize(DXGI_FORMAT format)
+UINT Luxko::Anuthur::D3D12Helper::DxgiFormatBitSize(DXGI_FORMAT format)
 {
 	switch (format)
 	{
