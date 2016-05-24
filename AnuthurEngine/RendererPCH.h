@@ -36,7 +36,13 @@
 #include <dxgi1_4.h>
 #include <D3Dcompiler.h>
 
+#include <cstddef>
+#include <memory>
 #include <vector>
+#include <set>
+#include <map>
+#include <unordered_set>
+#include <unordered_map>
 #include <string>
 #include <cassert>
 #include <cstring>
@@ -44,6 +50,8 @@
 #include "d3dx12.h"
 #include "ApplicationBase.h"
 #include "ApplicationHelper.h"
+#include <DirectXColors.h>
+#include <DirectXCollision.h>
 
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "D3D12.lib")

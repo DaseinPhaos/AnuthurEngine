@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnuthurApplication", "Anuth
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BoxApp", "BoxApp\BoxApp.vcxproj", "{E80E6F80-9A7D-4C58-8E99-67781F2CA432}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShapesApp", "ShapesApp\ShapesApp.vcxproj", "{EFE0A9B4-65F2-4963-9981-1608ECD3B929}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -91,6 +93,14 @@ Global
 		{E80E6F80-9A7D-4C58-8E99-67781F2CA432}.Release|x64.Build.0 = Release|x64
 		{E80E6F80-9A7D-4C58-8E99-67781F2CA432}.Release|x86.ActiveCfg = Release|Win32
 		{E80E6F80-9A7D-4C58-8E99-67781F2CA432}.Release|x86.Build.0 = Release|Win32
+		{EFE0A9B4-65F2-4963-9981-1608ECD3B929}.Debug|x64.ActiveCfg = Debug|x64
+		{EFE0A9B4-65F2-4963-9981-1608ECD3B929}.Debug|x64.Build.0 = Debug|x64
+		{EFE0A9B4-65F2-4963-9981-1608ECD3B929}.Debug|x86.ActiveCfg = Debug|Win32
+		{EFE0A9B4-65F2-4963-9981-1608ECD3B929}.Debug|x86.Build.0 = Debug|Win32
+		{EFE0A9B4-65F2-4963-9981-1608ECD3B929}.Release|x64.ActiveCfg = Release|x64
+		{EFE0A9B4-65F2-4963-9981-1608ECD3B929}.Release|x64.Build.0 = Release|x64
+		{EFE0A9B4-65F2-4963-9981-1608ECD3B929}.Release|x86.ActiveCfg = Release|Win32
+		{EFE0A9B4-65F2-4963-9981-1608ECD3B929}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

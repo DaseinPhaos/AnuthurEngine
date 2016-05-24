@@ -14,6 +14,31 @@ namespace Luxko {
 		constexpr auto SwapChainBufferCount = 2u;
 		using Microsoft::WRL::ComPtr;
 
+		// This class serves as a base class.
+		// Classes that derives from it should contain all the resources
+		// that would be updated in per-frame frequency.
+		// The main application would then store multiple instances
+		// of such class, apply them to the command list in circular 
+		// sequence per frame in order to reduce synchronization needs
+		// across CPU and GPU.
+		struct ANUTHURRENDERER_API FrameResource {
+		public:
+			explicit FrameResource(ID3D12Device* pDevice);
+			FrameResource(const FrameResource&) = delete;
+			FrameResource(FrameResource&& fr) {
+				_cmdAllocator = fr._cmdAllocator;
+				_fenceCount = fr._fenceCount;
+				fr._cmdAllocator.Reset();
+			}
+			FrameResource& operator=(const FrameResource&) = delete;
+
+			virtual ~FrameResource() {}
+
+			ComPtr<ID3D12CommandAllocator>		_cmdAllocator;
+			UINT64								_fenceCount = 0u;
+		};
+
+
 		class ANUTHURRENDERER_API D3D12App abstract : public Luxko::Application::BaseApp {
 		public:
 			D3D12App(UINT width, UINT height, const std::wstring& name) :
@@ -59,8 +84,8 @@ namespace Luxko {
 			//D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentDepthStencilBiew()const;
 
 			Luxko::Timer						_mainTimer;
-			BOOL								_appPaused=false;
-			
+			BOOL								_appPaused = false;
+
 			ComPtr<IDXGIFactory4>				_dxgiFactory;
 			ComPtr<ID3D12Device>				_d3d12Device;
 			ComPtr<ID3D12Fence>					_mainFence;
