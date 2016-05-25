@@ -80,6 +80,8 @@ namespace Luxko {
 		//			from d3dUtil.h by Frank Luna (C)
 		//			which is part of the library built for book
 		//			*Introduction to 3D Game Programming with DirectX 12*.
+		//
+		//			I've added some utility method to it.
 
 
 		// Defines a subrange of geometry in a MeshGeometry.  This is for when multiple
@@ -172,6 +174,13 @@ namespace Luxko {
 			{
 				VertexBufferUploader = nullptr;
 				IndexBufferUploader = nullptr;
+			}
+
+			UINT GetTotoalIndexCount()const {
+				return static_cast<UINT>(IndexBufferByteSize * 8ll / D3D12Helper::DxgiFormatBitSize(IndexFormat));
+			}
+			UINT GetTotalVertexCount()const {
+				return VertexBufferByteSize / VertexByteStride;
 			}
 		};
 

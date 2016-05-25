@@ -31,7 +31,13 @@ namespace Luxko {
 				fr._cmdAllocator.Reset();
 			}
 			FrameResource& operator=(const FrameResource&) = delete;
-
+			FrameResource& operator=(FrameResource&& fr) {
+				_cmdAllocator = nullptr;
+				_fenceCount = fr._fenceCount;
+				_cmdAllocator = fr._cmdAllocator;
+				fr._cmdAllocator.Reset();
+				return *this;
+			}
 			virtual ~FrameResource() {}
 
 			ComPtr<ID3D12CommandAllocator>		_cmdAllocator;
