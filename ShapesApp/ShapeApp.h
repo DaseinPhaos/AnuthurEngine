@@ -17,6 +17,7 @@ using namespace Luxko::Anuthur;
 class ShapeFrameResource : public FrameResource {
 public:
 	ShapeFrameResource(ID3D12Device* device);
+
 	virtual ~ShapeFrameResource();
 	void Update(const Matrix4x4f& newWHTransform);
 

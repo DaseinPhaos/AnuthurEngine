@@ -42,6 +42,9 @@
     <ClInclude Include="..\AnuthurEngine\MeshResource.h">
       <Filter>Headers\SceneComponents</Filter>
     </ClInclude>
+    <ClInclude Include="LightandMaterial.h">
+      <Filter>Headers\SceneComponents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\D3D12App.cpp">
@@ -54,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\AnuthurEngine\BasicGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LightandMaterial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

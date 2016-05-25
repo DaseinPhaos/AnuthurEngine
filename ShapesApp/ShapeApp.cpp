@@ -247,13 +247,7 @@ void ShapeApp::InitializeSceneComponents()
 		auto sphereMeshData = BasicGeometry::Sphere(1.1f, 12u, 24u);
 
 		auto sphereMeshGeometry = MeshGeometry();
-		sphereMeshGeometry.IndexFormat = DXGI_FORMAT_R32_UINT;
-		sphereMeshGeometry.IndexBufferByteSize = D3D12Helper::DxgiFormatBitSize(sphereMeshGeometry.IndexFormat) / 8 * sphereMeshData.Indices.size();
-		ThrowIfFailed(D3DCreateBlob(sphereMeshGeometry.IndexBufferByteSize, sphereMeshGeometry.IndexBufferCPU.GetAddressOf()));
-		CopyMemory(sphereMeshGeometry.IndexBufferCPU->GetBufferPointer(), sphereMeshData.Indices.data(), sphereMeshGeometry.IndexBufferCPU->GetBufferSize());
-		sphereMeshGeometry.IndexBufferGPU = D3D12Helper::CreateDefaultBuffer(_d3d12Device.Get(), _mainCmdList.Get(),
-			sphereMeshGeometry.IndexBufferCPU->GetBufferPointer(), sphereMeshGeometry.IndexBufferCPU->GetBufferSize(),
-			sphereMeshGeometry.IndexBufferUploader);
+
 
 		auto sphereVerticeData = std::vector<Vertex>();
 		sphereVerticeData.reserve(sphereMeshData.Vertices.size());
@@ -262,13 +256,10 @@ void ShapeApp::InitializeSceneComponents()
 			sphereVerticeData.emplace_back(sphereMeshData.Vertices[i].Pos,
 				norm2color(sphereMeshData.Vertices[i].Norm));
 		}
-		sphereMeshGeometry.VertexByteStride = sizeof(Vertex);
-		sphereMeshGeometry.VertexBufferByteSize = sphereMeshGeometry.VertexByteStride*sphereVerticeData.size();
-		ThrowIfFailed(D3DCreateBlob(sphereMeshGeometry.VertexBufferByteSize, sphereMeshGeometry.VertexBufferCPU.GetAddressOf()));
-		CopyMemory(sphereMeshGeometry.VertexBufferCPU->GetBufferPointer(), sphereVerticeData.data(), sphereMeshGeometry.VertexBufferCPU->GetBufferSize());
-		sphereMeshGeometry.VertexBufferGPU = D3D12Helper::CreateDefaultBuffer(_d3d12Device.Get(), _mainCmdList.Get(),
-			sphereMeshGeometry.VertexBufferCPU->GetBufferPointer(), sphereMeshGeometry.VertexBufferCPU->GetBufferSize(),
-			sphereMeshGeometry.VertexBufferUploader);
+
+		sphereMeshGeometry.InitializeCPUResource(DXGI_FORMAT_R32_UINT, sphereMeshData.Indices.size(),
+			sphereMeshData.Indices.data(), sizeof(Vertex), sphereVerticeData.size(), sphereVerticeData.data());
+		sphereMeshGeometry.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
 
 		_geometrys["sphere"] = sphereMeshGeometry;
 	}
