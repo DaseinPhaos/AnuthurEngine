@@ -150,19 +150,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\AnuthurEngine\BasicGeometry.h" />
+    <ClInclude Include="..\AnuthurEngine\LightandMaterial.h" />
     <ClInclude Include="..\AnuthurEngine\MeshResource.h" />
     <ClInclude Include="..\AnuthurEngine\PerspecCamera.h" />
     <ClInclude Include="..\AnuthurEngine\D3D12App.h" />
     <ClInclude Include="..\AnuthurEngine\HelperMethods.h" />
     <ClInclude Include="..\AnuthurEngine\RendererPCH.h" />
-    <ClInclude Include="LightandMaterial.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\AnuthurEngine\BasicGeometry.cpp" />
     <ClCompile Include="..\AnuthurEngine\D3D12App.cpp" />
     <ClCompile Include="..\AnuthurEngine\HelperMethods.cpp" />
+    <ClCompile Include="..\AnuthurEngine\LightandMaterial.cpp" />
     <ClCompile Include="..\AnuthurEngine\PerspecCamera.cpp" />
-    <ClCompile Include="LightandMaterial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AnuthurApplication\AnuthurApplication.vcxproj">

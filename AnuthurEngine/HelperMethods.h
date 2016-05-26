@@ -333,13 +333,35 @@ namespace Luxko {
 			class UpdateBuffer {
 			public:
 				UpdateBuffer() {}
+				UpdateBuffer(const UpdateBuffer<RT>&) = delete;
+				UpdateBuffer& operator=(const UpdateBuffer<RT>&) = delete;
+				UpdateBuffer(UpdateBuffer<RT>&& ub) {
+					_haveIt = ub._haveIt;
+					ub._haveIt = false;
+					_buffer = ub._buffer;
+					_bufferPtr = ub._bufferPtr;
+					ub._buffer = nullptr;
+					ub._bufferPtr = nullptr;
+				}
+				UpdateBuffer& operator=(UpdateBuffer<RT>&& ub) {
+					if (_haveIt)_buffer->Unmap(0u, nullptr);
+					_haveIt = ub._haveIt;
+					ub._haveIt = false;
+					_buffer = ub._buffer;
+					_bufferPtr = ub._bufferPtr;
+					ub._buffer = nullptr;
+					ub._bufferPtr = nullptr;
+					return *this;
+				}
+
 				UpdateBuffer(ID3D12Device* device/*, const RT& data*/) {
 					ThrowIfFailed(device->CreateCommittedResource(&HeapProperties(D3D12_HEAP_TYPE_UPLOAD),
 						D3D12_HEAP_FLAG_NONE, &ResourceDescriptor::Buffer(GetCBSizeAligned(sizeof(RT))),
 						D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(_buffer.GetAddressOf())));
 					ThrowIfFailed(_buffer->Map(0u, nullptr, reinterpret_cast<void**>(&_bufferPtr)));
+					_haveIt = true;
 				}
-				~UpdateBuffer() { _buffer->Unmap(0u, nullptr); }
+				~UpdateBuffer() { if(_haveIt)_buffer->Unmap(0u, nullptr); }
 				void Update(const RT& data) {
 					CopyMemory(_bufferPtr, &data, /*GetCBSizeAligned(sizeof(RT))*/ sizeof(RT));
 				}
@@ -347,6 +369,7 @@ namespace Luxko {
 			private:
 				Microsoft::WRL::ComPtr<ID3D12Resource>	_buffer;
 				BYTE*									_bufferPtr;
+				bool									_haveIt = false;
 			};
 		}
 	}
