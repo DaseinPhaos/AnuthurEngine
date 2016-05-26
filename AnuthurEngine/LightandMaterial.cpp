@@ -145,3 +145,71 @@ std::pair<Luxko::Vector3DH, Luxko::Anuthur::ColorRGBf> Luxko::Anuthur::SpotLight
 	auto delta = std::pow(a, _power)*linearFallOff;
 	return{ distanceVec , delta * _irradiance };
 }
+
+Luxko::Anuthur::LambertMaterial::LambertMaterial(const ColorRGBf& diffuseAlbedo)
+{
+	_diffuseAlbedo = diffuseAlbedo;
+}
+
+Luxko::Anuthur::LambertMaterial::LambertMaterial(float ar, float ag, float ab):_diffuseAlbedo(ar, ag, ab)
+{}
+
+Luxko::Anuthur::ColorRGBf Luxko::Anuthur::LambertMaterial::ApplyDirectionalLight(const ColorRGBf& irradiance, const Vector3DH& lightVec, const Vector3DH& normalVec, const Vector3DH& eyeVec) const
+{
+	auto cosineTheta = lightVec*normalVec;
+	if (cosineTheta <= 0.f)return{ 0.f, 0.f, 0.f };
+	return (cosineTheta)*(irradiance.ElementWideMultiply(_diffuseAlbedo));
+}
+
+Luxko::Anuthur::ColorRGBf Luxko::Anuthur::LambertMaterial::ApplyIndirectionalLight(const ColorRGBf& irradiance, const Vector3DH& normalVec, const Vector3DH& eyeVec) const
+{
+	return irradiance.ElementWideMultiply(_diffuseAlbedo);
+}
+
+Luxko::Anuthur::ColorRGBf Luxko::Anuthur::SpecularMaterial::SchlickApproximation(const ColorRGBf& R0, float cosineTheta)
+{
+	static const auto oneColor = ColorRGBf(1.f, 1.f, 1.f);
+	return R0 + ( oneColor - R0)*(std::pow(1.f - cosineTheta, 5.f));
+}
+
+Luxko::Anuthur::SpecularMaterial::SpecularMaterial(const ColorRGBf& frenselAlbedo0, float roughness)
+{
+	_frenselAlbedo0 = frenselAlbedo0;
+	_roughness = roughness;
+}
+
+Luxko::Anuthur::ColorRGBf Luxko::Anuthur::SpecularMaterial::ApplyDirectionalLight(const ColorRGBf& irradiance, const Vector3DH& lightVec, const Vector3DH& normalVec, const Vector3DH& eyeVec) const
+{
+	auto cosineTheta = lightVec*normalVec;
+	if (cosineTheta <= 0.f) return{ 0.f, 0.f, 0.f };
+	auto hVec = (normalVec + eyeVec).Normalize();
+	auto cosineAlpha = hVec*eyeVec;
+	auto frenselAlbedoAlpha = SchlickApproximation(_frenselAlbedo0, cosineAlpha);
+	auto m = _roughness*256.f;
+	auto roughnessCoefficient = ((m + 8.f) / 8.f)*std::pow(normalVec*hVec, m);
+	return (roughnessCoefficient*cosineTheta)*(irradiance.ElementWideMultiply(frenselAlbedoAlpha));
+}
+
+Luxko::Anuthur::ColorRGBf Luxko::Anuthur::SpecularMaterial::ApplyIndirectionalLight(const ColorRGBf& irradiance, const Vector3DH& normalVec, const Vector3DH& eyeVec) const
+{
+	return{ 0.f, 0.f, 0.f };
+}
+
+Luxko::Anuthur::BlinnPhongMaterial::BlinnPhongMaterial(const ColorRGBf& diffuseAlbedo, const ColorRGBf& frenselAlbedo0, float roughness)
+	:_spec(frenselAlbedo0, roughness), _diffuse(diffuseAlbedo)
+{ }
+
+Luxko::Anuthur::BlinnPhongMaterial::BlinnPhongMaterial(const LambertMaterial& diffuse, const SpecularMaterial& specular)
+	:_spec(specular), _diffuse(diffuse)
+{ }
+
+Luxko::Anuthur::ColorRGBf Luxko::Anuthur::BlinnPhongMaterial::ApplyDirectionalLight(const ColorRGBf& irradiance, const Vector3DH& lightVec, const Vector3DH& normalVec, const Vector3DH& eyeVec) const
+{
+	return _spec.ApplyDirectionalLight(irradiance, lightVec, normalVec, eyeVec)
+		+ _diffuse.ApplyDirectionalLight(irradiance, lightVec, normalVec, eyeVec);
+}
+
+Luxko::Anuthur::ColorRGBf Luxko::Anuthur::BlinnPhongMaterial::ApplyIndirectionalLight(const ColorRGBf& irradiance, const Vector3DH& normalVec, const Vector3DH& eyeVec) const
+{
+	return _diffuse.ApplyIndirectionalLight(irradiance, normalVec, eyeVec);
+}

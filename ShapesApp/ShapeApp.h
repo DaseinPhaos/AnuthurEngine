@@ -10,38 +10,54 @@
 #include "Matrix4x4f.h"
 #include "PerspecCamera.h"
 #include "MeshResource.h"
+#include "LightandMaterial.h"
 
 using namespace Luxko;
 using namespace Luxko::Anuthur;
+
+struct Vertex {
+	Vertex(const Point3DH& p, const Vector3DH& v)
+	{
+		Position = p;
+		normal = v.AsVector4f().xyz();
+	}
+
+	Vertex(const Point3DH& p, const Vector4f& v) {
+		Position = p;
+		normal = v.xyz();
+	}
+	Point3DH Position;
+	Vector3f normal;
+};
+struct LightPack {
+	struct BasicLight
+	{
+		Vector4f	PosAndFallStart;
+		Vector4f	IrradianceAndFallEnd;
+		Vector4f	DirectionAndPower;
+	};
+	BasicLight directional;
+	BasicLight pointLinear;
+	BasicLight pointQuadra;
+	BasicLight spotlight;
+};
 
 class ShapeFrameResource : public FrameResource {
 public:
 	ShapeFrameResource(ID3D12Device* device);
 
 	virtual ~ShapeFrameResource();
-	void Update(const Matrix4x4f& newWHTransform);
+	void UpdateCam(const PerspecCamera& newCamera);
 
 	// Matrix4x4f _whTransform;
 	Microsoft::WRL::ComPtr<ID3D12Resource>	_whTransformGPU;
-	BYTE*	_pwhTransformGPU;
+	BYTE*									_pwhTransformGPU;
+	D3D12Helper::UpdateBuffer<LightPack>	_lightsGPU;
 };
 
 class ShapeApp : public D3D12App {
 public:
-	struct Vertex {
-		Vertex(const Point3DH& p, const Vector3DH& v)
-		{
-			Position = p;
-			Color = Vector4f(v.x(), v.y(), v.z(), 1.f);
-		}
 
-		Vertex(const Point3DH& p, const Vector4f& v) {
-			Position = p;
-			Color = v;
-		}
-		Point3DH Position;
-		Vector4f Color;
-	};
 
 	ShapeApp(UINT width, UINT height, const std::wstring& name) :
 		D3D12App(width, height, name) {}
@@ -64,21 +80,29 @@ private:
 	void InitializeRootSignatures();
 	void InitializeDescriptors();
 
-	PerspecCamera															_mainCamera;
-	std::unordered_map<std::string, Matrix4x4f>								_sceneTransforms;
-	std::unordered_map<std::string, D3D12Helper::UpdateBuffer<Matrix4x4f>>	_scTransformsGPU;
-	std::unordered_map<std::string, MeshGeometry>							_geometrys;
-	std::unordered_map<std::string, D3D12Helper::ShaderByteCode>			_shaders;
-	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>>			_PSOs;
-	ID3D12PipelineState*													_currentPSO;
-	//std::vector<ComPtr<ID3DBlob>>											_rootSignaturesRaw;
-	ComPtr<ID3D12RootSignature>												_rootSignature;
-	std::vector<std::unique_ptr<ShapeFrameResource>>						_frameResources;
-	UINT																	_currentFRIndex = 0u;
-	UINT																	_frDirtyCount;
-	bool																	_lMouseDown = false;
-	bool																	_rMouseDown = false;
-	bool																	_mMouseDown = false;
-	int																		_mouseLastX = 0;
-	int																		_mouseLastY = 0;
+	PerspecCamera																	_mainCamera;
+	std::unordered_map<std::string, Matrix4x4f>										_sceneTransforms;
+	//std::unordered_map<std::string, D3D12Helper::UpdateBuffer<Matrix4x4f>>			_scTransformsGPU;
+	std::unordered_map<std::string, ComPtr<ID3D12Resource>>							_scTransformsGPU;
+	std::unordered_map<std::string, MeshGeometry>									_geometrys;
+	std::unordered_map<std::string, BlinnPhongMaterial>								_geometryMaterials;
+	//std::unordered_map<std::string, D3D12Helper::UpdateBuffer<BlinnPhongMaterial>>	_geometryMaterialsGPU;
+	std::unordered_map<std::string, ComPtr<ID3D12Resource>>							_geometryMaterialsGPU;
+	// packed light resource, 1 directional, 1 pointLinear, 1 pointQuadra, 1 spotlight
+	LightPack																		_lights;
+	//D3D12Helper::UpdateBuffer<LightPack>											_lightsGPU;
+
+	std::unordered_map<std::string, D3D12Helper::ShaderByteCode>					_shaders;
+	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>>					_PSOs;
+	ID3D12PipelineState*															_currentPSO;
+	//std::vector<ComPtr<ID3DBlob>>													_rootSignaturesRaw;
+	ComPtr<ID3D12RootSignature>														_rootSignature;
+	std::vector<std::unique_ptr<ShapeFrameResource>>								_frameResources;
+	UINT																			_currentFRIndex = 0u;
+	UINT																			_frDirtyCount;
+	bool																			_lMouseDown = false;
+	bool																			_rMouseDown = false;
+	bool																			_mMouseDown = false;
+	int																				_mouseLastX = 0;
+	int																				_mouseLastY = 0;
 };

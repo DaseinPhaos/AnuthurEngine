@@ -3,7 +3,7 @@
 
 ShapeFrameResource::ShapeFrameResource(ID3D12Device* device)
 :FrameResource(device) {
-	auto rd = D3D12Helper::ResourceDescriptor::Buffer(D3D12Helper::GetCBSizeAligned(sizeof(Matrix4x4f)));
+	auto rd = D3D12Helper::ResourceDescriptor::Buffer(D3D12Helper::GetCBSizeAligned(sizeof(Matrix4x4f)+ sizeof(Point3DH)));
 
 	ThrowIfFailed(device->CreateCommittedResource(&D3D12Helper::HeapProperties(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
@@ -17,9 +17,10 @@ ShapeFrameResource::~ShapeFrameResource()
 	_whTransformGPU->Unmap(0, nullptr);
 }
 
-void ShapeFrameResource::Update(const Matrix4x4f& newWHTransform)
+void ShapeFrameResource::UpdateCam(const PerspecCamera& newCamera)
 {
-	std::memcpy(_pwhTransformGPU, &newWHTransform, sizeof(Matrix4x4f));
+	std::memcpy(_pwhTransformGPU, &newCamera.TransformWtoH().AsMatrix4x4(), sizeof(Matrix4x4f));
+	std::memcpy(_pwhTransformGPU + sizeof(Matrix4x4f), &newCamera.GetPosition(), sizeof(Point3DH));
 }
 
 void ShapeApp::OnInit()
@@ -53,14 +54,16 @@ void ShapeApp::OnRender()
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 	_mainCmdList->OMSetRenderTargets(1, &GetCurrentBackBufferView(), TRUE,
 		&_mainDSVHeap->GetCPUDescriptorHandleForHeapStart());
-	_mainCmdList->SetGraphicsRootConstantBufferView(0u, cfr._whTransformGPU->GetGPUVirtualAddress());
+	_mainCmdList->SetGraphicsRootConstantBufferView(2u, cfr._whTransformGPU->GetGPUVirtualAddress());
+	_mainCmdList->SetGraphicsRootConstantBufferView(3u, cfr._lightsGPU.Get()->GetGPUVirtualAddress());
 
 	{
 		// Draw grid
 		auto& gridResource = _geometrys["grid"];
 		_mainCmdList->IASetIndexBuffer(&gridResource.IndexBufferView());
 		_mainCmdList->IASetVertexBuffers(0u, 1u, &gridResource.VertexBufferView());
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["grid"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _geometryMaterialsGPU["grid"]->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["grid"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(gridResource.IndexBufferByteSize * 8
 			/ D3D12Helper::DxgiFormatBitSize(gridResource.IndexFormat),
 			1u, 0u, 0u, 0u);
@@ -73,13 +76,15 @@ void ShapeApp::OnRender()
 			/ D3D12Helper::DxgiFormatBitSize(cylinderResource.IndexFormat);
 		_mainCmdList->IASetIndexBuffer(&cylinderResource.IndexBufferView());
 		_mainCmdList->IASetVertexBuffers(0u, 1u, &cylinderResource.VertexBufferView());
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["cylinder0"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _geometryMaterialsGPU["cylinder"]->GetGPUVirtualAddress());
+
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["cylinder0"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(cis, 1u, 0u, 0u, 0u);
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["cylinder1"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["cylinder1"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(cis, 1u, 0u, 0u, 0u);
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["cylinder2"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["cylinder2"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(cis, 1u, 0u, 0u, 0u);
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["cylinder3"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["cylinder3"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(cis, 1u, 0u, 0u, 0u);
 	}
 
@@ -90,13 +95,15 @@ void ShapeApp::OnRender()
 			/ D3D12Helper::DxgiFormatBitSize(sphereResource.IndexFormat);
 		_mainCmdList->IASetIndexBuffer(&sphereResource.IndexBufferView());
 		_mainCmdList->IASetVertexBuffers(0u, 1u, &sphereResource.VertexBufferView());
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["sphere0"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _geometryMaterialsGPU["sphere"]->GetGPUVirtualAddress());
+
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["sphere0"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(sis, 1u, 0u, 0u, 0u);
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["sphere1"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["sphere1"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(sis, 1u, 0u, 0u, 0u);
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["sphere2"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["sphere2"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(sis, 1u, 0u, 0u, 0u);
-		_mainCmdList->SetGraphicsRootConstantBufferView(1u, _scTransformsGPU["sphere3"].Get()->GetGPUVirtualAddress());
+		_mainCmdList->SetGraphicsRootConstantBufferView(0u, _scTransformsGPU["sphere3"].Get()->GetGPUVirtualAddress());
 		_mainCmdList->DrawIndexedInstanced(sis, 1u, 0u, 0u, 0u);
 	}
 
@@ -123,10 +130,7 @@ void ShapeApp::OnUpdate()
 		WaitForSingleObject(hEvent, INFINITE);
 		CloseHandle(hEvent);
 	}
-	if (_frDirtyCount > 0u) {
-		CopyMemory(cfr._pwhTransformGPU, &_mainCamera.TransformWtoH().AsMatrix4x4(), sizeof(Matrix4x4f));
-		_frDirtyCount--;
-	}
+
 	static auto lastTick = 0ll;
 	auto cTick = _mainTimer.PeekCurrentTick();
 	if (lastTick == 0ll) lastTick = cTick;
@@ -140,6 +144,42 @@ void ShapeApp::OnUpdate()
 		}
 	}
 
+	static auto rotateZ = Transform3DH::RotationN(Vector3DH::E3(), static_cast<float>(M_PI) / 600.f);
+	static auto nagetiveRotateZ = rotateZ.Inverse();
+	if (GetAsyncKeyState(VK_LEFT) & 0x8000) {
+		auto pos = Point3DH(_lights.pointLinear.PosAndFallStart.xyz());
+		_lights.pointLinear.PosAndFallStart = Vector4f((rotateZ*pos).AsVector4f().xyz(),
+			_lights.pointLinear.PosAndFallStart._w);
+		_frDirtyCount = _frameResources.size();
+	}
+	else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) {
+		auto pos = Point3DH(_lights.pointLinear.PosAndFallStart.xyz());
+		_lights.pointLinear.PosAndFallStart = Vector4f((nagetiveRotateZ*pos).AsVector4f().xyz(),
+			_lights.pointLinear.PosAndFallStart._w);
+		_frDirtyCount = _frameResources.size();
+	}
+
+	static auto rotateX = Transform3DH::RotationN(Vector3DH::E1(), static_cast<float>(M_PI) / 600.f);
+	static auto nagetiveRotateX = rotateX.Inverse();
+	if (GetAsyncKeyState(VK_UP) & 0x8000) {
+		auto pos = Point3DH(_lights.pointLinear.PosAndFallStart.xyz());
+		_lights.pointLinear.PosAndFallStart = Vector4f((rotateX*pos).AsVector4f().xyz(),
+			_lights.pointLinear.PosAndFallStart._w);
+		_frDirtyCount = _frameResources.size();
+	}
+	else if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
+		auto pos = Point3DH(_lights.pointLinear.PosAndFallStart.xyz());
+		_lights.pointLinear.PosAndFallStart = Vector4f((nagetiveRotateX*pos).AsVector4f().xyz(),
+			_lights.pointLinear.PosAndFallStart._w);
+		_frDirtyCount = _frameResources.size();
+	}
+
+	if (_frDirtyCount > 0u) {
+		//CopyMemory(cfr._pwhTransformGPU, &_mainCamera.TransformWtoH().AsMatrix4x4(), sizeof(Matrix4x4f));
+		cfr.UpdateCam(_mainCamera);
+		cfr._lightsGPU.Update(_lights);
+		_frDirtyCount--;
+	}
 }
 
 void ShapeApp::OnMouseDown(WPARAM wParam, int x, int y)
@@ -228,12 +268,15 @@ void ShapeApp::InitializeSceneComponents()
 		gridMeshGeometry.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
 
 		_geometrys["grid"] = gridMeshGeometry;
+		_geometryMaterials["grid"] = BlinnPhongMaterial(ColorRGBf(1.1f, 1.12f, 2.14f),
+			ColorRGBf(0.05f, 0.05f, 0.05f), .2f);
+		
 	}
 
 
-	auto norm2color = [](const Vector3DH& n)->Vector4f {
-		return Vector4f(0.5f, 0.5f, 0.5f, 1.f) + n.AsVector4f();
-	};
+	//auto norm2color = [](const Vector3DH& n)->Vector4f {
+	//	return Vector4f(0.5f, 0.5f, 0.5f, 1.f) + n.AsVector4f();
+	//};
 
 	// Initialize sphere
 	{
@@ -254,7 +297,7 @@ void ShapeApp::InitializeSceneComponents()
 
 		for (auto i = 0u; i < sphereMeshData.Vertices.size(); ++i) {
 			sphereVerticeData.emplace_back(sphereMeshData.Vertices[i].Pos,
-				norm2color(sphereMeshData.Vertices[i].Norm));
+				sphereMeshData.Vertices[i].Norm);
 		}
 
 		sphereMeshGeometry.InitializeCPUResource(DXGI_FORMAT_R32_UINT, sphereMeshData.Indices.size(),
@@ -262,6 +305,8 @@ void ShapeApp::InitializeSceneComponents()
 		sphereMeshGeometry.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
 
 		_geometrys["sphere"] = sphereMeshGeometry;
+		_geometryMaterials["sphere"] = BlinnPhongMaterial(ColorRGBf(1.8f, 0.85f, 0.9f),
+			ColorRGBf(0.95f, 0.93f, 0.88f), .1f);
 	}
 
 	// Initialize cylinders
@@ -277,7 +322,7 @@ void ShapeApp::InitializeSceneComponents()
 		cylinderVertexData.reserve(cylinderMeshData.Indices.size());
 		for (auto i = 0u; i < cylinderMeshData.Vertices.size(); ++i) {
 			cylinderVertexData.emplace_back(cylinderMeshData.Vertices[i].Pos,
-				norm2color(cylinderMeshData.Vertices[i].Norm));
+				cylinderMeshData.Vertices[i].Norm);
 		}
 		_geometrys["cylinder"] = MeshGeometry();
 		auto& cylinderMeshGeometry = _geometrys["cylinder"];
@@ -285,30 +330,82 @@ void ShapeApp::InitializeSceneComponents()
 			cylinderMeshData.Indices.size(), cylinderMeshData.Indices.data(),
 			sizeof(Vertex), cylinderVertexData.size(), cylinderVertexData.data());
 		cylinderMeshGeometry.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
+
+		_geometryMaterials["cylinder"] = BlinnPhongMaterial(ColorRGBf(2.f, 1.f, 0.3f),
+			ColorRGBf(0.02f, 0.02f, 0.02f), 1.f);
+	}
+	std::vector<ComPtr<ID3D12Resource>> uploaders;
+	uploaders.reserve(_sceneTransforms.size() + _geometryMaterials.size());
+	std::vector<std::array<Matrix4x4f, 2u>> transforms;
+	transforms.reserve(_sceneTransforms.size());
+	for (auto& i : _sceneTransforms) {
+		std::array<Matrix4x4f, 2u> temp = { i.second, i.second.Transpose().Inverse() };
+		transforms.push_back(std::move(temp));
+		uploaders.emplace_back(nullptr);
+		_scTransformsGPU[i.first] = D3D12Helper::CreateDefaultBuffer(
+			_d3d12Device.Get(), _mainCmdList.Get(), transforms.back().data(),
+			D3D12Helper::GetCBSizeAligned(2u*sizeof(Matrix4x4f)), uploaders.back());
+	}
+	for (auto& i : _geometryMaterials) {
+		uploaders.emplace_back(nullptr);
+		_geometryMaterialsGPU[i.first] = D3D12Helper::CreateDefaultBuffer(
+			_d3d12Device.Get(), _mainCmdList.Get(), &i.second.GetData(),
+			D3D12Helper::GetCBSizeAligned(sizeof(BlinnPhongMaterialData)), uploaders.back());
 	}
 
-	// Execute and flush commands..
+	// Execute update commands..
 	_mainCmdList->Close();
 	ID3D12CommandList* cmds[] = { _mainCmdList.Get() };
 	_cmdQueue->ExecuteCommandLists(_countof(cmds), cmds);
+
+
+	// Initialize lights
+	{
+		// directional light..
+		_lights.directional.DirectionAndPower = Vector4f(1.f, 1.f, 1.f, 0.f).Normalize();
+		_lights.directional.IrradianceAndFallEnd = Vector4f(.2f, .2f, .2f, 1.f);
+
+		// linear point light
+		_lights.pointLinear.PosAndFallStart = Vector4f(0.f, 20.f, 0.f, 0.f);
+		_lights.pointLinear.IrradianceAndFallEnd = Vector4f(0.4f, 0.6f, 0.4f, 40.f);
+		//_lights.pointLinear.DirectionAndPower = Vector4f(0.f, 0.f, 0.f, 1.f);
+
+		// quadratic point light
+		_lights.pointQuadra.PosAndFallStart = Vector4f(0.f, 20.f, 0.f, 0.f);
+		_lights.pointQuadra.IrradianceAndFallEnd = Vector4f(0.4f, 0.6f, 0.4f, .1f);
+
+		// spotlight
+		_lights.spotlight.PosAndFallStart = Vector4f(10.f, 10.f, 0.f, 0.f);
+		_lights.spotlight.IrradianceAndFallEnd = Vector4f(0.f, 0.7f, 0.7f, 30.f);
+		_lights.spotlight.DirectionAndPower = Vector4f(1.f, 0.f, 0.f, 8.f);
+	}
+
+
+	// Flush commands, release resources..
 	FlushCommandQueue();
 	for (auto& item: _geometrys){
 		item.second.DisposeUploaders();
 	}
-	for (auto& item : _sceneTransforms) {
-		_scTransformsGPU[item.first] = D3D12Helper::UpdateBuffer<Matrix4x4f>(_d3d12Device.Get());
-		_scTransformsGPU[item.first].Update(item.second/*.AsMatrix4x4()*/);
-	}
+	//for (auto& item : _sceneTransforms) {
+	//	_scTransformsGPU[item.first] = D3D12Helper::UpdateBuffer<Matrix4x4f>(_d3d12Device.Get());
+	//	_scTransformsGPU[item.first].Update(item.second/*.AsMatrix4x4()*/);
+	//}
+	//for (auto& item : _geometryMaterials) {
+	//	_geometryMaterialsGPU[item.first] = D3D12Helper::UpdateBuffer<BlinnPhongMaterial>(_d3d12Device.Get());
+	//	_geometryMaterialsGPU[item.first].Update(item.second);
+	//}
 }
 
 void ShapeApp::InitializeShaders()
 {
 	_shaders["vs"] = D3D12Helper::ShaderByteCode();
 	auto& vs = _shaders["vs"];
-	ThrowIfFailed(vs.CompileFromFile(L"shaders.hlsl", "VS", "vs_5_0"));
+	//ThrowIfFailed(vs.CompileFromFile(L"shaders.hlsl", "VS", "vs_5_0"));
+	ThrowIfFailed(vs.CompileFromFile(L"ls.hlsl", "VS", "vs_5_0"));
 	_shaders["ps"] = D3D12Helper::ShaderByteCode();
 	auto& ps = _shaders["ps"];
-	ThrowIfFailed(ps.CompileFromFile(L"shaders.hlsl", "PS", "ps_5_0"));
+	//ThrowIfFailed(ps.CompileFromFile(L"shaders.hlsl", "PS", "ps_5_0"));
+	ThrowIfFailed(ps.CompileFromFile(L"ls.hlsl", "PS", "ps_5_0"));
 }
 
 void ShapeApp::InitializePSOs()
@@ -316,7 +413,7 @@ void ShapeApp::InitializePSOs()
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsd = {};
 	D3D12Helper::InputLayoutDescriptor ild;
 	ild.PushElementDescription("POSITION", DXGI_FORMAT_R32G32B32A32_FLOAT);
-	ild.PushElementDescription("COLOR", DXGI_FORMAT_R32G32B32A32_FLOAT);
+	ild.PushElementDescription("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);
 	gpsd.InputLayout = ild.Get();
 	gpsd.pRootSignature = _rootSignature.Get();
 	gpsd.VS = _shaders["vs"].Get();
@@ -344,6 +441,8 @@ void ShapeApp::InitializeFrameResources()
 {
 	for (auto i = 0u; i < 3u; ++i) {
 		_frameResources.push_back(std::make_unique<ShapeFrameResource>(_d3d12Device.Get()));
+		_frameResources.back()->_lightsGPU = D3D12Helper::UpdateBuffer<LightPack>(_d3d12Device.Get());
+		_frameResources.back()->_lightsGPU.Update(_lights);
 	}
 	_frDirtyCount = _frameResources.size();
 }
@@ -351,8 +450,11 @@ void ShapeApp::InitializeFrameResources()
 void ShapeApp::InitializeRootSignatures()
 {
 	D3D12Helper::RootSignatureDescriptor rsd;
-	rsd.PushRPCBV(0u); // For world-camera matrix
-	rsd.PushRPCBV(1u); // For constant-world matrix
+	rsd.PushRPCBV(0u); // For mesh-world matrix
+	rsd.PushRPCBV(1u); // For mesh material
+	rsd.PushRPCBV(2u); // For world-camera matrix
+	rsd.PushRPCBV(3u); // For lights
+	
 	ComPtr<ID3DBlob> serializedRS;
 	ThrowIfFailed(rsd.SerializeRootSignature(serializedRS.GetAddressOf(), D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT));
 	ThrowIfFailed(_d3d12Device->CreateRootSignature(0u,
