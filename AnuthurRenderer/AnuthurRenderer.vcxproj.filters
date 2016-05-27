@@ -22,44 +22,53 @@
     <Filter Include="Headers\SceneComponents">
       <UniqueIdentifier>{624ce38d-f90a-4974-8081-c983c131e1e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{6228c740-5115-4be1-ad22-186341d50d33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\AnuthurEngine\HelperMethods.h">
-      <Filter>Headers\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\RendererPCH.h">
-      <Filter>Headers\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\D3D12App.h">
+    <ClInclude Include="..\Src\D3D12App.h">
       <Filter>Headers\Application</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\PerspecCamera.h">
+    <ClInclude Include="..\Src\BasicGeometry.h">
       <Filter>Headers\SceneComponents</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\BasicGeometry.h">
+    <ClInclude Include="..\Src\LightandMaterial.h">
       <Filter>Headers\SceneComponents</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\MeshResource.h">
+    <ClInclude Include="..\Src\MemorySystem.h">
       <Filter>Headers\SceneComponents</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\LightandMaterial.h">
+    <ClInclude Include="..\Src\PerspecCamera.h">
       <Filter>Headers\SceneComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\DDSTextureLoader.h">
+      <Filter>Headers\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\HelperMethods.h">
+      <Filter>Headers\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\RendererPCH.h">
+      <Filter>Headers\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\D3D12App.cpp">
+    <ClCompile Include="..\Src\BasicGeometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\PerspecCamera.cpp">
+    <ClCompile Include="..\Src\D3D12App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\HelperMethods.cpp">
+    <ClCompile Include="..\Src\DDSTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\BasicGeometry.cpp">
+    <ClCompile Include="..\Src\HelperMethods.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\LightandMaterial.cpp">
+    <ClCompile Include="..\Src\LightandMaterial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\PerspecCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
