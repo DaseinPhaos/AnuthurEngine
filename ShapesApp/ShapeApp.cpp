@@ -150,28 +150,27 @@ void ShapeApp::OnUpdate()
 		auto pos = Point3DH(_lights.pointLinear.PosAndFallStart.xyz());
 		_lights.pointLinear.PosAndFallStart = Vector4f((rotateZ*pos).AsVector4f().xyz(),
 			_lights.pointLinear.PosAndFallStart._w);
-		_frDirtyCount = _frameResources.size();
+		_frDirtyCount = static_cast<UINT>(_frameResources.size());
 	}
 	else if (GetAsyncKeyState(VK_RIGHT) & 0x8000) {
 		auto pos = Point3DH(_lights.pointLinear.PosAndFallStart.xyz());
 		_lights.pointLinear.PosAndFallStart = Vector4f((nagetiveRotateZ*pos).AsVector4f().xyz(),
 			_lights.pointLinear.PosAndFallStart._w);
-		_frDirtyCount = _frameResources.size();
+		_frDirtyCount = static_cast<UINT>(_frameResources.size());
 	}
-
 	static auto rotateX = Transform3DH::RotationN(Vector3DH::E1(), static_cast<float>(M_PI) / 600.f);
 	static auto nagetiveRotateX = rotateX.Inverse();
 	if (GetAsyncKeyState(VK_UP) & 0x8000) {
 		auto pos = Point3DH(_lights.pointLinear.PosAndFallStart.xyz());
 		_lights.pointLinear.PosAndFallStart = Vector4f((rotateX*pos).AsVector4f().xyz(),
 			_lights.pointLinear.PosAndFallStart._w);
-		_frDirtyCount = _frameResources.size();
+		_frDirtyCount = static_cast<UINT>(_frameResources.size());
 	}
 	else if (GetAsyncKeyState(VK_DOWN) & 0x8000) {
 		auto pos = Point3DH(_lights.pointLinear.PosAndFallStart.xyz());
 		_lights.pointLinear.PosAndFallStart = Vector4f((nagetiveRotateX*pos).AsVector4f().xyz(),
 			_lights.pointLinear.PosAndFallStart._w);
-		_frDirtyCount = _frameResources.size();
+		_frDirtyCount = static_cast<UINT>(_frameResources.size());
 	}
 
 	if (_frDirtyCount > 0u) {
@@ -212,7 +211,7 @@ void ShapeApp::OnMouseMove(WPARAM wParam, int x, int y)
 		_mainCamera.ApplyTransform(rotation);
 		_mouseLastX = x;
 		_mouseLastY = y;
-		_frDirtyCount = _frameResources.size();
+		_frDirtyCount = static_cast<UINT>(_frameResources.size());
 	}
 	if (_rMouseDown) {
 		auto translate = Luxko::Transform3DH::Translation(-deltaH*3.f*_mainCamera.GetRightDirection());
@@ -220,14 +219,14 @@ void ShapeApp::OnMouseMove(WPARAM wParam, int x, int y)
 		_mainCamera.ApplyTransform(translate);
 		_mouseLastX = x;
 		_mouseLastY = y;
-		_frDirtyCount = _frameResources.size();
+		_frDirtyCount = static_cast<UINT>(_frameResources.size());
 	}
 	if (_mMouseDown) {
 		auto translate = Luxko::Transform3DH::Translation(deltaV*3.f*_mainCamera.GetLookDirection());
 		_mainCamera.ApplyTransform(translate);
 		_mouseLastX = x;
 		_mouseLastY = y;
-		_frDirtyCount = _frameResources.size();
+		_frDirtyCount = static_cast<UINT>(_frameResources.size());
 	}
 }
 
@@ -263,8 +262,8 @@ void ShapeApp::InitializeSceneComponents()
 				gridMeshData.Vertices[i].Norm);
 		}
 		gridMeshGeometry.InitializeCPUResource(DXGI_FORMAT_R32_UINT,
-			gridMeshData.Indices.size(), gridMeshData.Indices.data(),
-			sizeof(Vertex), gridVertices.size(), gridVertices.data());
+			static_cast<UINT>(gridMeshData.Indices.size()), gridMeshData.Indices.data(),
+			sizeof(Vertex), static_cast<UINT>(gridVertices.size()), gridVertices.data());
 		gridMeshGeometry.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
 
 		_geometrys["grid"] = gridMeshGeometry;
@@ -300,8 +299,8 @@ void ShapeApp::InitializeSceneComponents()
 				sphereMeshData.Vertices[i].Norm);
 		}
 
-		sphereMeshGeometry.InitializeCPUResource(DXGI_FORMAT_R32_UINT, sphereMeshData.Indices.size(),
-			sphereMeshData.Indices.data(), sizeof(Vertex), sphereVerticeData.size(), sphereVerticeData.data());
+		sphereMeshGeometry.InitializeCPUResource(DXGI_FORMAT_R32_UINT, static_cast<UINT>(sphereMeshData.Indices.size()),
+			sphereMeshData.Indices.data(), sizeof(Vertex), static_cast<UINT>(sphereVerticeData.size()), sphereVerticeData.data());
 		sphereMeshGeometry.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
 
 		_geometrys["sphere"] = sphereMeshGeometry;
@@ -327,8 +326,8 @@ void ShapeApp::InitializeSceneComponents()
 		_geometrys["cylinder"] = MeshGeometry();
 		auto& cylinderMeshGeometry = _geometrys["cylinder"];
 		cylinderMeshGeometry.InitializeCPUResource(DXGI_FORMAT_R32_UINT,
-			cylinderMeshData.Indices.size(), cylinderMeshData.Indices.data(),
-			sizeof(Vertex), cylinderVertexData.size(), cylinderVertexData.data());
+			static_cast<UINT>(cylinderMeshData.Indices.size()), cylinderMeshData.Indices.data(),
+			sizeof(Vertex), static_cast<UINT>(cylinderVertexData.size()), cylinderVertexData.data());
 		cylinderMeshGeometry.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
 
 		_geometryMaterials["cylinder"] = BlinnPhongMaterial(ColorRGBf(2.f, 1.f, 0.3f),
@@ -444,7 +443,7 @@ void ShapeApp::InitializeFrameResources()
 		_frameResources.back()->_lightsGPU = D3D12Helper::UpdateBuffer<LightPack>(_d3d12Device.Get());
 		_frameResources.back()->_lightsGPU.Update(_lights);
 	}
-	_frDirtyCount = _frameResources.size();
+	_frDirtyCount = static_cast<UINT>(_frameResources.size());
 }
 
 void ShapeApp::InitializeRootSignatures()

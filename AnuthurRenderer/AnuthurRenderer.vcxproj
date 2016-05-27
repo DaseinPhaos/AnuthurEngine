@@ -71,17 +71,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)AnuthurEngine;$(IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)Src;$(IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)AnuthurEngine;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)Src;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)Src;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)Src;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -149,20 +151,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\AnuthurEngine\BasicGeometry.h" />
-    <ClInclude Include="..\AnuthurEngine\LightandMaterial.h" />
-    <ClInclude Include="..\AnuthurEngine\MeshResource.h" />
-    <ClInclude Include="..\AnuthurEngine\PerspecCamera.h" />
-    <ClInclude Include="..\AnuthurEngine\D3D12App.h" />
-    <ClInclude Include="..\AnuthurEngine\HelperMethods.h" />
-    <ClInclude Include="..\AnuthurEngine\RendererPCH.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\BasicGeometry.cpp" />
-    <ClCompile Include="..\AnuthurEngine\D3D12App.cpp" />
-    <ClCompile Include="..\AnuthurEngine\HelperMethods.cpp" />
-    <ClCompile Include="..\AnuthurEngine\LightandMaterial.cpp" />
-    <ClCompile Include="..\AnuthurEngine\PerspecCamera.cpp" />
+    <ClInclude Include="..\Src\BasicGeometry.h" />
+    <ClInclude Include="..\Src\D3D12App.h" />
+    <ClInclude Include="..\Src\DDSTextureLoader.h" />
+    <ClInclude Include="..\Src\HelperMethods.h" />
+    <ClInclude Include="..\Src\LightandMaterial.h" />
+    <ClInclude Include="..\Src\MemorySystem.h" />
+    <ClInclude Include="..\Src\PerspecCamera.h" />
+    <ClInclude Include="..\Src\RendererPCH.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AnuthurApplication\AnuthurApplication.vcxproj">
@@ -174,6 +170,14 @@
     <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
       <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Src\BasicGeometry.cpp" />
+    <ClCompile Include="..\Src\D3D12App.cpp" />
+    <ClCompile Include="..\Src\DDSTextureLoader.cpp" />
+    <ClCompile Include="..\Src\HelperMethods.cpp" />
+    <ClCompile Include="..\Src\LightandMaterial.cpp" />
+    <ClCompile Include="..\Src\PerspecCamera.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
