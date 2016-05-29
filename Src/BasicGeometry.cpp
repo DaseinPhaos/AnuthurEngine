@@ -239,16 +239,16 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Sphere(
 	return result;
 }
 
-const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(float width, float height, UINT m, UINT n)
+const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(float width, float length, UINT m, UINT n)
 {
 	Mesh result;
 	
 	// Set vertice
 	result.Vertices.reserve((m+1)*(n+1));
 	auto halfWidth = 0.5f * width;
-	auto halfHeight = 0.5f * height;
+	auto halfHeight = 0.5f * length;
 	auto dx = width / m;
-	auto dz = height / n;
+	auto dz = length / n;
 	auto x = -halfWidth;
 	
 	for (auto i = 0u; i <= m; ++i) {
@@ -272,16 +272,102 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(fl
 	result.Indices.reserve(6 * m*n);
 	for (auto i = 0u; i < m; ++i) {
 		for (auto j = 0u; j < n; ++j) {
-			result.Indices.push_back(i*(m + 1) + j + 1);
-			result.Indices.push_back(i*(m + 1) + j);
-			result.Indices.push_back((i + 1)*(m + 1) + j);
+			result.Indices.push_back(i*(n + 1) + j + 1);
+			result.Indices.push_back(i*(n + 1) + j);
+			result.Indices.push_back((i + 1)*(n + 1) + j);
 
-			result.Indices.push_back(i*(m + 1) + j + 1);
-			result.Indices.push_back((i + 1)*(m + 1) + j);
-			result.Indices.push_back((i + 1)*(m + 1) + j + 1);
+			result.Indices.push_back(i*(n + 1) + j + 1);
+			result.Indices.push_back((i + 1)*(n + 1) + j);
+			result.Indices.push_back((i + 1)*(n + 1) + j + 1);
 		}
 	}
 
 	return result;
 }
 
+const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Terran(float width, float length, UINT m, UINT n, float heightCoefficient)
+{
+	Mesh mesh = Grid(width, length, m, n);
+	auto hw = width*0.5f;
+	auto hl = length*0.5f;
+	for (auto& v : mesh.Vertices) {
+		v.Pos[1] = BasicGeometry::GetTerranHeight(v.Pos.x()/width, v.Pos.z()/length,
+			m/13.f,n/13.f) * heightCoefficient;
+	}
+	
+	BasicGeometry::ReviceMeshNormal(mesh);
+
+	for (auto& v : mesh.Vertices) {
+		v.TangentU = (v.TangentU - v.Norm).Normalize();
+	}
+
+	return mesh;
+}
+
+void Luxko::Anuthur::BasicGeometry::ReviceMeshNormal(Mesh& m)
+{
+	//static constexpr auto PrimitiveVerticeCount = 3u;
+	auto vc = m.Vertices.size();
+	auto ic = m.Indices.size();
+	auto tc = ic / 3u;
+	std::vector<std::vector<Vector3DH>> verticeNorms(vc);
+	for (auto t = 0u; t < tc; ++t) {
+		auto ia = m.Indices[3u * t];
+		auto ib = m.Indices[3u * t + 1];
+		auto ic = m.Indices[3u * t + 2];
+		auto a = m.Vertices[ib].Pos - m.Vertices[ia].Pos;
+		auto b = m.Vertices[ic].Pos - m.Vertices[ia].Pos;
+		auto n = a.Cross(b);
+		n = n.Normalize();
+		verticeNorms[ia].push_back(n);
+		verticeNorms[ib].push_back(n);
+		verticeNorms[ic].push_back(n);
+	}
+
+	for (auto i = 0u; i < vc; ++i) {
+		auto n = verticeNorms[i].size();
+		if(n==0u) continue;
+		Vector3DH norm(0.f, 0.f, 0.f);
+		for (auto j = 0u; j < n; ++j) {
+			auto temp = verticeNorms[i][j];
+			norm += temp;
+		}
+		norm /= n;
+		m.Vertices[i].Norm = norm;
+	}
+}
+
+float Luxko::Anuthur::BasicGeometry::GetTerranHeight(float x, float z, float m, float n)
+{
+	return z*n * std::sin(x* M_PI*2*m) + x * m * std::cos(z* M_PI*2*n);
+}
+
+void Luxko::Anuthur::BasicGeometry::Mesh::ReviseNormal()
+{
+	//std::vector<std::vector<Vector3DH>> verticeNorms(Vertices.size());
+
+	//auto triangleCount = Indices.size() / 3u;
+	//for (auto i = 0u; i < triangleCount; ++i) {
+	//	auto a = Indices[3 * i];
+	//	auto b = Indices[3 * i + 1];
+	//	auto c = Indices[3 * i + 2];
+	//	auto v0 = Vertices[b].Pos - Vertices[a].Pos;
+	//	auto v1 = Vertices[c].Pos - Vertices[a].Pos;
+	//	auto norm = (v0.Cross(v1)).Normalize();
+	//	verticeNorms[a].push_back(norm);
+	//	verticeNorms[b].push_back(norm);
+	//	verticeNorms[c].push_back(norm);
+	//}
+	//for (auto i = 0u; i < verticeNorms.size(); ++i) {
+	//	auto n = verticeNorms[i].size();
+	//	auto norm = Vector3DH(0.f, 0.f, 0.f);
+	//	for (auto j = 0u; j < n; ++j) {
+	//		norm += verticeNorms[i][j];
+	//	}
+	//	Vertices[i].Norm = norm / n;
+
+	//}
+
+	BasicGeometry::ReviceMeshNormal(*this);
+
+}
