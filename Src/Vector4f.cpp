@@ -67,12 +67,14 @@ Luxko::Vector4f Luxko::Vector4f::Modulate(const Vector4f& v) const
 
 Luxko::Vector4f& Luxko::Vector4f::operator-=(const Vector4f& v)noexcept
 {
-	_m128 = _mm_sub_ps(_m128, v._m128);
+	auto temp = _m128;
+	_m128 = _mm_sub_ps(temp, v._m128);
 	return *this;
 }
 
 Luxko::Vector4f& Luxko::Vector4f::operator+=(const Vector4f& v)noexcept
 {
+	
 	_m128 = _mm_add_ps(_m128, v._m128);
 	return *this;
 }

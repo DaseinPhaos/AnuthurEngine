@@ -36,9 +36,6 @@
     <ClInclude Include="..\Src\LightandMaterial.h">
       <Filter>Headers\SceneComponents</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\MemorySystem.h">
-      <Filter>Headers\SceneComponents</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\PerspecCamera.h">
       <Filter>Headers\SceneComponents</Filter>
     </ClInclude>
@@ -51,6 +48,9 @@
     <ClInclude Include="..\Src\RendererPCH.h">
       <Filter>Headers\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\MeshResource.h">
+      <Filter>Headers\SceneComponents</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\BasicGeometry.cpp">
@@ -62,14 +62,19 @@
     <ClCompile Include="..\Src\DDSTextureLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\HelperMethods.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\LightandMaterial.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\PerspecCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Src\HelperMethods.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Src\HLSLShaders\LightandMaterial.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

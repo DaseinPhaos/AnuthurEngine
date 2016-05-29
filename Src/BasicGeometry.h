@@ -46,17 +46,26 @@ namespace Luxko {
 					}
 					return _indices16;
 				}
+
+				void ReviseNormal();
+
 			private:
 				mutable std::vector<UINT16> _indices16;
 			};
 
 			// The following methods creates and returns Meshes as const objects.
 			static const Mesh Box(float width, float height, float length, const float* textureCoordinates = nullptr);
-			//static const Mesh Cone(float radius, float height, size_t stackCount = 8u, size_t sliceCount = 8u, const float* textureCoordinates = nullptr);
 			static const Mesh Cylinder(float bRadius, float tRadius, float height, size_t stackCount = 8u, size_t sliceCount = 8u, const float* textureCoordinates = nullptr);
 			static const Mesh Sphere(float radius, size_t stackCount = 8u, size_t sliceCount = 8u, const float* textureCoordinates = nullptr);
 
-			static const Mesh Grid(float width, float height, UINT m, UINT n);
+			static const Mesh Grid(float width, float length, UINT m, UINT n);
+			static const Mesh Terran(float width, float length, UINT m, UINT n, float heightCoefficient = 2.f);
+			
+			static void ReviceMeshNormal(Mesh& m);
+
+			// nx, ny \in [-1, 1]
+			// m, n marks rounds
+			static float GetTerranHeight(float nx, float nz, float m, float n);
 		};
 	}
 }

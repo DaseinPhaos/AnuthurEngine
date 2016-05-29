@@ -5,7 +5,7 @@ ShapeFrameResource::ShapeFrameResource(ID3D12Device* device)
 :FrameResource(device) {
 	auto rd = D3D12Helper::ResourceDescriptor::Buffer(D3D12Helper::GetCBSizeAligned(sizeof(Matrix4x4f)+ sizeof(Point3DH)));
 
-	ThrowIfFailed(device->CreateCommittedResource(&D3D12Helper::HeapProperties(D3D12_HEAP_TYPE_UPLOAD),
+	ThrowIfFailed(device->CreateCommittedResource(&D3D12Helper::ResourceHeapProperties(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE, &rd, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 		IID_PPV_ARGS(_whTransformGPU.GetAddressOf())));
 	ThrowIfFailed(_whTransformGPU->Map(0, nullptr, reinterpret_cast<void**>(&_pwhTransformGPU)));

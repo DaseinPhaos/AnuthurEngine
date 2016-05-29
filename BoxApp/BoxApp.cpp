@@ -395,7 +395,7 @@ void BoxApp::InitializeBuffers()
 	_cbBufferSize = D3D12Helper::GetCBSizeAligned(sizeof(Matrix4x4f));
 	auto cbHeapDesc = ResourceDescriptor::Buffer(_cbBufferSize);
 	ThrowIfFailed(_d3d12Device->CreateCommittedResource(
-		&HeapProperties(D3D12_HEAP_TYPE_UPLOAD, D3D12_CPU_PAGE_PROPERTY_UNKNOWN),
+		&ResourceHeapProperties(D3D12_HEAP_TYPE_UPLOAD, D3D12_CPU_PAGE_PROPERTY_UNKNOWN),
 		D3D12_HEAP_FLAG_NONE, &cbHeapDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 		IID_PPV_ARGS(_cbBuffer.GetAddressOf())));
 	ThrowIfFailed(_cbBuffer->Map(0, nullptr, &_cbBufferMappedAddress));
