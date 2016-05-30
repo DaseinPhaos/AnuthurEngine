@@ -332,8 +332,9 @@ void Luxko::Anuthur::BasicGeometry::ReviceMeshNormal(Mesh& m)
 			auto temp = verticeNorms[i][j];
 			norm += temp;
 		}
-		norm /= n;
-		m.Vertices[i].Norm = norm;
+		//norm /= n;
+		//m.Vertices[i].Norm = norm;
+		m.Vertices[i].Norm = norm/n;
 	}
 }
 
