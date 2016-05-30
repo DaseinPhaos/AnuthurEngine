@@ -16,7 +16,7 @@
 #include "Vector3f.h"
 
 namespace Luxko {
-	class ANUTHURMATH_API Vector4f {
+	class _declspec(align(16)) ANUTHURMATH_API Vector4f {
 	public:
 		Vector4f(float a, float b, float c, float d) { _x = a; _y = b; _z = c; _w = d; }
 		explicit Vector4f(const float* data);

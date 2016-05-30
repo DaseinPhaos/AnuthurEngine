@@ -12,19 +12,25 @@
 
 Luxko::Vector4f::Vector4f(const float* data)
 {
-	auto p = _mm_loadu_ps(data);
-	_mm_storeu_ps(_data, p);
+	//auto p = _mm_loadu_ps(data);
+	//_mm_storeu_ps(_data, p);
+	_m128 = _mm_load_ps(data);
 }
 
 Luxko::Vector4f& Luxko::Vector4f::operator=(const Vector4f& v)noexcept
 {
-	_m128 = _mm_loadu_ps(v._data);
+	//_m128 = _mm_loadu_ps(v._data);
+	//return *this;
+	//_m128 = v._m128;
+	_mm_storeu_ps(_data, v._m128);
 	return *this;
 }
 
 Luxko::Vector4f::Vector4f(const Vector4f& v)noexcept
 {
-	_m128 = _mm_loadu_ps(v._data);
+	//_m128 = _mm_loadu_ps(v._data);
+	//_m128 = v._m128;
+	 _mm_storeu_ps(_data, v._m128);
 }
 
 Luxko::Vector4f Luxko::Vector4f::operator+(const Vector4f& v) const
