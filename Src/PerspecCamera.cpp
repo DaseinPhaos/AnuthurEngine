@@ -1,8 +1,17 @@
 #include "PerspecCamera.h"
 
+void Luxko::Anuthur::PerspecCamera::SetLens(float nearDistance, float farDistance, float aspectRatio, float hFov)
+{
+	_n = nearDistance;
+	_f = farDistance;
+	auto angle = hFov / 2.f;
+	_r = nearDistance / std::tan(angle);
+	_t = _r / aspectRatio;
+}
+
 Luxko::Transform3DH Luxko::Anuthur::PerspecCamera::TransformWtoV() const
 {
-	 return _Orientation.GetTransformLH(); 
+	 return _orientation.GetTransformLH(); 
 }
 
 Luxko::Transform3DH Luxko::Anuthur::PerspecCamera::TransformVtoH() const

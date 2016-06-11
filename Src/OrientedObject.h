@@ -18,8 +18,8 @@
 namespace Luxko {
 	class ANUTHURMATH_API OrientedObject {
 	public:
-		OrientedObject() :_Orientation(Frame3DH::StandardRightHandFrame()) {}
-		OrientedObject(const Frame3DH& f) :_Orientation(f) {}
+		OrientedObject() :_orientation(Frame3DH::StandardRightHandFrame()) {}
+		OrientedObject(const Frame3DH& f) :_orientation(f) {}
 		OrientedObject(const OrientedObject&) = default;
 		OrientedObject& operator=(const OrientedObject&) = default;
 
@@ -34,17 +34,17 @@ namespace Luxko {
 			return OST*v;
 		}
 
-		Point3DH GetPosition()const { return _Orientation.Position(); }
-		Vector3DH GetLookDirection()const { return _Orientation.Look(); }
-		Vector3DH GetRightDirection()const { return _Orientation.Right(); }
-		Vector3DH GetUpDirection()const { return _Orientation.Up(); }
-		Transform3DH TransformWtoO()const { return _Orientation.GetTransform(); }
-		Transform3DH TransformOtoW()const { return _Orientation.GetTransform().Inverse(); }
+		Point3DH GetPosition()const { return _orientation.Position(); }
+		Vector3DH GetLookDirection()const { return _orientation.Look(); }
+		Vector3DH GetRightDirection()const { return _orientation.Right(); }
+		Vector3DH GetUpDirection()const { return _orientation.Up(); }
+		Transform3DH TransformWtoO()const { return _orientation.GetTransform(); }
+		Transform3DH TransformOtoW()const { return _orientation.GetTransform().Inverse(); }
 
-		virtual void ApplyTransform(const Transform3DH& t) { _Orientation = t.ApplyOnFrame(_Orientation); }
+		virtual void ApplyTransform(const Transform3DH& t) { _orientation = t.ApplyOnFrame(_orientation); }
 
 		// Data members
-		Frame3DH _Orientation;
+		Frame3DH _orientation;
 	};
 
 

@@ -33,5 +33,9 @@
 
 // constexpr auto Pi_f = static_cast<float>(M_PI);
 
-
+#ifdef LUXKOUTILITY_EXPORTS
+#define LUXKOUTILITY_API _declspec(dllexport)
+#else
+#define LUXKOUTILITY_API _declspec(dllimport)
+#endif
 using namespace std::rel_ops;
