@@ -164,18 +164,30 @@ void CrateApp::OnMouseMove(WPARAM wParam, int x, int y)
 {
 	static float f_pi = static_cast<float>(M_PI)*300.f;
 	if (_lbDown) {
-		auto deltaH = (x - _lastMousePosX) / f_pi;
-		auto deltaV = (y - _lastMousePosY) / f_pi;
+//		auto deltaH = (x - _lastMousePosX) / f_pi;
+//		auto deltaV = (y - _lastMousePosY) / f_pi;
+//
+//		auto wotranslation = Transform3DH::Translation(/*_mainCamera.GetPosition()-Point3DH(0.f,0.f, 0.f)*/ -5.f * _mainCamera.GetLookDirection());
+//		
+//		auto rotation = Transform3DH::RotationN(_mainCamera.GetRightDirection(), deltaV) *(wotranslation.Inverse());
+//		rotation = Transform3DH::RotationN(_mainCamera.GetUpDirection(), deltaH) * rotation;
+//// 		auto formerUp = _mainCamera.GetUpDirection();
+//// 		rotation *= Luxko::Transform3DH::RotationN(formerUp, deltaH);
+//		rotation = wotranslation * rotation;
+//
+//		_mainCamera.ApplyTransform(rotation);
+//		_lastMousePosX = x;
+//		_lastMousePosY = y;
+//		_frDirtyCounts.Camera = FrameResourceCount;
 
-		auto wotranslation = Transform3DH::Translation(/*_mainCamera.GetPosition()-Point3DH(0.f,0.f, 0.f)*/ -5.f * _mainCamera.GetLookDirection());
-		
-		auto rotation = Transform3DH::RotationN(_mainCamera.GetRightDirection(), deltaV) *(wotranslation.Inverse());
+		// FPS-like transform
+		auto deltaH = 2.f*static_cast<float>(M_PI) -  (x - _lastMousePosX) / f_pi;
+		auto deltaV = 2.f*static_cast<float>(M_PI) - (y - _lastMousePosY) / f_pi;
+		auto rotation = Transform3DH::RotationN(_mainCamera.GetRightDirection(), deltaV);
 		rotation = Transform3DH::RotationN(_mainCamera.GetUpDirection(), deltaH) * rotation;
-// 		auto formerUp = _mainCamera.GetUpDirection();
-// 		rotation *= Luxko::Transform3DH::RotationN(formerUp, deltaH);
-		rotation = wotranslation * rotation;
+		_mainCamera._orientation.ApplyTransformOnOrientation(rotation);
 
-		_mainCamera.ApplyTransform(rotation);
+
 		_lastMousePosX = x;
 		_lastMousePosY = y;
 		_frDirtyCounts.Camera = FrameResourceCount;

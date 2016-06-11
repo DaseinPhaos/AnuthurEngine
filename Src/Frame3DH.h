@@ -45,6 +45,10 @@ namespace Luxko {
 
 		
 		Matrix3x3f ToCompressedM3x3()const;
+
+		void ApplyTransformOnOrientation(const Transform3DH& transform);
+		void ApplyTransformOnPosition(const Transform3DH& transform);
+
 	private:
 		Frame3DH() {}
 		union {

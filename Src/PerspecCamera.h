@@ -30,23 +30,26 @@ namespace Luxko {
 
 			static PerspecCamera FromHFOVAndAspectRatio(
 				float nearDistance, float farDistance, float aspectRatio,
-				float angle, const Vector3DH& lookDirection,
+				float hFoV, const Vector3DH& lookDirection,
 				const Vector3DH& upDirection, const Point3DH& position);
 
 			static PerspecCamera FromHFOVAndAspectRatio(
 				float nearDistance, float farDistance, float aspectRatio,
-				float angle, const Frame3DH& frame = Frame3DH::StandardRightHandFrame());
+				float hFoV, const Frame3DH& frame = Frame3DH::StandardRightHandFrame());
 
 			PerspecCamera(const PerspecCamera&) = default;
 			PerspecCamera& operator=(const PerspecCamera&) = default;
 			virtual ~PerspecCamera() {}
+
+			// Lens modifier
+			void SetLens(float nearDistance, float farDistance, float aspectRatio, float hFov);
 
 			// As this is a DirectX style camera, the view transform
 			// returns coordinates in a left-handed frame.
 			Transform3DH TransformWtoV()const;
 			Transform3DH TransformVtoH()const;
 			Transform3DH TransformWtoH()const;
-			Point3DH ApplyHomoClipTransform(const Point3DH& p) {
+			Point3DH ApplyHomoClipTransformOn(const Point3DH& p) {
 				auto r = TransformWtoH()*p;
 				return r.HomogenizeInPlace();
 			}

@@ -26,11 +26,11 @@ Luxko::FileSystem::File Luxko::FileSystem::File::Create(const std::wstring& file
 	f._hFile = CreateFile(fileName.c_str(), ToDword(access), ToDword(shareMode),pSA, ToDword(creationOp),
 		ToDword(attribute, flags), NULL);
 	f._isValid = (f._hFile != INVALID_HANDLE_VALUE);
-	if (!f._isValid) {
-		std::wstringstream wss;
-		wss << L"File Creation Failed. Error code: " << GetLastError() << std::flush;
-		throw wss.str().c_str();
-	}
+	//if (!f._isValid) {
+	//	std::wstringstream wss;
+	//	wss << L"File Creation Failed. Error code: " << GetLastError() << std::flush;
+	//	throw wss.str().c_str();
+	//}
 	return std::move(f);
 }
 
@@ -40,11 +40,11 @@ Luxko::FileSystem::File Luxko::FileSystem::File::CreateAccordingTo(const std::ws
 	file._hFile = CreateFile(fileName.c_str(), ToDword(access), ToDword(shareMode), pSA, CREATE_ALWAYS,
 		0, f._hFile);
 	file._isValid = (f._hFile != INVALID_HANDLE_VALUE);
-	if (!f._isValid) {
-		std::wstringstream wss;
-		wss << L"File Creation Failed. Error code: " << GetLastError() << std::flush;
-		throw wss.str().c_str();
-	}
+	//if (!f._isValid) {
+	//	std::wstringstream wss;
+	//	wss << L"File Creation Failed. Error code: " << GetLastError() << std::flush;
+	//	throw wss.str().c_str();
+	//}
 	return std::move(file);
 }
 

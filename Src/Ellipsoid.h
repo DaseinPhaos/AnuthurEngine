@@ -21,7 +21,7 @@ namespace Luxko {
 	class ANUTHURMATH_API Ellipsoid :public ConvexObject {
 	public:
 		Ellipsoid() {}
-		Ellipsoid(const Sphere& s) :ConvexObject(s._Orientation),
+		Ellipsoid(const Sphere& s) :ConvexObject(s._orientation),
 			_m(1.f), _n(1.f), _r(s._r) {}
 		Ellipsoid(float r, float m = 0.f, float n = 0.f, 
 			const Frame3DH& f = Frame3DH::StandardRightHandFrame())

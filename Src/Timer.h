@@ -7,13 +7,6 @@
 
 #pragma once
 
-#ifdef LUXKOUTILITY_EXPORTS
-#define LUXKOUTILITY_API _declspec(dllexport)
-#else
-#define LUXKOUTILITY_API _declspec(dllimport)
-#endif
-
-
 #include "CommonHeader.h"
 
 namespace Luxko {

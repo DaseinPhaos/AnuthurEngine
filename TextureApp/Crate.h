@@ -74,70 +74,6 @@ struct BlinnPhongMaterial
 };
 
 
-
-//class CrateFrameResource : public FrameResource {
-//public:
-//	explicit CrateFrameResource(ID3D12Device* pDevice)
-//		: FrameResource(pDevice), _cameraData(pDevice),
-//		_crateLWTransform(pDevice), _lightPack(pDevice),
-//		_material(pDevice) {
-//		ThrowIfFailed(pDevice->CreateDescriptorHeap(
-//			&D3D12Helper::DescriptorHeapDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-//				5u, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE),
-//			IID_PPV_ARGS(_CBVheap.GetAddressOf())));
-//	}
-//	
-//	CrateFrameResource(CrateFrameResource&& fr)
-//		:FrameResource(std::move(fr)) {
-//		_cameraData = std::move(fr._cameraData);
-//		_crateLWTransform = std::move(fr._crateLWTransform);
-//		_lightPack = std::move(fr._lightPack);
-//		_material = std::move(fr._material);
-//	}
-//
-//	CrateFrameResource& operator=(CrateFrameResource&& fr) {
-//		FrameResource::operator =(std::move(fr));
-//		_cameraData = std::move(fr._cameraData);
-//		_crateLWTransform = std::move(fr._crateLWTransform);
-//		_lightPack = std::move(fr._lightPack);
-//		_material = std::move(fr._material);
-//	}
-//
-//	virtual ~CrateFrameResource() {	}
-//
-//	void UpdateCamera(const PerspecCamera& pc) {
-//		CameraData _cameraDataCPU;
-//		_cameraDataCPU.Position = pc.GetPosition().AsVector4f();
-//		_cameraDataCPU.WCTransform = pc.TransformWtoO().AsMatrix4x4();
-//		_cameraDataCPU.WHTransform = pc.TransformWtoH().AsMatrix4x4();
-//		_cameraData.Update(_cameraDataCPU);
-//	}
-//
-//	void UpdateCrateTransform(const Matrix4x4f& t) {
-//		ComponentTransformationData ctd;
-//		ctd.CrateLW = t;
-//		ctd.NormalLW = t.Inverse().Transpose();
-//		_crateLWTransform.Update(ctd);
-//	}
-//
-//	void UpdateLightPack(const LightPack& l) {
-//		_lightPack.Update(l);
-//	}
-//
-//	void UpdateMaterial(const BlinnPhongMaterial& v) {
-//		_material.Update(v);
-//	}
-//
-//	D3D12Helper::UpdateBuffer<CameraData>					_cameraData;
-//	D3D12Helper::UpdateBuffer<LightPack>					_lightPack;
-//	D3D12Helper::UpdateBuffer<ComponentTransformationData>	_crateLWTransform;
-//	D3D12Helper::UpdateBuffer<BlinnPhongMaterial>			_material;
-//
-//	// contain a CBV for camera data, a CBV for lights,
-//	// a CBV for meshLW transform, a CBV for mesh material(part of).
-//	ComPtr<ID3D12DescriptorHeap>									_CBVheap;
-//};
-
 class CrateFrameResource : public FrameResource {
 public:
 	explicit CrateFrameResource(ID3D12Device* pDevice)
@@ -223,7 +159,7 @@ private:
 	D3D12Helper::MeshGeometry										_crateMesh;
 	D3D12_INDEX_BUFFER_VIEW											_crateIBV;
 	D3D12_VERTEX_BUFFER_VIEW										_crateVBV;
-	// grid mesh data
+	// terrain mesh data
 	BlinnPhongMaterial												_gridMaterial;
 	D3D12Helper::MeshGeometry										_gridMesh;
 	D3D12_INDEX_BUFFER_VIEW											_gridIBV;
