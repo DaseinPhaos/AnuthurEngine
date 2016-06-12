@@ -127,7 +127,7 @@ Luxko::Quaternionf Luxko::Quaternionf::FromInterpolationLinear(float t, const Qu
 Luxko::Quaternionf Luxko::Quaternionf::FromInterpolationSpherical(float t, const Quaternionf& q1, const Quaternionf& q2)
 {
 	float theta = std::acosf(q1._data.Dot(q2._data));
-	return Quaternionf((q1._data)*std::sinf(theta*t) + (q2._data)*std::sinf(theta*(1.f - t)) / std::sinf(theta));
+	return Quaternionf(((q1._data)*std::sinf(theta*t) + (q2._data)*std::sinf(theta*(1.f - t))) / std::sinf(theta));
 }
 
 Luxko::Quaternionf Luxko::Quaternionf::FromRotation(float theta, float axisX, float axisY, float axisZ)

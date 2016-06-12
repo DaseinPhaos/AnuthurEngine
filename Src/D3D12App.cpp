@@ -68,7 +68,7 @@ void Luxko::Anuthur::D3D12App::BasicD3D12ElementsInitialization()
 	ResetSwapChain();
 
 	// Initialize descriptor heaps.
-	CreateMainDescriptorHeaps();
+	CreateMainRtvDsvDescriptorHeaps();
 
 	// Create the render target view.
 	{
@@ -168,7 +168,6 @@ void Luxko::Anuthur::D3D12App::FlushCommandQueue()
 		CloseHandle(hEvent);
 	}
 }
-
 
 void Luxko::Anuthur::D3D12App::OnResize()
 {
@@ -392,7 +391,7 @@ void Luxko::Anuthur::D3D12App::CreateMainCmdObjects()
 	ThrowIfFailed(_mainCmdList->Close());
 }
 
-void Luxko::Anuthur::D3D12App::CreateMainDescriptorHeaps()
+void Luxko::Anuthur::D3D12App::CreateMainRtvDsvDescriptorHeaps()
 {
 	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc;
 	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;

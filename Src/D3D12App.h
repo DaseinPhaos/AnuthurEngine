@@ -75,7 +75,7 @@ namespace Luxko {
 
 			void CreateMainCmdObjects();
 
-			void CreateMainDescriptorHeaps();
+			virtual void CreateMainRtvDsvDescriptorHeaps();
 
 			void FlushCommandQueue();
 
