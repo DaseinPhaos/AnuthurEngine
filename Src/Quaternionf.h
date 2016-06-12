@@ -42,6 +42,9 @@ namespace Luxko {
 		static Quaternionf FromRotation(float theta, float axisX, float axisY, float axisZ);
 		static Quaternionf FromInterpolationLinear(float t, const Quaternionf& q1, const Quaternionf& q2);
 		static Quaternionf FromInterpolationSpherical(float t, const Quaternionf& q1, const Quaternionf& q2);
+
+		
+
 		Quaternionf operator*(const Quaternionf& q)const;
 		Quaternionf& operator*=(const Quaternionf& q)noexcept;
 
