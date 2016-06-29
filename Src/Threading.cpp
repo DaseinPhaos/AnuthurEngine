@@ -100,3 +100,132 @@ void Luxko::Threading::Overlap::Offset(long long offset)
 	_ov.Offset = li.LowPart;
 	_ov.OffsetHigh = li.HighPart;
 }
+
+Luxko::Threading::CriticalSection::CriticalSection() noexcept
+{
+	_valid = false;
+}
+
+bool Luxko::Threading::CriticalSection::Initialize(DWORD spinCount /*= 0*/) noexcept
+{
+	if (_valid) return false;
+	return InitializeCriticalSectionAndSpinCount(&_cs, spinCount);
+}
+
+DWORD Luxko::Threading::CriticalSection::SetSpinCount(DWORD spinCount) noexcept
+{
+	return SetCriticalSectionSpinCount(&_cs, spinCount);
+}
+
+Luxko::Threading::CriticalSection& Luxko::Threading::CriticalSection::operator=(CriticalSection&& cs) noexcept
+{
+	if (_valid) DeleteCriticalSection(&_cs);
+	_cs = cs._cs;
+	_valid = cs._valid;
+	cs._valid = false;
+}
+
+Luxko::Threading::CriticalSection::CriticalSection(CriticalSection&& cs) noexcept
+{
+	_cs = cs._cs;
+	_valid = cs._valid;
+	cs._valid = false;
+}
+
+Luxko::Threading::CriticalSection::~CriticalSection() noexcept
+{
+	if (_valid) DeleteCriticalSection(&_cs);
+}
+
+Luxko::Threading::CriticalSectionToken::CriticalSectionToken(CriticalSection& cs)
+{
+	_ptr = &cs._cs;
+	if(cs._valid) EnterCriticalSection(_ptr);
+	_valid = cs._valid;
+}
+
+void Luxko::Threading::CriticalSectionToken::Release() noexcept
+{
+	if (_valid) {
+		LeaveCriticalSection(_ptr);
+		_valid = false;
+	}
+}
+
+
+
+bool Luxko::Threading::CriticalSectionToken::SleepOnCV(ConditionVariable& cv, DWORD milliSeconds /*= INFINITE*/) noexcept
+{
+	if (!_valid) return false;
+	return FALSE != SleepConditionVariableCS(&cv._cv, _ptr, milliSeconds);
+}
+
+Luxko::Threading::CriticalSectionToken::~CriticalSectionToken() noexcept
+{
+	if(_valid) LeaveCriticalSection(_ptr);
+}
+
+Luxko::Threading::SlimRWLock::SlimRWLock() noexcept
+{
+	InitializeSRWLock(&_lock);
+}
+
+Luxko::Threading::SlimRWLockSharedToken::SlimRWLockSharedToken(SlimRWLock& srwLock)
+{
+	AcquireSRWLockShared(&srwLock._lock);
+	_ptr = &srwLock._lock;
+}
+
+void Luxko::Threading::SlimRWLockSharedToken::Release() noexcept
+{
+	if (_ptr) {
+		ReleaseSRWLockShared(_ptr);
+		_ptr = nullptr;
+	}
+}
+
+bool Luxko::Threading::SlimRWLockSharedToken::SleepOnCV(ConditionVariable& cv, DWORD milliSeconds /*= INFINITE*/) noexcept
+{
+	if (_ptr == nullptr) return false;
+	return FALSE != SleepConditionVariableSRW(&cv._cv, _ptr, milliSeconds, CONDITION_VARIABLE_LOCKMODE_SHARED);
+}
+
+Luxko::Threading::SlimRWLockSharedToken::~SlimRWLockSharedToken() noexcept
+{
+	if(_ptr) ReleaseSRWLockShared(_ptr);
+}
+
+Luxko::Threading::SlimRWLockExclusiveToken::SlimRWLockExclusiveToken(SlimRWLock& srwLock)
+{
+	AcquireSRWLockExclusive(&srwLock._lock);
+	_ptr = &srwLock._lock;
+}
+
+void Luxko::Threading::SlimRWLockExclusiveToken::Release() noexcept
+{
+	if (_ptr) {
+		ReleaseSRWLockExclusive(_ptr);
+		_ptr = nullptr;
+	}
+}
+
+bool Luxko::Threading::SlimRWLockExclusiveToken::SleepOnCV(ConditionVariable& cv, DWORD milliSeconds /*= INFINITE*/) noexcept
+{
+	if (_ptr == nullptr) return false;
+	return FALSE != SleepConditionVariableSRW(&cv._cv, _ptr, milliSeconds, 0ul);
+}
+
+Luxko::Threading::SlimRWLockExclusiveToken::~SlimRWLockExclusiveToken() noexcept
+{
+	if (_ptr) ReleaseSRWLockExclusive(_ptr);
+}
+
+void Luxko::Threading::ConditionVariable::WakeOne() noexcept
+{
+	WakeConditionVariable(&_cv);
+}
+
+void Luxko::Threading::ConditionVariable::WakeAll() noexcept
+{
+	WakeAllConditionVariable(&_cv);
+}

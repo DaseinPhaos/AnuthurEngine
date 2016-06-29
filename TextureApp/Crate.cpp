@@ -208,7 +208,7 @@ void CrateApp::InitializeSceneComponents()
 		//_crateLWTransform = Transform3DH::Translation(0.f, -1.f, 0.f);
 		
 
-		_crateMaterial = BlinnPhongMaterial{ Vector3f(0.02f, 0.12f, 0.12f), 0.1f, Vector3f(1.5f, 1.5f, 1.5f) };
+		_crateMaterial = BlinnPhongMaterial{ Vector3f(10.02f, 10.12f, 10.12f), 10.1f, Vector3f(1.5f, 1.5f, 1.5f) };
 		_crateTGPU = D3D12Helper::UpdateBuffer<ComponentTransformationData>(_d3d12Device.Get());
 		_crateMGPU = D3D12Helper::UpdateBuffer<BlinnPhongMaterial>(_d3d12Device.Get());
 
@@ -248,8 +248,8 @@ void CrateApp::InitializeSceneComponents()
 	// Initialize grid
 	{
 		//_gridLWTransform = Transform3DH::RotationN(Vector3DH::E1(), static_cast<float>(M_PI_4)/2.f) * _gridLWTransform;
-		_gridMaterial = BlinnPhongMaterial{ Vector3f(0.95f, 0.64f, 0.54f), 0.f, Vector3f(1.f, 1.f, 1.f) };
-		//_gridMaterial = BlinnPhongMaterial{ Vector3f(0.95f, 0.64f, 0.54f), 1.f, Vector3f(1.f, 1.f, 1.f) };
+		//_gridMaterial = BlinnPhongMaterial{ Vector3f(0.95f, 0.64f, 0.54f), 0.f, Vector3f(1.f, 1.f, 1.f) };
+		_gridMaterial = BlinnPhongMaterial{ Vector3f(0.95f, 0.64f, 0.54f), 10.f, Vector3f(1.f, 1.f, 1.f) };
 		_gridTGPU = D3D12Helper::UpdateBuffer<ComponentTransformationData>(_d3d12Device.Get());
 		_gridMGPU = D3D12Helper::UpdateBuffer<BlinnPhongMaterial>(_d3d12Device.Get());
 
@@ -277,13 +277,13 @@ void CrateApp::InitializeSceneComponents()
 
 	// Initialize lights
 	{
-		_lights.Directional.Irradiance = { 0.3f, 0.3f, 0.3f };
+		_lights.Directional.Irradiance = { 0.13f, 0.13f, 0.13f };
 		_lights.Directional.Direction = Vector3f(1.f, -1.f, -1.f).Normalize();
 		
 		_lights.PointLinear.Pos = { 5.f, 5.f, -5.f };
 		_lights.PointLinear.FallStart = 0.f;
-		_lights.PointLinear.Irradiance = { 0.15f, 0.16f, 0.17f };
-		_lights.PointLinear.FallEnd = 15.f;
+		_lights.PointLinear.Irradiance = { 0.15f, 0.16f, 0.37f };
+		_lights.PointLinear.FallEnd = 30.f;
 		
 		_lights.PointQuadra.Pos = { -5.f, 5.f, 5.f };
 		_lights.PointQuadra.Irradiance = { 0.f, 0.f, 0.f };
@@ -475,7 +475,7 @@ void CrateApp::InitializeTextures()
 
 	ComPtr<ID3D12Resource> uploader2;
 	textureName = TextureDir;
-	textureName += L"stone.dds";
+	textureName += L"ice.dds";
 	ThrowIfFailed(D3D12Helper::ReadDDSTextureFromFile(_d3d12Device.Get(), _mainCmdList.Get(),
 		textureName.c_str(), _gridTextureGPU, uploader2));
 	ThrowIfFailed(_mainCmdList->Close());

@@ -26,6 +26,17 @@ Luxko::Frame3DH Luxko::Frame3DH::StandardRightHandFrame()
 	return r;
 }
 
+Luxko::Frame3DH Luxko::Frame3DH::LookAt(const Point3DH& lookAt, const Vector3DH& up, const Point3DH& pos)
+{
+	auto lookTowards = lookAt - pos;
+	return LookTowards(lookTowards, up, pos);
+}
+
+Luxko::Frame3DH Luxko::Frame3DH::LookTowards(const Vector3DH& lookTowards, const Vector3DH& up, const Point3DH& pos)
+{
+	return Frame3DH(lookTowards, up, pos);
+}
+
 Luxko::Frame3DH& Luxko::Frame3DH::operator=(const Frame3DH& f)
 {
 	_data = f._data;

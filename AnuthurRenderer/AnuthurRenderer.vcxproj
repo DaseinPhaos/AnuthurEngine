@@ -158,7 +158,6 @@
     <ClInclude Include="..\Src\LightandMaterial.h" />
     <ClInclude Include="..\Src\MeshResource.h" />
     <ClInclude Include="..\Src\PerspecCamera.h" />
-    <ClInclude Include="..\Src\PNGTextureLoader.h" />
     <ClInclude Include="..\Src\RendererPCH.h" />
   </ItemGroup>
   <ItemGroup>
@@ -179,7 +178,6 @@
     <ClCompile Include="..\Src\HelperMethods.cpp" />
     <ClCompile Include="..\Src\LightandMaterial.cpp" />
     <ClCompile Include="..\Src\PerspecCamera.cpp" />
-    <ClCompile Include="..\Src\PNGTextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Src\HLSLShaders\LightandMaterial.hlsl">

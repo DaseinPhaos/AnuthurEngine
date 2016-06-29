@@ -88,7 +88,7 @@ Luxko::Anuthur::D3D12Helper::ResourceBarrier Luxko::Anuthur::D3D12Helper::Resour
 	return result;
 }
 
-Luxko::Anuthur::D3D12Helper::ResourceHeapProperties::ResourceHeapProperties(D3D12_HEAP_TYPE type /*= D3D12_HEAP_TYPE_DEFAULT*/, D3D12_CPU_PAGE_PROPERTY cpuPageProperty /*= D3D12_CPU_PAGE_PROPERTY_NOT_AVAILABLE*/, D3D12_MEMORY_POOL memoryPoolPref /*= D3D12_MEMORY_POOL_UNKNOWN*/, UINT CreationNodeMask /*= 0*/, UINT visibleNodeMask /*= 0*/)
+Luxko::Anuthur::D3D12Helper::ResourceHeapProperties::ResourceHeapProperties(D3D12_HEAP_TYPE type /*= D3D12_HEAP_TYPE_DEFAULT*/, D3D12_CPU_PAGE_PROPERTY cpuPageProperty /*= D3D12_CPU_PAGE_PROPERTY_UNKOWN*/, D3D12_MEMORY_POOL memoryPoolPref /*= D3D12_MEMORY_POOL_UNKNOWN*/, UINT CreationNodeMask /*= 0*/, UINT visibleNodeMask /*= 0*/)
 	:D3D12_HEAP_PROPERTIES{ type, cpuPageProperty, memoryPoolPref, CreationNodeMask, visibleNodeMask } { }
 
 UINT Luxko::Anuthur::D3D12Helper::GetCBSizeAligned(size_t sizeOfObject)
@@ -485,7 +485,7 @@ D3D12_SHADER_BYTECODE Luxko::Anuthur::D3D12Helper::ShaderByteCode::Get() const
 {
 	D3D12_SHADER_BYTECODE result;
 	result.BytecodeLength = _shaderBytes->GetBufferSize();
-	result.pShaderBytecode = reinterpret_cast<BYTE*>(_shaderBytes->GetBufferPointer());
+	result.pShaderBytecode = _shaderBytes->GetBufferPointer();
 	return result;
 }
 
