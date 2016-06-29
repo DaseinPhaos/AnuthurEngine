@@ -102,7 +102,94 @@ namespace Luxko {
 			OVERLAPPED _ov;
 		};
 
+		class LUXKOUTILITY_API ConditionVariable {
+			friend class CriticalSectionToken;
+			friend class SlimRWLockExclusiveToken;
+			friend class SlimRWLockSharedToken;
+		public:
+			ConditionVariable()noexcept {};
+			~ConditionVariable()noexcept {};
+			ConditionVariable(const ConditionVariable&) = delete;
+			ConditionVariable& operator=(const ConditionVariable&) = delete;
+			void WakeOne()noexcept;
+			void WakeAll()noexcept;
+		private:
+			CONDITION_VARIABLE _cv;
+		};
 
+		// Critical section should be associated with data structures in need of protection.
+		// Whenever accessing these data, one should start a new code block,
+		// construct a new CritialSectionToken there, access the data, then leave the code block.
+		class LUXKOUTILITY_API CriticalSection {
+			friend class CriticalSectionToken;
+		public:
+			CriticalSection()noexcept;
+			~CriticalSection()noexcept;
+			CriticalSection(const CriticalSection&) = delete;
+			CriticalSection& operator=(const CriticalSection&) = delete;
+			CriticalSection(CriticalSection&& cs)noexcept;
+			CriticalSection& operator=(CriticalSection&& cs)noexcept;
+
+			// Only the first Initialization ever happen(or ever after being moved) takes effect.
+			// `spinCount` should range from [0..0x00ff ffff].
+			bool Initialize(DWORD spinCount = 0)noexcept;
+
+			// Return the old spin count.
+			DWORD SetSpinCount(DWORD spinCount)noexcept;
+
+		private:
+			CRITICAL_SECTION _cs;
+			bool _valid;
+		};
+
+		class LUXKOUTILITY_API CriticalSectionToken {
+		public:
+			explicit CriticalSectionToken(CriticalSection& cs);
+			~CriticalSectionToken()noexcept;
+			CriticalSectionToken(const CriticalSectionToken&) = delete;
+			CriticalSectionToken& operator=(const CriticalSectionToken&) = delete;
+			void Release()noexcept;
+			bool SleepOnCV(ConditionVariable& cv, DWORD milliSeconds = INFINITE)noexcept;
+		private:
+			LPCRITICAL_SECTION _ptr;
+			bool _valid;
+		};
+
+		class LUXKOUTILITY_API SlimRWLock {
+			friend class SlimRWLockSharedToken;
+			friend class SlimRWLockExclusiveToken;
+		public:
+			SlimRWLock()noexcept;
+			~SlimRWLock()noexcept {}
+			SlimRWLock(const SlimRWLock&) = delete;
+			SlimRWLock& operator=(const SlimRWLock&) = delete;
+		private:
+			SRWLOCK _lock;
+		};
+
+		class LUXKOUTILITY_API SlimRWLockSharedToken {
+		public:
+			explicit SlimRWLockSharedToken(SlimRWLock& srwLock);
+			~SlimRWLockSharedToken()noexcept;
+			SlimRWLockSharedToken(const SlimRWLockSharedToken&) = delete;
+			SlimRWLockSharedToken& operator=(const SlimRWLockSharedToken&) = delete;
+			void Release()noexcept;
+			bool SleepOnCV(ConditionVariable& cv, DWORD milliSeconds = INFINITE)noexcept;
+		private:
+			PSRWLOCK _ptr;
+		};
+
+		class LUXKOUTILITY_API SlimRWLockExclusiveToken {
+		public:
+			explicit SlimRWLockExclusiveToken(SlimRWLock& srwLock);
+			~SlimRWLockExclusiveToken()noexcept;
+			SlimRWLockExclusiveToken(const SlimRWLockExclusiveToken&) = delete;
+			SlimRWLockExclusiveToken& operator=(const SlimRWLockExclusiveToken&) = delete;
+			void Release()noexcept;
+			bool SleepOnCV(ConditionVariable& cv, DWORD milliSeconds = INFINITE)noexcept;
+		private:
+			PSRWLOCK _ptr;
+		};
 
 	}
 }

@@ -45,7 +45,7 @@ float3 BlinnPhong(float3 irradiance, float3 light, float3 normal, float3 eye, Bl
 float3 EvaluateDirectionalLight(BasicLight L, BlinnPhongMaterial mat, float3 normal, float3 eye)
 {
 	float3 light = -(L.DirectionAndPower.xyz);
-	float3 ls = L.IrradianceAndFallEnd.xyz /** max(dot(light, normal), 0.f)*/;
+	float3 ls = L.IrradianceAndFallEnd.xyz * max(dot(light, normal), 0.f);
 	return BlinnPhong(ls, light, normal, eye, mat);
 }
 
@@ -56,6 +56,7 @@ float3 EvaluatePointLightLinear(BasicLight L, BlinnPhongMaterial mat, float3 pos
 	float att = Attenuation(d, L.PosAndFallStart.w, L.IrradianceAndFallEnd.w);
 	float3 irradiance = att*L.IrradianceAndFallEnd.xyz;
 	light = normalize(light);
+	irradiance = irradiance * max(dot(light, normal), 0.f);
 	return BlinnPhong(irradiance, light, normal, eye, mat);
 }
 
@@ -67,6 +68,7 @@ float3 EvaluatePointLightQuadra(BasicLight L, BlinnPhongMaterial mat, float3 pos
 	falloff *= falloff;
 	float3 irradiance = L.IrradianceAndFallEnd.xyz / falloff;
 	light /= d;
+	irradiance = irradiance * max(dot(light, normal), 0.f);
 	return BlinnPhong(irradiance, light, normal, eye, mat);
 }
 
@@ -78,5 +80,6 @@ float3 EvaluateSpotLightLinear(BasicLight L, BlinnPhongMaterial mat, float3 pos,
 	float att = Attenuation(d, L.PosAndFallStart.w, L.IrradianceAndFallEnd.w);
 	float spotFactor = pow(max(dot(light, -L.DirectionAndPower.xyz), 0.f), L.DirectionAndPower.w) * att;
 	float3 irradiance = spotFactor*L.IrradianceAndFallEnd.xyz;
+	irradiance = irradiance * max(dot(light, normal), 0.f);
 	return BlinnPhong(irradiance, light, normal, eye, mat);
 }

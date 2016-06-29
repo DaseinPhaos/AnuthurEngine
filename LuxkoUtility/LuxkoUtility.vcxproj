@@ -151,14 +151,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\Src\CommonHeader.h" />
-    <ClInclude Include="..\Src\DEFLATECompress.h" />
     <ClInclude Include="..\Src\FileSystem.h" />
     <ClInclude Include="..\Src\MemorySystem.h" />
     <ClInclude Include="..\Src\Threading.h" />
     <ClInclude Include="..\Src\Timer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Src\DEFLATECompress.cpp" />
     <ClCompile Include="..\Src\FileSystem.cpp" />
     <ClCompile Include="..\Src\MemorySystem.cpp" />
     <ClCompile Include="..\Src\Threading.cpp" />
