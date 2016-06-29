@@ -220,6 +220,11 @@ Luxko::Threading::SlimRWLockExclusiveToken::~SlimRWLockExclusiveToken() noexcept
 	if (_ptr) ReleaseSRWLockExclusive(_ptr);
 }
 
+Luxko::Threading::ConditionVariable::ConditionVariable() noexcept
+{
+	InitializeConditionVariable(&_cv);
+}
+
 void Luxko::Threading::ConditionVariable::WakeOne() noexcept
 {
 	WakeConditionVariable(&_cv);
