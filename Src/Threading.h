@@ -107,7 +107,7 @@ namespace Luxko {
 			friend class SlimRWLockExclusiveToken;
 			friend class SlimRWLockSharedToken;
 		public:
-			ConditionVariable()noexcept {};
+			ConditionVariable()noexcept;
 			~ConditionVariable()noexcept {};
 			ConditionVariable(const ConditionVariable&) = delete;
 			ConditionVariable& operator=(const ConditionVariable&) = delete;
