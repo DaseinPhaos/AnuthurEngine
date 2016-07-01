@@ -1,5 +1,5 @@
 #include "Threading.h"
-
+#include <cassert>
 static DWORD ToDword() {
 	return 0;
 }
@@ -440,4 +440,104 @@ Luxko::Threading::Mutex& Luxko::Threading::Mutex::operator=(Mutex&& e) noexcept
 {
 	_hMutex = std::move(e._hMutex);
 	return *this;
+}
+
+Luxko::Threading::Thread::Thread(PTHREAD_START_ROUTINE functionInvoked, void* param, ThreadCreationFlags flags /*= ThreadCreationFlags::Default*/, DWORD stackSizeInBytes /*= 0*/, PSECURITY_ATTRIBUTES sa /*= nullptr*/)
+{
+	_functionInvoked = functionInvoked;
+	_paramtersPassed = param;
+	_creationFlags = flags;
+	_stackSizeInBytes = stackSizeInBytes;
+	_psa = sa;
+}
+
+void Luxko::Threading::Thread::Begin() noexcept
+{
+	_hThread = static_cast<KernelObjectHandle>(reinterpret_cast<HANDLE>(_beginthreadex(_psa, _stackSizeInBytes, reinterpret_cast<_beginthreadex_proc_type>(_functionInvoked), _paramtersPassed, static_cast<DWORD>(_creationFlags), reinterpret_cast<unsigned int*>(&_tID))));
+}
+
+bool Luxko::Threading::Thread::Terminate(DWORD exitCode) noexcept
+{
+	return FALSE != TerminateThread(_hThread.Get(), exitCode);
+}
+
+DWORD Luxko::Threading::Thread::Resume() noexcept
+{
+	return ResumeThread(_hThread.Get());
+}
+
+DWORD Luxko::Threading::Thread::Suspend() noexcept
+{
+	return SuspendThread(_hThread.Get());
+}
+
+
+
+Luxko::Threading::Thread::ThreadTimeInfo Luxko::Threading::Thread::GetThreadTimeInfo()
+{
+	ThreadTimeInfo tti;
+	auto gr = GetThreadTimes(_hThread.Get(), reinterpret_cast<LPFILETIME>(&tti.creationTime),
+		reinterpret_cast<LPFILETIME>(&tti.exitTime),
+		reinterpret_cast<LPFILETIME>(&tti.kernelTime),
+		reinterpret_cast<LPFILETIME>(&tti.userTime));
+	assert(FALSE != gr);
+	return tti;
+}
+
+Luxko::Threading::ThreadPriority Luxko::Threading::Thread::Priority()
+{
+	return static_cast<ThreadPriority>(GetThreadPriority(_hThread.Get()));
+}
+
+bool Luxko::Threading::Thread::Priority(ThreadPriority priority)
+{
+	return FALSE != SetThreadPriority(_hThread.Get(), ToDword(priority));
+}
+
+const Luxko::Threading::KernelObjectHandle& Luxko::Threading::Thread::Get() const noexcept
+{
+	return _hThread;
+}
+
+DWORD Luxko::Threading::Thread::StackSize() const noexcept
+{
+	return _stackSizeInBytes;
+}
+
+DWORD Luxko::Threading::Thread::ID() const noexcept
+{
+	return _tID;
+}
+
+PTHREAD_START_ROUTINE Luxko::Threading::Thread::FunctionInvoked() const noexcept
+{
+	return _functionInvoked;
+}
+
+void* Luxko::Threading::Thread::ParametersPassed() const noexcept
+{
+	return _paramtersPassed;
+}
+
+Luxko::Threading::Thread& Luxko::Threading::Thread::operator=(Thread&& e) noexcept
+{
+	_tID = e._tID;
+	_stackSizeInBytes = e._stackSizeInBytes;
+	_creationFlags = e._creationFlags;
+	_hThread = std::move(e._hThread);
+	_functionInvoked = e._functionInvoked;
+	_psa = e._psa;
+	_paramtersPassed = e._paramtersPassed;
+	return *this;
+}
+
+Luxko::Threading::Thread::Thread(Thread&& e) noexcept
+{
+	_tID = e._tID;
+	_stackSizeInBytes = e._stackSizeInBytes;
+	_creationFlags = e._creationFlags;
+	_hThread = std::move(e._hThread);
+	_functionInvoked = e._functionInvoked;
+	_psa = e._psa;
+	_paramtersPassed = e._paramtersPassed;
 }

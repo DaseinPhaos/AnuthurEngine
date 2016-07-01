@@ -10,6 +10,9 @@
 #pragma once
 
 #include "CommonHeader.h"
+#include "FileSystem.h"
+#include <crtdefs.h>
+#include <process.h>
 #include <string>
 
 namespace Luxko {
@@ -333,5 +336,76 @@ namespace Luxko {
 			PSRWLOCK _ptr;
 		};
 
+		enum class ThreadCreationFlags : DWORD {
+			Default = 0,
+			Suspended = CREATE_SUSPENDED
+		};
+
+		enum class ThreadPriority : int {
+			TimeCritical = THREAD_PRIORITY_TIME_CRITICAL,
+			Highest = THREAD_PRIORITY_HIGHEST,
+			AboveNormal = THREAD_PRIORITY_ABOVE_NORMAL,
+			Normal = THREAD_PRIORITY_NORMAL,
+			BelowNormal = THREAD_PRIORITY_BELOW_NORMAL,
+			Lowest = THREAD_PRIORITY_LOWEST,
+			Idle = THREAD_PRIORITY_IDLE
+		};
+
+		class LUXKOUTILITY_API Thread {
+		public:
+			Thread(PTHREAD_START_ROUTINE functionInvoked,
+				void* param, ThreadCreationFlags flags = ThreadCreationFlags::Default,
+				DWORD stackSizeInBytes = 0, PSECURITY_ATTRIBUTES sa = nullptr);
+			Thread(const Thread&) = delete;
+			Thread& operator=(const Thread&) = delete;
+			Thread(Thread&& e)noexcept;
+			Thread& operator=(Thread&& e)noexcept;
+			~Thread() = default;
+
+			void Begin()noexcept;
+			bool Terminate(DWORD exitCode)noexcept;
+
+			// Return the last hanging count, if failed return 0xFFFFFFFF
+			DWORD Resume()noexcept;
+			DWORD Suspend()noexcept;
+
+			//void Sleep(DWORD milliSeconds);
+
+			struct ThreadTimeInfo
+			{
+				FileSystem::FileTime creationTime;
+				FileSystem::FileTime exitTime;
+				FileSystem::FileTime kernelTime;
+				FileSystem::FileTime userTime;
+			};
+
+			ThreadTimeInfo GetThreadTimeInfo();
+
+			ThreadPriority Priority();
+
+			bool Priority(ThreadPriority priority);
+
+			//bool PriorityBoost();
+			//bool PriorityBoost(bool enable);
+
+
+
+			const KernelObjectHandle& Get()const noexcept;
+			DWORD StackSize()const noexcept;
+			DWORD ID()const noexcept;
+			PTHREAD_START_ROUTINE FunctionInvoked()const noexcept;
+			void* ParametersPassed()const noexcept;
+
+			
+
+		private:
+			DWORD _tID;
+			DWORD _stackSizeInBytes; // 0 means default size decided by the linker.
+			ThreadCreationFlags _creationFlags;
+			KernelObjectHandle _hThread;
+			PTHREAD_START_ROUTINE _functionInvoked;
+			PSECURITY_ATTRIBUTES _psa;
+			void* _paramtersPassed;
+		};
 	}
 }
