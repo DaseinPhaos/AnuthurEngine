@@ -1,6 +1,8 @@
 #include "FileSystem.h"
+#include "Threading.h"
 #include <iostream>
 #include <cassert>
+#include <thread>
 //#include "ApplicationHelper.h"
 
 int FileSystemTest() {
@@ -90,11 +92,23 @@ int FileSystemTest() {
 	return 0;
 }
 
+
+
 int main() {
-	using namespace Luxko::FileSystem;
-	FileFlag ff = FileFlag::BackupSemantics;
-	FileFlag fff = FileFlag::DeleteOnClose;
-	auto ffff = ff | fff;
-	std::cout << static_cast<DWORD>(ffff) << std::endl;
+	//using namespace Luxko::FileSystem;
+	//FileFlag ff = FileFlag::BackupSemantics;
+	//FileFlag fff = FileFlag::DeleteOnClose;
+	//auto ffff = ff | fff;
+	//std::cout << static_cast<DWORD>(ffff) << std::endl;
+	//getchar();
+
+	using namespace Luxko;
+	Threading::ConditionVariable cv;
+	Threading::CriticalSection cs;
+	auto e = Threading::Event::Create(L"Luxko_What'sup_Event");
+	auto m = Threading::Mutex::Create(L"Luxko_Mutex_sup");
+	auto s = Threading::Semaphore::Create(5l);
+	Threading::SlimRWLock srwLock;
+	
 	getchar();
 }
