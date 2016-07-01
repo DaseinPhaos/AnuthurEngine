@@ -157,10 +157,13 @@ namespace Luxko {
 			~FileTime() = default;
 			bool operator==(const FileTime& ft)const;
 			bool operator<(const FileTime& ft)const;
-			FILETIME m_ft;
+
 			FileTime ToLocal()const;
 			FileTime ToGlobal()const;
 			LARGE_INTEGER toLargeInteger()const;
+
+		public:
+			FILETIME m_ft;
 		};
 
 		class LUXKOUTILITY_API SystemTime {
