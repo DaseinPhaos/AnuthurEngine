@@ -9,67 +9,80 @@ static DWORD ToDword(T t, const Types& ... types) {
 	return static_cast<DWORD>(t) | ToDword(types...);
 }
 
-Luxko::Threading::SynchronizationAccessRight Luxko::Threading::operator|(SynchronizationAccessRight a, SynchronizationAccessRight b)
+Luxko::Threading::EventSynchronizationAccessRight Luxko::Threading::operator|(EventSynchronizationAccessRight a, EventSynchronizationAccessRight b)
 {
-	return static_cast<SynchronizationAccessRight>(ToDword(a, b));
+	return static_cast<EventSynchronizationAccessRight>(ToDword(a, b));
 }
 
-Luxko::Threading::SynchronizationAccessRight Luxko::Threading::operator&(SynchronizationAccessRight a, SynchronizationAccessRight b)
+Luxko::Threading::EventSynchronizationAccessRight Luxko::Threading::operator&(EventSynchronizationAccessRight a, EventSynchronizationAccessRight b)
 {
-	return static_cast<SynchronizationAccessRight>(ToDword(a)&ToDword(b));
+	return static_cast<EventSynchronizationAccessRight>(ToDword(a)&ToDword(b));
 }
 
 
-Luxko::Threading::Event Luxko::Threading::Event::OpenEvent(const std::wstring& eventName, EventAccessRight ear /*= EventAccessRight::ModifyState*/, SynchronizationAccessRight sar /*= SynchronizationAccessRight::Synchronize*/, bool inheritable/* = false*/)
+LUXKOUTILITY_API Luxko::Threading::EventCreationFlags Luxko::Threading::operator|(EventCreationFlags a, EventCreationFlags b)
 {
-	Event e;
-	e._hEvent = ::OpenEvent(ToDword(ear, sar), inheritable, eventName.c_str());
-	return e;
+	return static_cast<EventCreationFlags>(ToDword(a, b));
 }
 
-Luxko::Threading::EventNotifyOne Luxko::Threading::EventNotifyOne::Open(std::wstring& eventName, EventAccessRight ear /*= EventAccessRight::ModifyState*/, SynchronizationAccessRight sar /*= SynchronizationAccessRight::Synchronize*/, bool inheritable /*= false*/)
+LUXKOUTILITY_API Luxko::Threading::EventCreationFlags Luxko::Threading::operator&(EventCreationFlags a, EventCreationFlags b)
 {
-	auto e = Event::OpenEvent(eventName, ear, sar, inheritable);
-	EventNotifyOne se;
-	se._hEvent = e.Handle();
-	return se;
+	return static_cast<EventCreationFlags>(ToDword(a)&ToDword(b));
 }
 
-Luxko::Threading::EventNotifyOne Luxko::Threading::EventNotifyOne::CreateNameLess(bool initiallySet, SECURITY_ATTRIBUTES* sa /*= nullptr*/)
-{
-	EventNotifyOne se;
-	se._hEvent = CreateEvent(sa, FALSE, initiallySet, nullptr);
-	return se;
-}
 
-Luxko::Threading::EventNotifyOne Luxko::Threading::EventNotifyOne::CreateNamed(bool initiallySet, const std::wstring& name, SECURITY_ATTRIBUTES* sa /*= nullptr*/)
-{
-	EventNotifyOne se;
-	se._hEvent = CreateEvent(sa, FALSE, initiallySet, name.c_str());
-	return se;
-}
-
-Luxko::Threading::EventNotifyAll Luxko::Threading::EventNotifyAll::Open(std::wstring& eventName, EventAccessRight ear /*= EventAccessRight::ModifyState*/, SynchronizationAccessRight sar /*= SynchronizationAccessRight::Synchronize*/, bool inheritable /*= false*/)
-{
-	auto e = Event::OpenEvent(eventName, ear, sar, inheritable);
-	EventNotifyAll se;
-	se._hEvent = e.Handle();
-	return se;
-}
-
-Luxko::Threading::EventNotifyAll Luxko::Threading::EventNotifyAll::CreateNameLess(bool initiallySet, SECURITY_ATTRIBUTES* sa /*= nullptr*/)
-{
-	EventNotifyAll ena;
-	ena._hEvent = CreateEvent(sa, TRUE, initiallySet, nullptr);
-	return ena;
-}
-
-Luxko::Threading::EventNotifyAll Luxko::Threading::EventNotifyAll::CreateNamed(bool initiallySet, const std::wstring& name, SECURITY_ATTRIBUTES* sa /*= nullptr*/)
-{
-	EventNotifyAll ena;
-	ena._hEvent = CreateEvent(sa, TRUE, initiallySet, name.c_str());
-	return ena;
-}
+//#pragma region Old Event Implementation
+//Luxko::Threading::Event Luxko::Threading::Event::OpenEvent(const std::wstring& eventName, EventAccessRight ear /*= EventAccessRight::ModifyState*/, SynchronizationAccessRight sar /*= SynchronizationAccessRight::Synchronize*/, bool inheritable/* = false*/)
+//{
+//	Event e;
+//	e._hEvent = ::OpenEvent(ToDword(ear, sar), inheritable, eventName.c_str());
+//	return e;
+//}
+//
+//Luxko::Threading::EventNotifyOne Luxko::Threading::EventNotifyOne::Open(std::wstring& eventName, EventAccessRight ear /*= EventAccessRight::ModifyState*/, SynchronizationAccessRight sar /*= SynchronizationAccessRight::Synchronize*/, bool inheritable /*= false*/)
+//{
+//	auto e = Event::OpenEvent(eventName, ear, sar, inheritable);
+//	EventNotifyOne se;
+//	se._hEvent = e.Handle();
+//	return se;
+//}
+//
+//Luxko::Threading::EventNotifyOne Luxko::Threading::EventNotifyOne::CreateNameLess(bool initiallySet, SECURITY_ATTRIBUTES* sa /*= nullptr*/)
+//{
+//	EventNotifyOne se;
+//	se._hEvent = CreateEvent(sa, FALSE, initiallySet, nullptr);
+//	return se;
+//}
+//
+//Luxko::Threading::EventNotifyOne Luxko::Threading::EventNotifyOne::CreateNamed(bool initiallySet, const std::wstring& name, SECURITY_ATTRIBUTES* sa /*= nullptr*/)
+//{
+//	EventNotifyOne se;
+//	se._hEvent = CreateEvent(sa, FALSE, initiallySet, name.c_str());
+//	return se;
+//}
+//
+//Luxko::Threading::EventNotifyAll Luxko::Threading::EventNotifyAll::Open(std::wstring& eventName, EventAccessRight ear /*= EventAccessRight::ModifyState*/, SynchronizationAccessRight sar /*= SynchronizationAccessRight::Synchronize*/, bool inheritable /*= false*/)
+//{
+//	auto e = Event::OpenEvent(eventName, ear, sar, inheritable);
+//	EventNotifyAll se;
+//	se._hEvent = e.Handle();
+//	return se;
+//}
+//
+//Luxko::Threading::EventNotifyAll Luxko::Threading::EventNotifyAll::CreateNameLess(bool initiallySet, SECURITY_ATTRIBUTES* sa /*= nullptr*/)
+//{
+//	EventNotifyAll ena;
+//	ena._hEvent = CreateEvent(sa, TRUE, initiallySet, nullptr);
+//	return ena;
+//}
+//
+//Luxko::Threading::EventNotifyAll Luxko::Threading::EventNotifyAll::CreateNamed(bool initiallySet, const std::wstring& name, SECURITY_ATTRIBUTES* sa /*= nullptr*/)
+//{
+//	EventNotifyAll ena;
+//	ena._hEvent = CreateEvent(sa, TRUE, initiallySet, name.c_str());
+//	return ena;
+//}
+//#pragma endregion Old Event Implementation
 
 Luxko::Threading::Overlap::Overlap(long long offset, const Event& e)
 {
@@ -77,7 +90,7 @@ Luxko::Threading::Overlap::Overlap(long long offset, const Event& e)
 	li.QuadPart = offset;
 	_ov.Offset = li.LowPart;
 	_ov.OffsetHigh = li.HighPart;
-	_ov.hEvent = e.Handle();
+	_ov.hEvent = e.Get().Get();
 }
 
 long long Luxko::Threading::Overlap::Offset() const
@@ -90,7 +103,7 @@ long long Luxko::Threading::Overlap::Offset() const
 
 void Luxko::Threading::Overlap::SetEvent(const Event& e)
 {
-	_ov.hEvent = e.Handle();
+	_ov.hEvent = e.Get().Get();
 }
 
 void Luxko::Threading::Overlap::Offset(long long offset)
@@ -109,7 +122,7 @@ Luxko::Threading::CriticalSection::CriticalSection() noexcept
 bool Luxko::Threading::CriticalSection::Initialize(DWORD spinCount /*= 0*/) noexcept
 {
 	if (_valid) return false;
-	return InitializeCriticalSectionAndSpinCount(&_cs, spinCount);
+	return FALSE != InitializeCriticalSectionAndSpinCount(&_cs, spinCount);
 }
 
 DWORD Luxko::Threading::CriticalSection::SetSpinCount(DWORD spinCount) noexcept
@@ -123,6 +136,7 @@ Luxko::Threading::CriticalSection& Luxko::Threading::CriticalSection::operator=(
 	_cs = cs._cs;
 	_valid = cs._valid;
 	cs._valid = false;
+	return *this;
 }
 
 Luxko::Threading::CriticalSection::CriticalSection(CriticalSection&& cs) noexcept
@@ -137,18 +151,30 @@ Luxko::Threading::CriticalSection::~CriticalSection() noexcept
 	if (_valid) DeleteCriticalSection(&_cs);
 }
 
-Luxko::Threading::CriticalSectionToken::CriticalSectionToken(CriticalSection& cs)
+Luxko::Threading::CriticalSectionToken::CriticalSectionToken(CriticalSection& cs, bool tryEnter/* = false*/)
 {
-	_ptr = &cs._cs;
-	if(cs._valid) EnterCriticalSection(_ptr);
-	_valid = cs._valid;
+	if (cs._valid) {
+		if (tryEnter) {
+			auto pcs = &cs._cs;
+			if (FALSE == TryEnterCriticalSection(pcs))
+				_ptr = nullptr;
+			else _ptr = pcs;
+		}
+		else {
+			_ptr = &cs._cs;
+			EnterCriticalSection(_ptr);
+		}
+	}
+	else {
+		_ptr = nullptr;
+	}
 }
 
 void Luxko::Threading::CriticalSectionToken::Release() noexcept
 {
-	if (_valid) {
+	if (_ptr) {
 		LeaveCriticalSection(_ptr);
-		_valid = false;
+		_ptr = nullptr;
 	}
 }
 
@@ -156,13 +182,18 @@ void Luxko::Threading::CriticalSectionToken::Release() noexcept
 
 bool Luxko::Threading::CriticalSectionToken::SleepOnCV(ConditionVariable& cv, DWORD milliSeconds /*= INFINITE*/) noexcept
 {
-	if (!_valid) return false;
+	if (_ptr == nullptr) return false;
 	return FALSE != SleepConditionVariableCS(&cv._cv, _ptr, milliSeconds);
+}
+
+bool Luxko::Threading::CriticalSectionToken::IsValid() const noexcept
+{
+	return _ptr != nullptr;
 }
 
 Luxko::Threading::CriticalSectionToken::~CriticalSectionToken() noexcept
 {
-	if(_valid) LeaveCriticalSection(_ptr);
+	if(_ptr) LeaveCriticalSection(_ptr);
 }
 
 Luxko::Threading::SlimRWLock::SlimRWLock() noexcept
@@ -233,4 +264,180 @@ void Luxko::Threading::ConditionVariable::WakeOne() noexcept
 void Luxko::Threading::ConditionVariable::WakeAll() noexcept
 {
 	WakeAllConditionVariable(&_cv);
+}
+
+Luxko::Threading::KernelObjectHandle::KernelObjectHandle(HANDLE handle) noexcept
+{
+	if (handle == INVALID_HANDLE_VALUE) handle = nullptr;
+	_handle = handle;
+}
+
+
+
+Luxko::Threading::KernelObjectHandle::~KernelObjectHandle() noexcept
+{
+	Release();
+}
+
+void Luxko::Threading::KernelObjectHandle::Release() noexcept
+{
+	if (_handle == nullptr/* ||
+		_handle == INVALID_HANDLE_VALUE*/) return;
+	CloseHandle(_handle);
+	_handle = nullptr;
+}
+
+HANDLE Luxko::Threading::KernelObjectHandle::Get() const noexcept
+{
+	return _handle;
+}
+
+Luxko::Threading::WaitObjectResult Luxko::Threading::KernelObjectHandle::WaitFor(DWORD milliSeconds /*= INFINITE*/) const
+{
+	return static_cast<WaitObjectResult>(WaitForSingleObject(_handle, milliSeconds));
+}
+
+Luxko::Threading::WaitObjectResult Luxko::Threading::KernelObjectHandle::SignalAndWait(const KernelObjectHandle& toSignal, /* Must be a singalable kernal object, i.e. a mutex, a semaphore or a event. */ const KernelObjectHandle& toWaitFor, DWORD milliSeconds /*= INFINITE*/, bool altertable /*= false */)
+{
+	BOOL aB = FALSE;
+	if (altertable) aB = TRUE;
+	return static_cast<WaitObjectResult>(SignalObjectAndWait(toSignal.Get(), toWaitFor.Get(), milliSeconds, aB));
+}
+
+Luxko::Threading::KernelObjectHandle& Luxko::Threading::KernelObjectHandle::operator=(KernelObjectHandle&& kh) noexcept
+{
+	Release();
+	_handle = kh._handle;
+	kh._handle = nullptr;
+	return *this;
+}
+
+Luxko::Threading::KernelObjectHandle::KernelObjectHandle(KernelObjectHandle&& kh) noexcept
+{
+	_handle = kh._handle;
+	kh._handle = nullptr;
+}
+
+Luxko::Threading::KernelObjectHandle::KernelObjectHandle() noexcept
+{
+	_handle = nullptr;
+}
+
+Luxko::Threading::Event::Event(Event&& e) noexcept
+	:_hEvent(std::move(e._hEvent)) { }
+
+Luxko::Threading::Event Luxko::Threading::Event::Create(LPTSTR eventName /*= nullptr*/, EventCreationFlags flags /*= EventCreationFlags::Default*/, EventSynchronizationAccessRight access /*= SynchronizationAccessRight::All*/, PSECURITY_ATTRIBUTES sa /*= nullptr*/) noexcept
+{
+	auto ke = static_cast<KernelObjectHandle>(CreateEventEx(sa,
+		eventName, ToDword(flags), ToDword(access)));
+	Event e;
+	e._hEvent = std::move(ke);
+	return std::move(e);
+}
+
+Luxko::Threading::Event Luxko::Threading::Event::Open(LPTSTR eventName, EventSynchronizationAccessRight access /*= SynchronizationAccessRight::All*/, bool inherit /*= false*/) noexcept
+{
+	auto ke = static_cast<KernelObjectHandle>(OpenEvent(ToDword(access),
+		static_cast<BOOL>(inherit), eventName));
+	Event e;
+	e._hEvent = std::move(ke);
+	return std::move(e);
+}
+
+bool Luxko::Threading::Event::Set() noexcept
+{
+	return FALSE != SetEvent(_hEvent.Get());
+}
+
+bool Luxko::Threading::Event::Reset() noexcept
+{
+	return FALSE != ResetEvent(_hEvent.Get());
+}
+
+const Luxko::Threading::KernelObjectHandle& Luxko::Threading::Event::Get() const noexcept
+{
+	return _hEvent;
+}
+
+Luxko::Threading::Event& Luxko::Threading::Event::operator=(Event&& e)noexcept
+{
+	_hEvent = std::move(e._hEvent);
+	return *this;
+}
+
+Luxko::Threading::Semaphore::Semaphore(Semaphore&& e) noexcept
+{
+	_hSemaphore = std::move(e._hSemaphore);
+}
+
+Luxko::Threading::Semaphore Luxko::Threading::Semaphore::Create(LONG maximumCount, LONG initialCount /*= 0l*/, LPTSTR semaphoreName /*= nullptr*/, SemaphoreAccessRight desiredAccess /*= SemaphoreAccessRight::All*/, PSECURITY_ATTRIBUTES sa) noexcept
+{
+	Semaphore s;
+	auto kh = static_cast<KernelObjectHandle>(CreateSemaphoreEx(sa, initialCount, maximumCount, semaphoreName, 0, ToDword(desiredAccess)));
+	s._hSemaphore = std::move(kh);
+	return std::move(s);
+}
+
+Luxko::Threading::Semaphore Luxko::Threading::Semaphore::Open(LPTSTR semaphoreName, SemaphoreAccessRight desiredAccess /*= SemaphoreAccessRight::Modify*/, bool inherit /*= false*/) noexcept
+{
+	Semaphore s;
+	BOOL iB = FALSE;
+	if (inherit) iB = TRUE;
+	s._hSemaphore = static_cast<KernelObjectHandle>(OpenSemaphore(ToDword(desiredAccess), iB, semaphoreName));
+	return std::move(s);
+}
+
+bool Luxko::Threading::Semaphore::IncreaseCount(LONG countToIncrease) noexcept
+{
+	return FALSE != ReleaseSemaphore(_hSemaphore.Get(), countToIncrease, nullptr);
+}
+
+const Luxko::Threading::KernelObjectHandle& Luxko::Threading::Semaphore::Get() const noexcept
+{
+	return _hSemaphore;
+}
+
+Luxko::Threading::Semaphore& Luxko::Threading::Semaphore::operator=(Semaphore&& e) noexcept
+{
+	_hSemaphore = std::move(e._hSemaphore);
+	return *this;
+}
+
+Luxko::Threading::Mutex::Mutex(Mutex&& e) noexcept
+{
+	_hMutex = std::move(e._hMutex);
+}
+
+Luxko::Threading::Mutex Luxko::Threading::Mutex::Create(LPTSTR mutexName /*= nullptr*/, bool initiallyOwnedByCreator /*= false*/, MutexAccessRight desiredAccess /*= MutexAccessRight::All*/, PSECURITY_ATTRIBUTES sa /*= nullptr*/) noexcept
+{
+	Mutex m;
+	DWORD flag = 0;
+	if (initiallyOwnedByCreator) flag = CREATE_MUTEX_INITIAL_OWNER;
+	m._hMutex = static_cast<KernelObjectHandle>(CreateMutexEx(sa, mutexName, flag, ToDword(desiredAccess)));
+	return std::move(m);
+}
+
+Luxko::Threading::Mutex Luxko::Threading::Mutex::Open(LPTSTR mutexName, bool inherit /*= false*/, MutexAccessRight desiredAccess /*= MutexAccessRight::Modify*/) noexcept
+{
+	Mutex m;
+	BOOL iB = FALSE;
+	if (inherit) iB = TRUE;
+	m._hMutex = static_cast<KernelObjectHandle>(OpenMutex(ToDword(desiredAccess), iB, mutexName));
+	return std::move(m);
+}
+
+const Luxko::Threading::KernelObjectHandle& Luxko::Threading::Mutex::Get() const noexcept
+{
+	return _hMutex;
+}
+
+bool Luxko::Threading::Mutex::Release()
+{
+	return FALSE != ReleaseMutex(_hMutex.Get());
+}
+
+Luxko::Threading::Mutex& Luxko::Threading::Mutex::operator=(Mutex&& e) noexcept
+{
+	_hMutex = std::move(e._hMutex);
+	return *this;
 }
