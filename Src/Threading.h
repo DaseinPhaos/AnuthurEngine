@@ -38,7 +38,7 @@ namespace Luxko {
 			~KernelObjectHandle()noexcept;
 			void Release()noexcept;
 			HANDLE Get()const noexcept;
-
+			bool Valid()const noexcept;
 			WaitObjectResult WaitFor(DWORD milliSeconds = INFINITE)const;
 
 			// This function calls the Win32 `SignalObjectAndWait` function,
@@ -232,17 +232,19 @@ namespace Luxko {
 //		};
 //#pragma endregion Old Event Implementation
 
-		class LUXKOUTILITY_API Overlap {
+		class LUXKOUTILITY_API Overlapped {
 		public:
-			Overlap(long long offset, const Event& e);
-			Overlap(const Overlap&) = default;
-			Overlap& operator=(const Overlap&) = default;
-			~Overlap() = default;
+			Overlapped(long long offset, const Event& e);
+			Overlapped(const Overlapped&) = default;
+			Overlapped& operator=(const Overlapped&) = default;
+			~Overlapped() = default;
 			long long Offset()const;
 			void Offset(long long offset);
 			void SetEvent(const Event& e);
 			OVERLAPPED* OvPtr() { return &_ov; }
-			
+			DWORD ErrorCode()const;
+			DWORD BytesTransferred()const;
+
 		private:
 			OVERLAPPED _ov;
 		};
@@ -406,6 +408,44 @@ namespace Luxko {
 			PTHREAD_START_ROUTINE _functionInvoked;
 			PSECURITY_ATTRIBUTES _psa;
 			void* _paramtersPassed;
+		};
+
+		struct IOCStatusInfo {
+			DWORD NumberOfBytes;
+			ULONG_PTR CompletionKey;
+			Overlapped* pOverlapped;
+		};
+
+		class LUXKOUTILITY_API IOCPort {
+		public:
+			IOCPort() = default;
+			IOCPort(const IOCPort&) = delete;
+			IOCPort& operator=(const IOCPort&) = delete;
+			IOCPort(IOCPort&& e)noexcept;
+			IOCPort& operator=(IOCPort&& e)noexcept;
+			~IOCPort() = default;
+
+			static IOCPort Create(DWORD numberOfConcurrentThreads);
+
+			const KernelObjectHandle& Get()const noexcept;
+
+
+			enum class GetStatusCallResult: DWORD {
+				Success = 0,
+				FailedIOCRequest,
+				BadCall,
+				TimeOut = WAIT_TIMEOUT,
+			};
+
+
+			bool AssociateDevice(const KernelObjectHandle& deviceHandle, ULONG_PTR completionKey)noexcept;
+			GetStatusCallResult GetIOCStatusQueued(IOCStatusInfo& statusInfoHolder, DWORD milliSecondsToWait = INFINITE);
+			bool PostIOCStatusToQueue(const IOCStatusInfo& statusInfoToPost);
+
+
+
+		private:
+			KernelObjectHandle _hIOCompletionPort;
 		};
 	}
 }
