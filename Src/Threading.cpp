@@ -84,7 +84,7 @@ LUXKOUTILITY_API Luxko::Threading::EventCreationFlags Luxko::Threading::operator
 //}
 //#pragma endregion Old Event Implementation
 
-Luxko::Threading::Overlap::Overlap(long long offset, const Event& e)
+Luxko::Threading::Overlapped::Overlapped(long long offset, const Event& e)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = offset;
@@ -93,7 +93,7 @@ Luxko::Threading::Overlap::Overlap(long long offset, const Event& e)
 	_ov.hEvent = e.Get().Get();
 }
 
-long long Luxko::Threading::Overlap::Offset() const
+long long Luxko::Threading::Overlapped::Offset() const
 {
 	LARGE_INTEGER li;
 	li.LowPart = _ov.Offset;
@@ -101,12 +101,22 @@ long long Luxko::Threading::Overlap::Offset() const
 	return li.QuadPart;
 }
 
-void Luxko::Threading::Overlap::SetEvent(const Event& e)
+void Luxko::Threading::Overlapped::SetEvent(const Event& e)
 {
 	_ov.hEvent = e.Get().Get();
 }
 
-void Luxko::Threading::Overlap::Offset(long long offset)
+DWORD Luxko::Threading::Overlapped::ErrorCode() const
+{
+	return _ov.Internal;
+}
+
+DWORD Luxko::Threading::Overlapped::BytesTransferred() const
+{
+	return _ov.InternalHigh;
+}
+
+void Luxko::Threading::Overlapped::Offset(long long offset)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = offset;
@@ -290,6 +300,11 @@ void Luxko::Threading::KernelObjectHandle::Release() noexcept
 HANDLE Luxko::Threading::KernelObjectHandle::Get() const noexcept
 {
 	return _handle;
+}
+
+bool Luxko::Threading::KernelObjectHandle::Valid() const noexcept
+{
+	return _handle != nullptr && _handle != INVALID_HANDLE_VALUE;
 }
 
 Luxko::Threading::WaitObjectResult Luxko::Threading::KernelObjectHandle::WaitFor(DWORD milliSeconds /*= INFINITE*/) const
@@ -540,4 +555,58 @@ Luxko::Threading::Thread::Thread(Thread&& e) noexcept
 	_functionInvoked = e._functionInvoked;
 	_psa = e._psa;
 	_paramtersPassed = e._paramtersPassed;
+}
+
+Luxko::Threading::IOCPort::IOCPort(IOCPort&& e) noexcept
+{
+	_hIOCompletionPort = std::move(e._hIOCompletionPort);
+}
+
+Luxko::Threading::IOCPort Luxko::Threading::IOCPort::Create(DWORD numberOfConcurrentThreads)
+{
+	auto kh = static_cast<KernelObjectHandle>(CreateIoCompletionPort(INVALID_HANDLE_VALUE,
+		nullptr, static_cast<LONG_PTR>(0), numberOfConcurrentThreads));
+	IOCPort result;
+	result._hIOCompletionPort = std::move(kh);
+	return std::move(result);
+}
+
+const Luxko::Threading::KernelObjectHandle& Luxko::Threading::IOCPort::Get() const noexcept
+{
+	return _hIOCompletionPort;
+}
+
+bool Luxko::Threading::IOCPort::AssociateDevice(const KernelObjectHandle& deviceHandle, ULONG_PTR completionKey) noexcept
+{
+	assert(_hIOCompletionPort.Valid());
+	return _hIOCompletionPort.Get() == CreateIoCompletionPort(deviceHandle.Get(), _hIOCompletionPort.Get(),
+		completionKey, 0);
+}
+
+Luxko::Threading::IOCPort::GetStatusCallResult Luxko::Threading::IOCPort::GetIOCStatusQueued(IOCStatusInfo& statusInfoHolder, DWORD milliSecondsToWait)
+{
+	auto sOK = GetQueuedCompletionStatus(_hIOCompletionPort.Get(),
+		&statusInfoHolder.NumberOfBytes, &statusInfoHolder.CompletionKey,
+		reinterpret_cast<LPOVERLAPPED*>(&statusInfoHolder.pOverlapped));
+	DWORD lastError = GetLastError();
+	if (sOK) {
+		return GetStatusCallResult::Success;
+	}
+	else {
+		if (statusInfoHolder.pOverlapped != nullptr) return GetStatusCallResult::FailedIOCRequest;
+		else if (lastError == WAIT_TIMEOUT) return GetStatusCallResult::TimeOut;
+		else return GetStatusCallResult::BadCall;
+	}
+}
+
+bool Luxko::Threading::IOCPort::PostIOCStatusToQueue(const IOCStatusInfo& statusInfoToPost)
+{
+	PostQueuedCompletionStatus(_hIOCompletionPort.Get(), statusInfoToPost.NumberOfBytes,
+		statusInfoToPost.CompletionKey, statusInfoToPost.pOverlapped->OvPtr());
+}
+
+Luxko::Threading::IOCPort& Luxko::Threading::IOCPort::operator=(IOCPort&& e) noexcept
+{
+	_hIOCompletionPort = std::move(e._hIOCompletionPort);
+	return *this;
 }
