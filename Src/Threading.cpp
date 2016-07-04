@@ -9,6 +9,13 @@ static DWORD ToDword(T t, const Types& ... types) {
 	return static_cast<DWORD>(t) | ToDword(types...);
 }
 
+void Luxko::Threading::SleepFor(DWORD millieSeconds, bool altertable /*= false*/)
+{
+	BOOL bA = FALSE;
+	if (altertable) bA = TRUE;
+	SleepEx(millieSeconds, bA);
+}
+
 Luxko::Threading::EventSynchronizationAccessRight Luxko::Threading::operator|(EventSynchronizationAccessRight a, EventSynchronizationAccessRight b)
 {
 	return static_cast<EventSynchronizationAccessRight>(ToDword(a, b));
@@ -276,6 +283,26 @@ void Luxko::Threading::ConditionVariable::WakeAll() noexcept
 	WakeAllConditionVariable(&_cv);
 }
 
+Luxko::Threading::KernelObjectHandle Luxko::Threading::KernelObjectHandle::Duplicate(HANDLE sourceProcessHandleRaw, const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw, DWORD desiredAccess, bool Inheritable)
+{
+	BOOL iB = FALSE;
+	if (Inheritable) iB = TRUE;
+	HANDLE target = nullptr;
+	if (!DuplicateHandle(sourceProcessHandleRaw, sourceHandle.Get(),
+		targetProcessHandleRaw, &target, desiredAccess, iB, 0)) target = nullptr;
+	return static_cast<KernelObjectHandle>(target);
+}
+
+Luxko::Threading::KernelObjectHandle Luxko::Threading::KernelObjectHandle::DuplicateSameAccess(HANDLE sourceProcessHandleRaw, const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw, bool Inheritable)
+{
+	BOOL iB = FALSE;
+	if (Inheritable) iB = TRUE;
+	HANDLE target = nullptr;
+	if (!DuplicateHandle(sourceProcessHandleRaw, sourceHandle.Get(),
+		targetProcessHandleRaw, &target, 0, iB, DUPLICATE_SAME_ACCESS)) target = nullptr;
+	return static_cast<KernelObjectHandle>(target);
+}
+
 Luxko::Threading::KernelObjectHandle::KernelObjectHandle(HANDLE handle) noexcept
 {
 	if (handle == INVALID_HANDLE_VALUE) handle = nullptr;
@@ -321,6 +348,7 @@ Luxko::Threading::WaitObjectResult Luxko::Threading::KernelObjectHandle::SignalA
 
 Luxko::Threading::KernelObjectHandle& Luxko::Threading::KernelObjectHandle::operator=(KernelObjectHandle&& kh) noexcept
 {
+	if (&kh == this) return *this;
 	Release();
 	_handle = kh._handle;
 	kh._handle = nullptr;
@@ -587,7 +615,8 @@ Luxko::Threading::IOCPort::GetStatusCallResult Luxko::Threading::IOCPort::GetIOC
 {
 	auto sOK = GetQueuedCompletionStatus(_hIOCompletionPort.Get(),
 		&statusInfoHolder.NumberOfBytes, &statusInfoHolder.CompletionKey,
-		reinterpret_cast<LPOVERLAPPED*>(&statusInfoHolder.pOverlapped));
+		reinterpret_cast<LPOVERLAPPED*>(&statusInfoHolder.pOverlapped),
+		milliSecondsToWait);
 	DWORD lastError = GetLastError();
 	if (sOK) {
 		return GetStatusCallResult::Success;
@@ -601,7 +630,7 @@ Luxko::Threading::IOCPort::GetStatusCallResult Luxko::Threading::IOCPort::GetIOC
 
 bool Luxko::Threading::IOCPort::PostIOCStatusToQueue(const IOCStatusInfo& statusInfoToPost)
 {
-	PostQueuedCompletionStatus(_hIOCompletionPort.Get(), statusInfoToPost.NumberOfBytes,
+	return FALSE != PostQueuedCompletionStatus(_hIOCompletionPort.Get(), statusInfoToPost.NumberOfBytes,
 		statusInfoToPost.CompletionKey, statusInfoToPost.pOverlapped->OvPtr());
 }
 
@@ -609,4 +638,368 @@ Luxko::Threading::IOCPort& Luxko::Threading::IOCPort::operator=(IOCPort&& e) noe
 {
 	_hIOCompletionPort = std::move(e._hIOCompletionPort);
 	return *this;
+}
+
+Luxko::Threading::ThreadPoolEnvironment::ThreadPoolEnvironment()
+{
+	_pool = nullptr;
+	_pEnvironment = nullptr;
+
+}
+
+Luxko::Threading::ThreadPoolEnvironment::~ThreadPoolEnvironment()
+{
+	Close();
+}
+
+PTP_CALLBACK_ENVIRON Luxko::Threading::ThreadPoolEnvironment::Get() const noexcept
+{
+	return _pEnvironment;
+}
+
+PTP_POOL Luxko::Threading::ThreadPoolEnvironment::GetPool() const noexcept
+{
+	return _pool;
+}
+
+Luxko::Threading::ThreadPoolEnvironment Luxko::Threading::ThreadPoolEnvironment::Create()
+{
+	ThreadPoolEnvironment tpe;
+	tpe._pool = CreateThreadpool(nullptr);
+	InitializeThreadpoolEnvironment(&tpe._environment);
+	tpe._pEnvironment = &tpe._environment;
+	SetThreadpoolCallbackPool(tpe._pEnvironment, tpe._pool);
+	return std::move(tpe);
+}
+
+void Luxko::Threading::ThreadPoolEnvironment::Close() noexcept
+{
+	if (_pool) {
+		CloseThreadpool(_pool);
+		_pool = nullptr;
+	}
+	if (_pEnvironment) {
+		DestroyThreadpoolEnvironment(_pEnvironment);
+		_pEnvironment = nullptr;
+	}
+}
+
+bool Luxko::Threading::ThreadPoolEnvironment::SetMinimumThreadCount(DWORD minimum)
+{
+	return FALSE != SetThreadpoolThreadMinimum(_pool, minimum);
+}
+
+void Luxko::Threading::ThreadPoolEnvironment::SetMaximumThreadCount(DWORD maximum)
+{
+	SetThreadpoolThreadMaximum(_pool, maximum);
+}
+
+Luxko::Threading::ThreadPoolEnvironment& Luxko::Threading::ThreadPoolEnvironment::operator=(ThreadPoolEnvironment&& tpe)
+{
+	if (&tpe == this) return *this;
+	Close();
+	_pool = tpe._pool;
+	tpe._pool = nullptr;
+
+	CopyMemory(&_environment, &tpe._environment, sizeof(TP_CALLBACK_ENVIRON));
+	if (tpe._pEnvironment) _pEnvironment = &_environment;
+	else _pEnvironment = nullptr;
+
+	tpe._pEnvironment = nullptr;
+
+	return *this;
+}
+
+Luxko::Threading::ThreadPoolEnvironment::ThreadPoolEnvironment(ThreadPoolEnvironment&& tpe)
+{
+	_pool = tpe._pool;
+	tpe._pool = nullptr;
+
+	CopyMemory(&_environment, &tpe._environment, sizeof(TP_CALLBACK_ENVIRON));
+	if (tpe._pEnvironment) _pEnvironment = &_environment;
+	else _pEnvironment = nullptr;
+
+	tpe._pEnvironment = nullptr;
+}
+
+Luxko::Threading::ThreadPoolWork::ThreadPoolWork()
+{
+	_work = nullptr;
+}
+
+Luxko::Threading::ThreadPoolWork::~ThreadPoolWork()
+{
+	Close();
+}
+
+Luxko::Threading::ThreadPoolWork& Luxko::Threading::ThreadPoolWork::Interpret(PTP_WORK* pWork) noexcept
+{
+	auto pied = reinterpret_cast<ThreadPoolWork*>(pWork);
+	return *pied;
+}
+
+Luxko::Threading::ThreadPoolWork Luxko::Threading::ThreadPoolWork::Create(Callback workHandler, void* workHandlerContext, const ThreadPoolEnvironment& tpe)
+{
+	ThreadPoolWork tpw;
+	tpw._work = CreateThreadpoolWork(workHandler, workHandlerContext, tpe.Get());
+	return std::move(tpw);
+}
+
+void Luxko::Threading::ThreadPoolWork::Close() noexcept
+{
+	if (_work) {
+		CloseThreadpoolWork(_work);
+		_work = nullptr;
+	}
+}
+
+void Luxko::Threading::ThreadPoolWork::Submit() noexcept
+{
+	SubmitThreadpoolWork(_work);
+}
+
+bool Luxko::Threading::ThreadPoolWork::Valid() const noexcept
+{
+	return _work != nullptr;
+}
+
+void Luxko::Threading::ThreadPoolWork::Wait(bool cancelPending)
+{
+	BOOL cpB = FALSE;
+	if (cancelPending) cpB = TRUE;
+	WaitForThreadpoolWorkCallbacks(_work, cpB);
+}
+
+PTP_WORK Luxko::Threading::ThreadPoolWork::Get() const noexcept
+{
+	return _work;
+}
+
+Luxko::Threading::ThreadPoolWork& Luxko::Threading::ThreadPoolWork::operator=(ThreadPoolWork&& tg)
+{
+	if (&tg == this) return *this;
+	Close();
+	_work = tg._work;
+	tg, _work = nullptr;
+	return *this;
+}
+
+Luxko::Threading::ThreadPoolWork::ThreadPoolWork(ThreadPoolWork&& tg)
+{
+	_work = tg._work;
+	tg, _work = nullptr;
+}
+
+Luxko::Threading::ThreadPoolTimer::ThreadPoolTimer()
+{
+	_timer = nullptr;
+}
+
+Luxko::Threading::ThreadPoolTimer::~ThreadPoolTimer()
+{
+	Close();
+}
+
+Luxko::Threading::ThreadPoolTimer& Luxko::Threading::ThreadPoolTimer::Interpret(PTP_TIMER* pTimer) noexcept
+{
+	auto pied = reinterpret_cast<ThreadPoolTimer*>(pTimer);
+	return *pied;
+}
+
+Luxko::Threading::ThreadPoolTimer Luxko::Threading::ThreadPoolTimer::Create(Callback timerHandler, void* timerHandlerContext, const ThreadPoolEnvironment& tpe)
+{
+	ThreadPoolTimer tpt;
+	tpt._timer = CreateThreadpoolTimer(timerHandler, timerHandlerContext, tpe.Get());
+	return std::move(tpt);
+}
+
+void Luxko::Threading::ThreadPoolTimer::Close() noexcept
+{
+	if (_timer) {
+		CloseThreadpoolTimer(_timer);
+		_timer = nullptr;
+	}
+}
+
+void Luxko::Threading::ThreadPoolTimer::Set(const FileSystem::FileTime& firstSetAt, DWORD msPeriod /*= 0*/, DWORD msWindowLength /*= 0*/) noexcept
+{
+	SetThreadpoolTimer(_timer, const_cast<PFILETIME>(&firstSetAt.m_ft), msPeriod, msWindowLength);
+}
+
+bool Luxko::Threading::ThreadPoolTimer::Valid() const noexcept
+{
+	return _timer != nullptr;
+}
+
+bool Luxko::Threading::ThreadPoolTimer::IsSet() noexcept
+{
+	return FALSE != IsThreadpoolTimerSet(_timer);
+}
+
+void Luxko::Threading::ThreadPoolTimer::Wait(bool cancelPending)
+{
+	BOOL cpB = FALSE;
+	if (cancelPending) cpB = TRUE;
+	WaitForThreadpoolTimerCallbacks(_timer, cpB);
+}
+
+PTP_TIMER Luxko::Threading::ThreadPoolTimer::Get() const noexcept
+{
+	return _timer;
+}
+
+Luxko::Threading::ThreadPoolTimer& Luxko::Threading::ThreadPoolTimer::operator=(ThreadPoolTimer&& tg)
+{
+	if (&tg == this) return *this;
+	Close();
+	_timer = tg._timer;
+	tg._timer = nullptr;
+	return *this;
+}
+
+Luxko::Threading::ThreadPoolTimer::ThreadPoolTimer(ThreadPoolTimer&& tg)
+{
+	_timer = tg._timer;
+	tg._timer = nullptr;
+}
+
+Luxko::Threading::ThreadPoolWaiter::ThreadPoolWaiter()
+{
+	_waiter = nullptr;
+}
+
+Luxko::Threading::ThreadPoolWaiter::~ThreadPoolWaiter()
+{
+	Close();
+}
+
+Luxko::Threading::ThreadPoolWaiter& Luxko::Threading::ThreadPoolWaiter::Interpret(PTP_TIMER* pTimer) noexcept
+{
+	auto pied = reinterpret_cast<ThreadPoolWaiter*>(pTimer);
+	return *pied;
+}
+
+Luxko::Threading::ThreadPoolWaiter Luxko::Threading::ThreadPoolWaiter::Create(Callback timerHandler, void* timerHandlerContext, const ThreadPoolEnvironment& tpe)
+{
+	ThreadPoolWaiter tpwa;
+	tpwa._waiter = CreateThreadpoolWait(timerHandler, timerHandlerContext, tpe.Get());
+	return std::move(tpwa);
+}
+
+void Luxko::Threading::ThreadPoolWaiter::Close() noexcept
+{
+	if (_waiter) {
+		CloseThreadpoolWait(_waiter);
+		_waiter = nullptr;
+	}
+}
+
+void Luxko::Threading::ThreadPoolWaiter::Set(const KernelObjectHandle& objectToWait, FileSystem::FileTime* waitTime /*= nullptr /* 0 == no waiting, nullptr == always wait */) noexcept
+{
+	SetThreadpoolWait(_waiter, objectToWait.Get(), reinterpret_cast<PFILETIME>(waitTime));
+}
+
+bool Luxko::Threading::ThreadPoolWaiter::Valid() const noexcept
+{
+	return _waiter != nullptr;
+}
+
+void Luxko::Threading::ThreadPoolWaiter::Wait(bool cancelPending)
+{
+	BOOL cpB = FALSE;
+	if (cancelPending) cpB = TRUE;
+	WaitForThreadpoolWaitCallbacks(_waiter, cpB);
+}
+
+PTP_WAIT Luxko::Threading::ThreadPoolWaiter::Get() const noexcept
+{
+	return _waiter;
+}
+
+Luxko::Threading::ThreadPoolWaiter& Luxko::Threading::ThreadPoolWaiter::operator=(ThreadPoolWaiter&& tg)
+{
+	if (&tg == this) return *this;
+	Close();
+	_waiter = tg._waiter;
+	tg._waiter = nullptr;
+	return *this;
+}
+
+Luxko::Threading::ThreadPoolWaiter::ThreadPoolWaiter(ThreadPoolWaiter&& tg)
+{
+	_waiter = tg._waiter;
+	tg._waiter = nullptr;
+}
+
+Luxko::Threading::ThreadPoolIO::ThreadPoolIO()
+{
+	_io = nullptr;
+}
+
+Luxko::Threading::ThreadPoolIO::~ThreadPoolIO()
+{
+	Close();
+}
+
+Luxko::Threading::ThreadPoolIO Luxko::Threading::ThreadPoolIO::Create(const KernelObjectHandle& deviceHandle, Callback ioHandler, void* ioHandlerContext, const ThreadPoolEnvironment& tpe)
+{
+	ThreadPoolIO tpi;
+	tpi._io = CreateThreadpoolIo(deviceHandle.Get(), ioHandler, ioHandlerContext, tpe.Get());
+	return std::move(tpi);
+}
+
+Luxko::Threading::ThreadPoolIO& Luxko::Threading::ThreadPoolIO::Interpret(PTP_IO* pPtpIo)
+{
+	auto pied = reinterpret_cast<ThreadPoolIO*>(pPtpIo);
+	return *pied;
+}
+
+bool Luxko::Threading::ThreadPoolIO::Valid() const noexcept
+{
+	return _io != nullptr;
+}
+
+void Luxko::Threading::ThreadPoolIO::Close() noexcept
+{
+	if (_io) {
+		CloseThreadpoolIo(_io);
+		_io = nullptr;
+	}
+}
+
+void Luxko::Threading::ThreadPoolIO::Start() noexcept
+{
+	StartThreadpoolIo(_io);
+}
+
+void Luxko::Threading::ThreadPoolIO::Cancel() noexcept
+{
+	CancelThreadpoolIo(_io);
+}
+
+void Luxko::Threading::ThreadPoolIO::Wait(bool cancelPending)
+{
+	BOOL cpB = FALSE;
+	if (cancelPending) cpB = TRUE;
+	WaitForThreadpoolIoCallbacks(_io, cpB);
+}
+
+PTP_IO Luxko::Threading::ThreadPoolIO::Get() const noexcept
+{
+	return _io;
+}
+
+Luxko::Threading::ThreadPoolIO& Luxko::Threading::ThreadPoolIO::operator=(ThreadPoolIO&& tpi)
+{
+	if (&tpi == this) return *this;
+	Close();
+	_io = tpi._io;
+	tpi._io = nullptr;
+	return *this;
+}
+
+Luxko::Threading::ThreadPoolIO::ThreadPoolIO(ThreadPoolIO&& tpi)
+{
+	_io = tpi._io;
+	tpi._io = nullptr;
 }

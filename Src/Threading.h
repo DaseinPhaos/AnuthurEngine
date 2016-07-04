@@ -18,6 +18,8 @@
 namespace Luxko {
 	namespace Threading {
 
+		LUXKOUTILITY_API void SleepFor(DWORD millieSeconds, bool altertable = false);
+
 		enum class LUXKOUTILITY_API WaitObjectResult: DWORD {
 			Object0Returned = WAIT_OBJECT_0,
 			TimeOut = WAIT_TIMEOUT,
@@ -26,8 +28,16 @@ namespace Luxko {
 			IOCompletion = WAIT_IO_COMPLETION
 		};
 
+		
+
 		class LUXKOUTILITY_API KernelObjectHandle {
 		public:
+			static KernelObjectHandle Duplicate(HANDLE sourceProcessHandleRaw,
+				const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw,
+				DWORD desiredAccess, bool Inheritable);
+			static KernelObjectHandle DuplicateSameAccess(HANDLE sourceProcessHandleRaw,
+				const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw, bool Inheritable);
+
 			// Should use with caution: only pass in valid handle!
 			explicit KernelObjectHandle(HANDLE handle)noexcept;
 			KernelObjectHandle()noexcept;
@@ -143,7 +153,6 @@ namespace Luxko {
 			KernelObjectHandle _hSemaphore;
 		};
 
-
 		enum class MutexAccessRight : DWORD {
 			All = MUTEX_ALL_ACCESS,
 			Modify = MUTEX_MODIFY_STATE
@@ -168,69 +177,6 @@ namespace Luxko {
 		private:
 			KernelObjectHandle _hMutex;
 		};
-
-//#pragma region Old Event Implementation
-//		enum class EventAccessRight : DWORD {
-//			AllAccess = EVENT_ALL_ACCESS, // All possible access rights for the event.
-//			ModifyState = EVENT_MODIFY_STATE // Modify state access. Required for SetEvent, ResetEvent, PulseEvent functions.
-//		};
-//
-//		class LUXKOUTILITY_API Event {
-//		public:
-//			Event(const Event&) = default;
-//			Event& operator=(const Event&) = default;
-//			virtual ~Event() = default;
-//
-//			bool Set() { return SetEvent(_hEvent) != 0; }
-//			HANDLE Handle()const { return _hEvent; }
-//		protected:
-//			Event() {}
-//			static Event OpenEvent(const std::wstring& eventName,
-//				EventAccessRight ear = EventAccessRight::ModifyState,
-//				SynchronizationAccessRight sar = SynchronizationAccessRight::Synchronize,
-//				bool inheritable = false);
-//			HANDLE _hEvent;
-//		};
-//
-//		class LUXKOUTILITY_API EventNotifyOne :public Event {
-//		public:
-//			static EventNotifyOne Open(std::wstring& eventName,
-//				EventAccessRight ear = EventAccessRight::ModifyState,
-//				SynchronizationAccessRight sar = SynchronizationAccessRight::Synchronize,
-//				bool inheritable = false);
-//			static EventNotifyOne CreateNameLess(bool initiallySet, SECURITY_ATTRIBUTES* sa = nullptr);
-//			static EventNotifyOne CreateNamed(bool initiallySet, const std::wstring& name,
-//				SECURITY_ATTRIBUTES* sa = nullptr);
-//			
-//			bool NotifyOne() { return Set(); }
-//
-//			~EventNotifyOne() = default;
-//			EventNotifyOne(const EventNotifyOne&) = default;
-//			EventNotifyOne& operator=(const EventNotifyOne&) = default;
-//		private:
-//			EventNotifyOne() {}
-//		};
-//
-//		class LUXKOUTILITY_API EventNotifyAll :public Event {
-//		public:
-//			static EventNotifyAll Open(std::wstring& eventName,
-//				EventAccessRight ear = EventAccessRight::ModifyState,
-//				SynchronizationAccessRight sar = SynchronizationAccessRight::Synchronize,
-//				bool inheritable = false);
-//			static EventNotifyAll CreateNameLess(bool initiallySet, SECURITY_ATTRIBUTES* sa = nullptr);
-//			static EventNotifyAll CreateNamed(bool initiallySet, const std::wstring& name,
-//				SECURITY_ATTRIBUTES* sa = nullptr);
-//
-//			bool NotifyAll() { return Set(); }
-//			bool Reset() { return ResetEvent(_hEvent)!=0; }
-//
-//			~EventNotifyAll() = default;
-//			EventNotifyAll(const EventNotifyAll&) = default;
-//			EventNotifyAll& operator=(const EventNotifyAll&) = default;
-//		private:
-//			EventNotifyAll() {}
-//		};
-//#pragma endregion Old Event Implementation
 
 		class LUXKOUTILITY_API Overlapped {
 		public:
@@ -371,8 +317,6 @@ namespace Luxko {
 			DWORD Resume()noexcept;
 			DWORD Suspend()noexcept;
 
-			//void Sleep(DWORD milliSeconds);
-
 			struct ThreadTimeInfo
 			{
 				FileSystem::FileTime creationTime;
@@ -447,5 +391,146 @@ namespace Luxko {
 		private:
 			KernelObjectHandle _hIOCompletionPort;
 		};
+
+		class LUXKOUTILITY_API ThreadPoolEnvironment {
+		public:
+			ThreadPoolEnvironment();
+			ThreadPoolEnvironment(const ThreadPoolEnvironment&) = default;
+			ThreadPoolEnvironment& operator=(const ThreadPoolEnvironment&) = default;
+			ThreadPoolEnvironment(ThreadPoolEnvironment&& tpe);
+			ThreadPoolEnvironment& operator=(ThreadPoolEnvironment&& tpe);
+			~ThreadPoolEnvironment();
+			
+			PTP_CALLBACK_ENVIRON Get()const noexcept;
+			PTP_POOL GetPool()const noexcept;
+
+			static ThreadPoolEnvironment Create();
+			void Close()noexcept;
+			//bool Valid()const noexcept;
+
+			bool SetMinimumThreadCount(DWORD minimum);
+			void SetMaximumThreadCount(DWORD maximum);
+
+		private:
+			PTP_POOL _pool;
+			PTP_CALLBACK_ENVIRON _pEnvironment;
+			TP_CALLBACK_ENVIRON _environment;
+		};
+
+		class LUXKOUTILITY_API ThreadPoolWork {
+		public:
+			using Callback = void(NTAPI * CALLBACK)(PTP_CALLBACK_INSTANCE, void*, PTP_WORK);
+			ThreadPoolWork();
+			ThreadPoolWork(const ThreadPoolWork&) = default;
+			ThreadPoolWork& operator=(const ThreadPoolWork&) = default;
+			ThreadPoolWork(ThreadPoolWork&& tg);
+			ThreadPoolWork& operator=(ThreadPoolWork&& tg);
+			~ThreadPoolWork();
+
+			// use with caution!
+			static ThreadPoolWork& Interpret(PTP_WORK* pWork)noexcept;
+
+			static ThreadPoolWork Create(Callback workHandler, void* workHandlerContext,
+				const ThreadPoolEnvironment& tpe);
+			void Close()noexcept;
+			void Submit()noexcept;
+			bool Valid()const noexcept;
+
+			// should only be used on valid works
+			void Wait(bool cancelPending);
+
+			PTP_WORK Get()const noexcept;
+		private:
+			PTP_WORK _work;
+		};
+
+		class LUXKOUTILITY_API ThreadPoolTimer {
+		public:
+			using Callback = void(NTAPI * CALLBACK)(PTP_CALLBACK_INSTANCE, void*, PTP_TIMER);
+			ThreadPoolTimer();
+			ThreadPoolTimer(const ThreadPoolTimer&) = default;
+			ThreadPoolTimer& operator=(const ThreadPoolTimer&) = default;
+			ThreadPoolTimer(ThreadPoolTimer&& tg);
+			ThreadPoolTimer& operator=(ThreadPoolTimer&& tg);
+			~ThreadPoolTimer();
+
+			static ThreadPoolTimer& Interpret(PTP_TIMER* pTimer)noexcept;
+			static ThreadPoolTimer Create(Callback timerHandler,
+				void* timerHandlerContext,
+				const ThreadPoolEnvironment& tpe
+			);
+			void Close()noexcept;
+			void Set(const FileSystem::FileTime& firstSetAt,
+				DWORD msPeriod = 0, DWORD msWindowLength = 0)noexcept;
+			bool Valid()const noexcept;
+			bool IsSet()noexcept;
+
+			// should only be used on valid timers
+			void Wait(bool cancelPending);
+
+			PTP_TIMER Get()const noexcept;
+		private:
+			PTP_TIMER _timer;
+		};
+
+		class LUXKOUTILITY_API ThreadPoolWaiter {
+		public:
+			using Callback = void(NTAPI * CALLBACK)(PTP_CALLBACK_INSTANCE, void*, PTP_WAIT, TP_WAIT_RESULT);
+			ThreadPoolWaiter();
+			ThreadPoolWaiter(const ThreadPoolWaiter&) = default;
+			ThreadPoolWaiter& operator=(const ThreadPoolWaiter&) = default;
+			ThreadPoolWaiter(ThreadPoolWaiter&& tg);
+			ThreadPoolWaiter& operator=(ThreadPoolWaiter&& tg);
+			~ThreadPoolWaiter();
+
+			static ThreadPoolWaiter& Interpret(PTP_TIMER* pTimer)noexcept;
+			static ThreadPoolWaiter Create(Callback timerHandler,
+				void* timerHandlerContext, const ThreadPoolEnvironment& tpe);
+			void Close()noexcept;
+			void Set(const KernelObjectHandle& objectToWait,
+				FileSystem::FileTime* waitTime = nullptr // 0 == no waiting, nullptr == always wait
+				)noexcept;
+			bool Valid()const noexcept;
+			
+			// should only be used on valid works
+			void Wait(bool cancelPending);
+
+			PTP_WAIT Get()const noexcept;
+		private:
+			PTP_WAIT _waiter;
+		};
+
+		class LUXKOUTILITY_API ThreadPoolIO {
+		public:
+			using Callback = void(NTAPI * CALLBACK)(PTP_CALLBACK_INSTANCE, void*, void*, ULONG, ULONG_PTR, PTP_IO);
+			ThreadPoolIO();
+			ThreadPoolIO(const ThreadPoolIO&) = delete;
+			ThreadPoolIO& operator=(const ThreadPoolIO&) = delete;
+			ThreadPoolIO(ThreadPoolIO&& tpi);
+			ThreadPoolIO& operator=(ThreadPoolIO&& tpi);
+			~ThreadPoolIO();
+
+			static ThreadPoolIO Create(const KernelObjectHandle& deviceHandle,
+				Callback ioHandler, void* ioHandlerContext,
+				const ThreadPoolEnvironment& tpe);
+
+			static ThreadPoolIO& Interpret(PTP_IO* pPtpIo);
+
+			bool Valid()const noexcept;
+
+			void Close()noexcept;
+			void Start()noexcept;
+			void Cancel()noexcept;
+			void Wait(bool cancelPending);
+
+			PTP_IO Get()const noexcept;
+
+
+
+		private:
+			PTP_IO _io;
+		};
+
+
 	}
 }
