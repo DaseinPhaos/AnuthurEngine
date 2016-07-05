@@ -84,8 +84,8 @@ void Luxko::FileSystem::File::Close()
 {
 	if (_isValid) {
 		CloseHandle(_hFile);
+		_isValid = false;
 	}
-	_isValid = false;
 }
 
 bool Luxko::FileSystem::File::SetPos(long long distance, FilePosition fp, long long * newPos /*= nullptr*/)
@@ -320,67 +320,7 @@ std::wstring Luxko::FileSystem::Directory::GetChild(const std::wstring& dirPath,
 	return dirPath + L'\\' + childPath;
 }
 
-Luxko::FileSystem::FileTime::FileTime(const SystemTime& st)
-{
-	if (!SystemTimeToFileTime(&st.m_st, reinterpret_cast<LPFILETIME>(&m_ft))) {
-		throw L"ST to FT conversion Failed.";
-	}
-}
 
-Luxko::FileSystem::FileTime::FileTime(LARGE_INTEGER li)
-{
-	m_ft.dwLowDateTime = li.LowPart;
-	m_ft.dwHighDateTime = li.HighPart;
-}
-
-bool Luxko::FileSystem::FileTime::operator<(const FileTime& ft) const
-{
-	auto r = CompareFileTime(&m_ft, &ft.m_ft);
-	return r < 0;
-}
-
-Luxko::FileSystem::FileTime Luxko::FileSystem::FileTime::ToLocal() const
-{
-	FileTime result;
-	if (!FileTimeToLocalFileTime(&m_ft, &result.m_ft)) {
-		throw L"FT to LFT conversion Failed.";
-	}
-	return result;
-}
-
-Luxko::FileSystem::FileTime Luxko::FileSystem::FileTime::ToGlobal() const
-{
-	FileTime result;
-	if (!LocalFileTimeToFileTime(&m_ft, &result.m_ft)) {
-		throw L"FT to LFT conversion Failed.";
-	}
-	return result;
-}
-
-LARGE_INTEGER Luxko::FileSystem::FileTime::toLargeInteger() const
-{
-	LARGE_INTEGER result;
-	result.LowPart = m_ft.dwLowDateTime;
-	result.HighPart = m_ft.dwHighDateTime;
-	return result;
-}
-
-bool Luxko::FileSystem::FileTime::operator==(const FileTime& ft)const
-{
-	return std::memcmp(&m_ft, &ft.m_ft, sizeof(FILETIME)) == 0;
-}
-
-Luxko::FileSystem::SystemTime::SystemTime(const FileTime& ft)
-{
-	if (!FileTimeToSystemTime(&ft.m_ft, &m_st)) {
-		throw L"FT to ST conversion failed!";
-	}
-}
-
-bool Luxko::FileSystem::SystemTime::operator==(const SystemTime& st)const
-{
-	return std::memcmp(&m_st, &st.m_st, sizeof(SYSTEMTIME)) == 0;
-}
 
 Luxko::FileSystem::BasicFileInfo::BasicFileInfo(const FILE_BASIC_INFO& fbi)
 {

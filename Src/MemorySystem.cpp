@@ -74,7 +74,8 @@ Luxko::Memory::Heap Luxko::Memory::Heap::Create(size_t initialSize, size_t maxim
 	h._hHeap = HeapCreate(ToDword(options), initialSize, maximumSize);
 	if (h._hHeap == nullptr) {
 		h._isValid = false;
-	}else {
+	}
+	else {
 		h._isValid = true;
 	}
 	return h;
@@ -124,92 +125,152 @@ Luxko::Memory::Heap& Luxko::Memory::Heap::operator=(Heap&& h)
 	return *this;
 }
 
+//Luxko::Memory::MappingObject::MappingObject(MappingObject&& m)
+//{
+//	_hMappedFile = m._hMappedFile;
+//	_isValid = m._isValid;
+//	m._isValid = false;
+//}
+//
+//Luxko::Memory::MappingObject& Luxko::Memory::MappingObject::operator=(MappingObject&& m)
+//{
+//	Close();
+//	_hMappedFile = m._hMappedFile;
+//	_isValid = m._isValid;
+//	m._isValid = false;
+//	return *this;
+//}
+//
+//Luxko::Memory::MappingObject::~MappingObject()
+//{
+//	Close();
+//}
+//
+//Luxko::Memory::MappingObject Luxko::Memory::MappingObject::CreateFromFile(const FileSystem::File& file, std::wstring& mapObjName, PageProtectionOption ppo, PageProtectionFlags ppf /*= PageProtectionFlags::NoFlags*/, long long maximumSize /*= 0x0LL*/, SECURITY_ATTRIBUTES* psa /*= nullptr*/)
+//{
+//	MappingObject result;
+//	LARGE_INTEGER li;
+//	li.QuadPart = maximumSize;
+//	result._hMappedFile = CreateFileMapping(file.Handle(), psa, ToDword(ppo, ppf), li.HighPart, li.LowPart, mapObjName.c_str());
+//	if (result._hMappedFile == nullptr) {
+//		result._isValid = false;
+//	}
+//	else {
+//		result._isValid = true;
+//	}
+//	return result;
+//}
+//
+//Luxko::Memory::MappingObject Luxko::Memory::MappingObject::CreateFromPage(std::wstring& mapObjName, long long maximumSize, PageProtectionOption ppo, PageProtectionFlags ppf /*= PageProtectionFlags::NoFlags*/, SECURITY_ATTRIBUTES* psa /*= nullptr*/)
+//{
+//	MappingObject result;
+//	LARGE_INTEGER li;
+//	li.QuadPart = maximumSize;
+//	result._hMappedFile = CreateFileMapping(INVALID_HANDLE_VALUE, psa, ToDword(ppo, ppf), li.HighPart, li.LowPart, mapObjName.c_str());
+//	if (result._hMappedFile == nullptr) {
+//		result._isValid = false;
+//	}
+//	else {
+//		result._isValid = true;
+//	}
+//	return result;
+//}
+//
+//Luxko::Memory::MappingObject Luxko::Memory::MappingObject::OpenByName(std::wstring& mapObjName, FileMapAccessRight desiredAccess, bool inheritable)
+//{
+//	MappingObject result;
+//	result._hMappedFile = OpenFileMapping(ToDword(desiredAccess), static_cast<BOOL>(inheritable), mapObjName.c_str());
+//	if (result._hMappedFile == nullptr) {
+//		result._isValid = false;
+//	}
+//	else {
+//		result._isValid = true;
+//	}
+//	return result;
+//}
+//
+//void* Luxko::Memory::MappingObject::Map(FileMapAccessRight access, long long offset, size_t bytesToMap)
+//{
+//	LARGE_INTEGER li;
+//	li.QuadPart = offset;
+//	return MapViewOfFile(_hMappedFile, ToDword(access), li.HighPart, li.LowPart, bytesToMap);
+//}
+//
+//bool Luxko::Memory::MappingObject::UnMap(void* baseAddress)
+//{
+//	return UnmapViewOfFile(baseAddress) != 0;
+//}
+//
+//bool Luxko::Memory::MappingObject::Flush(void* baseAddress, size_t bytesToFlush)
+//{
+//	return FlushViewOfFile(baseAddress, bytesToFlush) != 0;
+//}
+//
+//void Luxko::Memory::MappingObject::Close()
+//{
+//	if (_isValid) {
+//		CloseHandle(_hMappedFile);
+//		_isValid = false;
+//	}
+//	
+//}
+
 Luxko::Memory::MappingObject::MappingObject(MappingObject&& m)
 {
-	_hMappedFile = m._hMappedFile;
-	_isValid = m._isValid;
-	m._isValid = false;
+	_hMappedObject = std::move(m._hMappedObject);
 }
 
-Luxko::Memory::MappingObject& Luxko::Memory::MappingObject::operator=(MappingObject&& m)
+Luxko::Memory::MappingObject Luxko::Memory::MappingObject::CreateFromFile(const FileSystem::File& file, long long maximumSize /*= 0ll*/, PageProtectionOption ppo /*= PageProtectionOption::ReadWrite*/, PageProtectionFlags ppf /*= PageProtectionFlags::NoFlags*/, const wchar_t* mapObjName /*= nullptr*/, SECURITY_ATTRIBUTES* psa /*= nullptr*/)
 {
-	Close();
-	_hMappedFile = m._hMappedFile;
-	_isValid = m._isValid;
-	m._isValid = false;
-	return *this;
-}
-
-Luxko::Memory::MappingObject::~MappingObject()
-{
-	Close();
-}
-
-Luxko::Memory::MappingObject Luxko::Memory::MappingObject::CreateFromFile(const FileSystem::File& file, std::wstring& mapObjName, PageProtectionOption ppo, PageProtectionFlags ppf /*= PageProtectionFlags::NoFlags*/, long long maximumSize /*= 0x0LL*/, SECURITY_ATTRIBUTES* psa /*= nullptr*/)
-{
-	MappingObject result;
 	LARGE_INTEGER li;
 	li.QuadPart = maximumSize;
-	result._hMappedFile = CreateFileMapping(file.Handle(), psa, ToDword(ppo, ppf), li.HighPart, li.LowPart, mapObjName.c_str());
-	if (result._hMappedFile == nullptr) {
-		result._isValid = false;
-	}
-	else {
-		result._isValid = true;
-	}
-	return result;
+	MappingObject mo;
+	mo._hMappedObject = static_cast<KernelObjectHandle>(CreateFileMapping(
+		file.Handle(), psa, ToDword(ppo, ppf), li.HighPart, li.LowPart, mapObjName));
+	return std::move(mo);
 }
 
-Luxko::Memory::MappingObject Luxko::Memory::MappingObject::CreateFromPage(std::wstring& mapObjName, long long maximumSize, PageProtectionOption ppo, PageProtectionFlags ppf /*= PageProtectionFlags::NoFlags*/, SECURITY_ATTRIBUTES* psa /*= nullptr*/)
+Luxko::Memory::MappingObject Luxko::Memory::MappingObject::CreateFromPage(const wchar_t* mapObjName, long long maximumSize, PageProtectionOption ppo, PageProtectionFlags ppf /*= PageProtectionFlags::NoFlags*/, SECURITY_ATTRIBUTES* psa /*= nullptr*/)
 {
-	MappingObject result;
 	LARGE_INTEGER li;
 	li.QuadPart = maximumSize;
-	result._hMappedFile = CreateFileMapping(INVALID_HANDLE_VALUE, psa, ToDword(ppo, ppf), li.HighPart, li.LowPart, mapObjName.c_str());
-	if (result._hMappedFile == nullptr) {
-		result._isValid = false;
-	}
-	else {
-		result._isValid = true;
-	}
-	return result;
+	MappingObject mo;
+	mo._hMappedObject = static_cast<KernelObjectHandle>(CreateFileMapping(
+		INVALID_HANDLE_VALUE, psa, ToDword(ppo, ppf), li.HighPart, li.LowPart, mapObjName));
+	return std::move(mo);
 }
 
-Luxko::Memory::MappingObject Luxko::Memory::MappingObject::OpenByName(std::wstring& mapObjName, FileMapAccessRight desiredAccess, bool inheritable)
+Luxko::Memory::MappingObject Luxko::Memory::MappingObject::OpenByName(const wchar_t* mapObjName, FileMapAccessRight desiredAccess, bool inheritable)
 {
 	MappingObject result;
-	result._hMappedFile = OpenFileMapping(ToDword(desiredAccess), static_cast<BOOL>(inheritable), mapObjName.c_str());
-	if (result._hMappedFile == nullptr) {
-		result._isValid = false;
-	}
-	else {
-		result._isValid = true;
-	}
-	return result;
+	result._hMappedObject = static_cast<KernelObjectHandle>(OpenFileMapping(ToDword(desiredAccess), static_cast<BOOL>(inheritable), mapObjName));
+	return std::move(result);
 }
 
-void* Luxko::Memory::MappingObject::Map(FileMapAccessRight access, long long offset, size_t bytesToMap)
+void* Luxko::Memory::MappingObject::Map(FileMapAccessRight access, long long offset, /* Should be a multiplication of system granity. */ size_t bytesToMap /* If 0, it would try to map from offset to the end. */)
 {
 	LARGE_INTEGER li;
 	li.QuadPart = offset;
-	return MapViewOfFile(_hMappedFile, ToDword(access), li.HighPart, li.LowPart, bytesToMap);
+	return MapViewOfFile(_hMappedObject.Get(), ToDword(access), li.HighPart, li.LowPart, bytesToMap);
 }
 
 bool Luxko::Memory::MappingObject::UnMap(void* baseAddress)
 {
-	return UnmapViewOfFile(baseAddress) != 0;
+	return FALSE != UnmapViewOfFile(baseAddress);
 }
 
 bool Luxko::Memory::MappingObject::Flush(void* baseAddress, size_t bytesToFlush)
 {
-	return FlushViewOfFile(baseAddress, bytesToFlush) != 0;
+	return FALSE != FlushViewOfFile(baseAddress, bytesToFlush);
 }
 
 void Luxko::Memory::MappingObject::Close()
 {
-	if (_isValid) {
-		CloseHandle(_hMappedFile);
-		_isValid = false;
-	}
-	
+	_hMappedObject.Release();
+}
+
+Luxko::Memory::MappingObject& Luxko::Memory::MappingObject::operator=(MappingObject&& m)
+{
+	_hMappedObject = std::move(m._hMappedObject);
+	return *this;
 }
