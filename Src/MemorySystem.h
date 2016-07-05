@@ -9,12 +9,15 @@
 
 
 #include "CommonHeader.h"
+#include "BasicWin32Structures.h"
 #include "FileSystem.h"
 
 
 
 namespace Luxko {
 	namespace Memory {
+		using namespace Luxko::Win32Basic;
+
 
 #pragma region Heap Related Scoped Enums
 		enum class LUXKOUTILITY_API HeapCreationOption : DWORD {
@@ -62,14 +65,14 @@ namespace Luxko {
 			static Heap Create(size_t initialSize, size_t maximumSize = 0, HeapCreationOption options = HeapCreationOption::Default);
 
 			void DestroyThis();
-			
+
 			void* Allocate(size_t bytes, HeapAllocationOption options = HeapAllocationOption::Default);
 			bool DeAllocate(void* ptr, bool isSerialized = true);
 			void* ReAllocate(void* ptr, size_t bytes, HeapReallocationOption options = HeapReallocationOption::Default);
 			HANDLE Handle()const { return _hHeap; }
 
 		private:
-			
+
 			HANDLE _hHeap;
 			bool _isValid;
 		};
@@ -98,18 +101,18 @@ namespace Luxko {
 			Commit = SEC_COMMIT, // If the file mapping object is backed by the operating system paging file (the hfile parameter is INVALID_HANDLE_VALUE), specifies that when a view of the file is mapped into a process address space, the entire range of pages is committed rather than reserved. The system must have enough committable pages to hold the entire mapping. Otherwise, CreateFileMapping fails.
 								 // If no attributes specified, this is assumed. Mutual exclusive with SEC_RESERVE
 
-			Image = SEC_IMAGE, // Specifies that the file backed up is an executable image file. No other attributes can be combined with this.
+								 Image = SEC_IMAGE, // Specifies that the file backed up is an executable image file. No other attributes can be combined with this.
 
-			ImageNoExecute = SEC_IMAGE_NO_EXECUTE, // Specifies that the file is an executable image file that will not be executed and the loaded image file will have no forced integrity checks run. Must be combined with PAGE_READONLY.
+								 ImageNoExecute = SEC_IMAGE_NO_EXECUTE, // Specifies that the file is an executable image file that will not be executed and the loaded image file will have no forced integrity checks run. Must be combined with PAGE_READONLY.
 
-			LargePage = SEC_LARGE_PAGES, // Enables large pages to be used for file mapping objects that are backed by the operating system paging file. The maximum size of the file mapping object must be a multiple of the minimum size of a large page returned by the GetLargePageMinimum function. If it is not, CreateFileMapping fails. 
+								 LargePage = SEC_LARGE_PAGES, // Enables large pages to be used for file mapping objects that are backed by the operating system paging file. The maximum size of the file mapping object must be a multiple of the minimum size of a large page returned by the GetLargePageMinimum function. If it is not, CreateFileMapping fails. 
 
-			NoCache = SEC_NOCACHE, // Sets all pages to be non-cachable.
-			
-			Reserve = SEC_RESERVE, // If the file mapping object is backed by the operating system paging file (the hfile parameter is INVALID_HANDLE_VALUE), specifies that when a view of the file is mapped into a process address space, the entire range of pages is reserved for later use by the process rather than committed.
-									// Reserved pages can be committed in subsequent calls to the VirtualAlloc function.After the pages are committed, they cannot be freed or decommitted with the VirtualFree function.
+								 NoCache = SEC_NOCACHE, // Sets all pages to be non-cachable.
 
-			WriteCombine = SEC_WRITECOMBINE // Sets all pages to be write-combined.
+								 Reserve = SEC_RESERVE, // If the file mapping object is backed by the operating system paging file (the hfile parameter is INVALID_HANDLE_VALUE), specifies that when a view of the file is mapped into a process address space, the entire range of pages is reserved for later use by the process rather than committed.
+														 // Reserved pages can be committed in subsequent calls to the VirtualAlloc function.After the pages are committed, they cannot be freed or decommitted with the VirtualFree function.
+
+														 WriteCombine = SEC_WRITECOMBINE // Sets all pages to be write-combined.
 		};
 
 		LUXKOUTILITY_API PageProtectionFlags operator|(PageProtectionFlags a, PageProtectionFlags b);
@@ -127,43 +130,49 @@ namespace Luxko {
 		};
 
 		FileMapAccessRight operator|(FileMapAccessRight a, FileMapAccessRight b);
-		
+
 #pragma endregion MappingObject Related Scoped Enums
 
 		class LUXKOUTILITY_API MappingObject {
 		public:
-			MappingObject() :_isValid(false) {}
+			MappingObject() = default;
 			MappingObject(const MappingObject& m) = delete;
 			MappingObject(MappingObject&& m);
 			MappingObject& operator=(const MappingObject&) = delete;
 			MappingObject& operator=(MappingObject&& m);
-			~MappingObject();
+			~MappingObject() = default;
 
+			static MappingObject CreateFromFile(
+				const FileSystem::File& file, long long maximumSize = 0ll,
+				PageProtectionOption ppo = PageProtectionOption::ReadWrite,
+				PageProtectionFlags ppf = PageProtectionFlags::NoFlags,
+				const wchar_t* mapObjName = nullptr, SECURITY_ATTRIBUTES* psa = nullptr);
 
-			static MappingObject CreateFromFile(const FileSystem::File& file,
-				std::wstring& mapObjName, PageProtectionOption ppo, 
-				PageProtectionFlags ppf = PageProtectionFlags::NoFlags, 
-				long long maximumSize = 0x0LL, SECURITY_ATTRIBUTES* psa = nullptr);
-
-			static MappingObject CreateFromPage(std::wstring& mapObjName, long long maximumSize,
+			static MappingObject CreateFromPage(const wchar_t* mapObjName, long long maximumSize,
 				PageProtectionOption ppo, PageProtectionFlags ppf = PageProtectionFlags::NoFlags,
 				SECURITY_ATTRIBUTES* psa = nullptr);
 
-			static MappingObject OpenByName(std::wstring& mapObjName, FileMapAccessRight desiredAccess, bool inheritable);
+			static MappingObject OpenByName(const wchar_t* mapObjName,
+				FileMapAccessRight desiredAccess, bool inheritable);
 
+			void* Map(FileMapAccessRight access, long long offset, // Should be a multiplication of system granity.
+				size_t bytesToMap /* If 0, it would try to map from offset to the end. */);
 
-			void* Map(FileMapAccessRight access, long long offset, size_t bytesToMap);
 			static bool UnMap(void* baseAddress);
+
 			static bool Flush(void* baseAddress, size_t bytesToFlush);
 
 			void Close();
-			HANDLE Handle()const { return _hMappedFile; }
-			bool Valid()const { return _isValid; }
-			
+
+			const KernelObjectHandle& Handle()const { return _hMappedObject; }
+
+			bool Valid()const { return _hMappedObject.Valid(); }
+
 		private:
-			HANDLE _hMappedFile;
-			bool _isValid;
+			KernelObjectHandle _hMappedObject;
 		};
+
+
 	}
 }
 

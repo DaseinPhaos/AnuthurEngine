@@ -11,7 +11,7 @@ int FileSystemTest() {
 	std::wcerr.imbue(std::locale("chs"));
 	using namespace Luxko::FileSystem;
 	auto currentDirectory = Directory::GetCurrent();
-	std::wcout << L"当前路径：\n\t" <<currentDirectory<< std::endl;
+	std::wcout << L"当前路径：\n\t" << currentDirectory << std::endl;
 	std::wcout << L"运动至父级路径..." << std::endl;
 	if (Directory::SetCurrent(L"..\\")) {
 		currentDirectory = Directory::GetCurrent();
@@ -19,7 +19,7 @@ int FileSystemTest() {
 	}
 	getchar();
 	std::wcout << L"枚举当前路径下文件..." << std::endl;
-	Searching search(Directory::GetCurrent()+L"\\*");
+	Searching search(Directory::GetCurrent() + L"\\*");
 	while (search.lastResultValid()) {
 		auto lastResult = search.lastResult();
 		std::wcout << L"\t" << lastResult.m_fileName << std::endl;
@@ -35,10 +35,10 @@ int FileSystemTest() {
 		auto file = File::Create(fileName);
 		std::wcout << L"正在写入一些数据..";
 		DWORD bytesWritten;
-		if (!WriteFile(file.Handle(), fileName.c_str(), fileName.size()*sizeof(wchar_t), &bytesWritten, nullptr)) {
+		if (!WriteFile(file.Handle(), fileName.c_str(), fileName.size() * sizeof(wchar_t), &bytesWritten, nullptr)) {
 			std::wcout << L"写入失败.\r\n";
 		}
-		if (bytesWritten != fileName.size()*sizeof(wchar_t)) {
+		if (bytesWritten != fileName.size() * sizeof(wchar_t)) {
 			std::wcout << L"写入没有完全成功.\r\n";
 		}
 		outerfile = std::move(file);
@@ -46,24 +46,24 @@ int FileSystemTest() {
 	}
 	assert(outerfile.Valid());
 	std::wcout << L"打印文件内容..." << std::endl;
-	wchar_t content[256] = {L'\0'};
+	wchar_t content[256] = { L'\0' };
 	DWORD bytesRead;
-	OVERLAPPED ov = {0};
+	OVERLAPPED ov = { 0 };
 	ov.Offset = 0x0;
 	ov.OffsetHigh = 0x0;
-	if (!ReadFile(outerfile.Handle(), &content, fileName.size()*sizeof(wchar_t), &bytesRead,&ov)
-		|| bytesRead != fileName.size()*sizeof(wchar_t)) {
+	if (!ReadFile(outerfile.Handle(), &content, fileName.size() * sizeof(wchar_t), &bytesRead, &ov)
+		|| bytesRead != fileName.size() * sizeof(wchar_t)) {
 		std::wcout << L"读取文件内容失败.." << std::endl;
 	}
 	else {
-		std::wcout << content<<std::endl;
+		std::wcout << content << std::endl;
 	}
 
 
 	std::wcout << L"文件路径：\r\n" << outerfile.GetFullName() << std::endl;
 	outerfile.SetFileName(L"草泥马.txt");
 	std::wcout << L"文件名称：\r\n" << outerfile.GetFileName() << std::endl;
-	
+
 	getchar();
 	std::wcout << L"关闭此文件..\r\n请按回车继续.." << std::endl;
 	getchar();
@@ -75,7 +75,7 @@ int FileSystemTest() {
 	Directory::SetCurrent(L"..\\");
 	currentDirectory = Directory::GetCurrent();
 	getchar();
-	if (!File::Move(L"AnuthurEngine\\"+fileName, currentDirectory+L"\\MovedFile.txt")) {
+	if (!File::Move(L"AnuthurEngine\\" + fileName, currentDirectory + L"\\MovedFile.txt")) {
 		std::wcout << L"移动失败！" << std::endl;
 	}
 	std::wcout << L"删除文件?" << std::endl;
@@ -102,13 +102,40 @@ int main() {
 	//std::cout << static_cast<DWORD>(ffff) << std::endl;
 	//getchar();
 
-	using namespace Luxko;
-	Threading::ConditionVariable cv;
-	Threading::CriticalSection cs;
-	auto e = Threading::Event::Create(L"Luxko_What'sup_Event");
-	auto m = Threading::Mutex::Create(L"Luxko_Mutex_sup");
-	auto s = Threading::Semaphore::Create(5l);
-	Threading::SlimRWLock srwLock;
-	
+	//using namespace Luxko;
+	//Threading::ConditionVariable cv;
+	//Threading::CriticalSection cs;
+	//auto e = Threading::Event::Create(L"Luxko_What'sup_Event");
+	//auto m = Threading::Mutex::Create(L"Luxko_Mutex_sup");
+	//auto s = Threading::Semaphore::Create(5l);
+	//Threading::SlimRWLock srwLock;
+
+	SYSTEM_INFO si;
+	GetSystemInfo(&si);
+	std::cout << "System Info:\n"
+		<< "\tProcessor Architecture: " << si.wProcessorArchitecture << std::endl
+		<< "\tPage Size: " << si.dwPageSize << std::endl
+		<< "\tNumber of Processors: " << si.dwNumberOfProcessors << std::endl
+		<< "\tProcessor Level: " << si.wProcessorLevel << std::endl
+		<< "\tAllocation Granularity: " << si.dwAllocationGranularity << std::endl << std::endl;
+
+	MEMORYSTATUSEX ms;
+	ms.dwLength = sizeof(ms);
+	if (FALSE == GlobalMemoryStatusEx(&ms)) {
+		auto errorCode = GetLastError();
+		std::cout << "Can't fetch memory status. Error code: " << errorCode << std::endl;
+	}
+	else {
+		
+		std::cout << "Memory Status:\n"
+			<< "\tMemory Load:" << ms.dwMemoryLoad << std::endl
+			<< "\tTotal Physical Memory: " << ms.ullTotalPhys << std::endl
+			<< "\tAvaiable Physical Memory: " << ms.ullAvailPhys << std::endl
+			<< "\tTotal Page File: " << ms.ullTotalPageFile << std::endl
+			<< "\tAvaiable Page File: " << ms.ullAvailPageFile << std::endl
+			<< "\tTotal Virtual Memory: " << ms.ullTotalVirtual << std::endl
+			<< "\tAvaiable Virtual Memory: " << ms.ullAvailVirtual << std::endl;
+	}
+
 	getchar();
 }

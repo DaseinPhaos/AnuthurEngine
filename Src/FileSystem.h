@@ -8,16 +8,18 @@
 #pragma once
 
 #include "CommonHeader.h"
+#include "BasicWin32Structures.h"
 #include <string>
 #include <utility>
 
 
 namespace Luxko {
 	namespace FileSystem {
-
+		using namespace Luxko::Win32Basic;
 #pragma region FileRelatedScopedEnums
 		enum class LUXKOUTILITY_API FileAccess :DWORD
 		{
+			None = 0,
 			Read = GENERIC_READ,
 			Write = GENERIC_WRITE,
 			ReadWrite = GENERIC_READ | GENERIC_WRITE
@@ -31,6 +33,8 @@ namespace Luxko {
 			
 			Write = FILE_SHARE_WRITE,  // Enables subsequent open operations on a file or device to request read access.
 			
+			ReadWrite = FILE_SHARE_READ | FILE_SHARE_WRITE,
+
 			Delete = FILE_SHARE_DELETE // Enables subsequent open operations on a file or device to request delete access.
 		};
 
@@ -142,41 +146,6 @@ namespace Luxko {
 		
 
 #pragma endregion FileRelatedScopedEnums
-
-		class SystemTime;
-		class LUXKOUTILITY_API FileTime {
-		public:
-			
-			FileTime() {}
-			explicit FileTime(const SystemTime& st);
-			explicit FileTime(LARGE_INTEGER li);
-			
-			FileTime(const FILETIME& ft) :m_ft(ft) {}
-			FileTime(const FileTime&) = default;
-			FileTime& operator=(const FileTime&) = default;
-			~FileTime() = default;
-			bool operator==(const FileTime& ft)const;
-			bool operator<(const FileTime& ft)const;
-
-			FileTime ToLocal()const;
-			FileTime ToGlobal()const;
-			LARGE_INTEGER toLargeInteger()const;
-
-		public:
-			FILETIME m_ft;
-		};
-
-		class LUXKOUTILITY_API SystemTime {
-		public:
-			SystemTime() {}
-			explicit SystemTime(const FileTime& ft);
-			SystemTime(const SYSTEMTIME& st):m_st(st) {}
-			SystemTime(const SystemTime&) = default;
-			SystemTime& operator=(const SystemTime&) = default;
-			~SystemTime() = default;
-			bool operator==(const SystemTime& st)const;
-			SYSTEMTIME m_st;
-		};
 
 		class LUXKOUTILITY_API BasicFileInfo {
 		public:

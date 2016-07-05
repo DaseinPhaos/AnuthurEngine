@@ -10,66 +10,17 @@
 #pragma once
 
 #include "CommonHeader.h"
-#include "FileSystem.h"
+#include "BasicWin32Structures.h"
 #include <crtdefs.h>
 #include <process.h>
 #include <string>
 
 namespace Luxko {
 	namespace Threading {
-
+		using namespace Luxko::Win32Basic;
 		LUXKOUTILITY_API void SleepFor(DWORD millieSeconds, bool altertable = false);
 
-		enum class LUXKOUTILITY_API WaitObjectResult: DWORD {
-			Object0Returned = WAIT_OBJECT_0,
-			TimeOut = WAIT_TIMEOUT,
-			Failed = WAIT_FAILED,
-			Abandoned = WAIT_ABANDONED,
-			IOCompletion = WAIT_IO_COMPLETION
-		};
 
-		
-
-		class LUXKOUTILITY_API KernelObjectHandle {
-		public:
-			static KernelObjectHandle Duplicate(HANDLE sourceProcessHandleRaw,
-				const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw,
-				DWORD desiredAccess, bool Inheritable);
-			static KernelObjectHandle DuplicateSameAccess(HANDLE sourceProcessHandleRaw,
-				const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw, bool Inheritable);
-
-			// Should use with caution: only pass in valid handle!
-			explicit KernelObjectHandle(HANDLE handle)noexcept;
-			KernelObjectHandle()noexcept;
-			KernelObjectHandle(const KernelObjectHandle& kh) = delete;
-			KernelObjectHandle& operator=(const KernelObjectHandle& kh) = delete;
-			KernelObjectHandle(KernelObjectHandle&& kh)noexcept;
-			KernelObjectHandle& operator=(KernelObjectHandle&& kh)noexcept;
-			~KernelObjectHandle()noexcept;
-			void Release()noexcept;
-			HANDLE Get()const noexcept;
-			bool Valid()const noexcept;
-			WaitObjectResult WaitFor(DWORD milliSeconds = INFINITE)const;
-
-			// This function calls the Win32 `SignalObjectAndWait` function,
-			// which performs signaling and waiting in one atomatic operation.
-			static WaitObjectResult SignalAndWait(
-				const KernelObjectHandle& toSignal, // Must be a singable kernel object, i.e. a mutex, a semaphore or a event.
-				const KernelObjectHandle& toWaitFor, // Can be any waitable kernel object.
-				DWORD milliSeconds = INFINITE,
-				bool altertable = false
-			);
-
-			//template<typename Iter>
-			//WaitObjectResult WaitMultiple(const Iter& begin, const Iter& end,
-			//	bool waitAll, DWORD milliSeconds = INFINITE) {
-			//	DWORD i = 0;
-			//	for (auto iter = begin; iter != end; ++iter, ++i) {
-			//	}
-			//}
-		private:
-			HANDLE _handle;
-		};
 
 		enum class LUXKOUTILITY_API EventSynchronizationAccessRight :DWORD {
 			// Basic access rights
@@ -104,7 +55,7 @@ namespace Luxko {
 			Event(Event&& e)noexcept;
 			Event& operator=(Event&& e)noexcept;
 			~Event() = default;
-			static Event Create(LPTSTR eventName = nullptr, 
+			static Event Create(LPTSTR eventName = nullptr,
 				EventCreationFlags flags = EventCreationFlags::Default,
 				EventSynchronizationAccessRight access = EventSynchronizationAccessRight::All,
 				PSECURITY_ATTRIBUTES sa = nullptr)noexcept;
@@ -137,8 +88,8 @@ namespace Luxko {
 			Semaphore(Semaphore&& e)noexcept;
 			Semaphore& operator=(Semaphore&& e)noexcept;
 			~Semaphore() = default;
-			static Semaphore Create(LONG maximumCount, LONG initialCount = 0l, 
-				LPTSTR semaphoreName = nullptr, 
+			static Semaphore Create(LONG maximumCount, LONG initialCount = 0l,
+				LPTSTR semaphoreName = nullptr,
 				SemaphoreAccessRight desiredAccess = SemaphoreAccessRight::All,
 				PSECURITY_ATTRIBUTES sa = nullptr)noexcept;
 			static Semaphore Open(LPTSTR semaphoreName, SemaphoreAccessRight desiredAccess = SemaphoreAccessRight::Modify,
@@ -319,10 +270,10 @@ namespace Luxko {
 
 			struct ThreadTimeInfo
 			{
-				FileSystem::FileTime creationTime;
-				FileSystem::FileTime exitTime;
-				FileSystem::FileTime kernelTime;
-				FileSystem::FileTime userTime;
+				FileTime creationTime;
+				FileTime exitTime;
+				FileTime kernelTime;
+				FileTime userTime;
 			};
 
 			ThreadTimeInfo GetThreadTimeInfo();
@@ -342,7 +293,7 @@ namespace Luxko {
 			PTHREAD_START_ROUTINE FunctionInvoked()const noexcept;
 			void* ParametersPassed()const noexcept;
 
-			
+
 
 		private:
 			DWORD _tID;
@@ -374,7 +325,7 @@ namespace Luxko {
 			const KernelObjectHandle& Get()const noexcept;
 
 
-			enum class GetStatusCallResult: DWORD {
+			enum class GetStatusCallResult : DWORD {
 				Success = 0,
 				FailedIOCRequest,
 				BadCall,
@@ -385,8 +336,6 @@ namespace Luxko {
 			bool AssociateDevice(const KernelObjectHandle& deviceHandle, ULONG_PTR completionKey)noexcept;
 			GetStatusCallResult GetIOCStatusQueued(IOCStatusInfo& statusInfoHolder, DWORD milliSecondsToWait = INFINITE);
 			bool PostIOCStatusToQueue(const IOCStatusInfo& statusInfoToPost);
-
-
 
 		private:
 			KernelObjectHandle _hIOCompletionPort;
@@ -400,7 +349,7 @@ namespace Luxko {
 			ThreadPoolEnvironment(ThreadPoolEnvironment&& tpe);
 			ThreadPoolEnvironment& operator=(ThreadPoolEnvironment&& tpe);
 			~ThreadPoolEnvironment();
-			
+
 			PTP_CALLBACK_ENVIRON Get()const noexcept;
 			PTP_POOL GetPool()const noexcept;
 
@@ -460,7 +409,7 @@ namespace Luxko {
 				const ThreadPoolEnvironment& tpe
 			);
 			void Close()noexcept;
-			void Set(const FileSystem::FileTime& firstSetAt,
+			void Set(const  FileTime& firstSetAt,
 				DWORD msPeriod = 0, DWORD msWindowLength = 0)noexcept;
 			bool Valid()const noexcept;
 			bool IsSet()noexcept;
@@ -488,10 +437,10 @@ namespace Luxko {
 				void* timerHandlerContext, const ThreadPoolEnvironment& tpe);
 			void Close()noexcept;
 			void Set(const KernelObjectHandle& objectToWait,
-				FileSystem::FileTime* waitTime = nullptr // 0 == no waiting, nullptr == always wait
-				)noexcept;
+				FileTime* waitTime = nullptr // 0 == no waiting, nullptr == always wait
+			)noexcept;
 			bool Valid()const noexcept;
-			
+
 			// should only be used on valid works
 			void Wait(bool cancelPending);
 

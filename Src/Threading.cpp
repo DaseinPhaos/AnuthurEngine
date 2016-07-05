@@ -283,88 +283,9 @@ void Luxko::Threading::ConditionVariable::WakeAll() noexcept
 	WakeAllConditionVariable(&_cv);
 }
 
-Luxko::Threading::KernelObjectHandle Luxko::Threading::KernelObjectHandle::Duplicate(HANDLE sourceProcessHandleRaw, const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw, DWORD desiredAccess, bool Inheritable)
-{
-	BOOL iB = FALSE;
-	if (Inheritable) iB = TRUE;
-	HANDLE target = nullptr;
-	if (!DuplicateHandle(sourceProcessHandleRaw, sourceHandle.Get(),
-		targetProcessHandleRaw, &target, desiredAccess, iB, 0)) target = nullptr;
-	return static_cast<KernelObjectHandle>(target);
-}
-
-Luxko::Threading::KernelObjectHandle Luxko::Threading::KernelObjectHandle::DuplicateSameAccess(HANDLE sourceProcessHandleRaw, const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw, bool Inheritable)
-{
-	BOOL iB = FALSE;
-	if (Inheritable) iB = TRUE;
-	HANDLE target = nullptr;
-	if (!DuplicateHandle(sourceProcessHandleRaw, sourceHandle.Get(),
-		targetProcessHandleRaw, &target, 0, iB, DUPLICATE_SAME_ACCESS)) target = nullptr;
-	return static_cast<KernelObjectHandle>(target);
-}
-
-Luxko::Threading::KernelObjectHandle::KernelObjectHandle(HANDLE handle) noexcept
-{
-	if (handle == INVALID_HANDLE_VALUE) handle = nullptr;
-	_handle = handle;
-}
 
 
 
-Luxko::Threading::KernelObjectHandle::~KernelObjectHandle() noexcept
-{
-	Release();
-}
-
-void Luxko::Threading::KernelObjectHandle::Release() noexcept
-{
-	if (_handle == nullptr/* ||
-		_handle == INVALID_HANDLE_VALUE*/) return;
-	CloseHandle(_handle);
-	_handle = nullptr;
-}
-
-HANDLE Luxko::Threading::KernelObjectHandle::Get() const noexcept
-{
-	return _handle;
-}
-
-bool Luxko::Threading::KernelObjectHandle::Valid() const noexcept
-{
-	return _handle != nullptr && _handle != INVALID_HANDLE_VALUE;
-}
-
-Luxko::Threading::WaitObjectResult Luxko::Threading::KernelObjectHandle::WaitFor(DWORD milliSeconds /*= INFINITE*/) const
-{
-	return static_cast<WaitObjectResult>(WaitForSingleObject(_handle, milliSeconds));
-}
-
-Luxko::Threading::WaitObjectResult Luxko::Threading::KernelObjectHandle::SignalAndWait(const KernelObjectHandle& toSignal, /* Must be a singalable kernal object, i.e. a mutex, a semaphore or a event. */ const KernelObjectHandle& toWaitFor, DWORD milliSeconds /*= INFINITE*/, bool altertable /*= false */)
-{
-	BOOL aB = FALSE;
-	if (altertable) aB = TRUE;
-	return static_cast<WaitObjectResult>(SignalObjectAndWait(toSignal.Get(), toWaitFor.Get(), milliSeconds, aB));
-}
-
-Luxko::Threading::KernelObjectHandle& Luxko::Threading::KernelObjectHandle::operator=(KernelObjectHandle&& kh) noexcept
-{
-	if (&kh == this) return *this;
-	Release();
-	_handle = kh._handle;
-	kh._handle = nullptr;
-	return *this;
-}
-
-Luxko::Threading::KernelObjectHandle::KernelObjectHandle(KernelObjectHandle&& kh) noexcept
-{
-	_handle = kh._handle;
-	kh._handle = nullptr;
-}
-
-Luxko::Threading::KernelObjectHandle::KernelObjectHandle() noexcept
-{
-	_handle = nullptr;
-}
 
 Luxko::Threading::Event::Event(Event&& e) noexcept
 	:_hEvent(std::move(e._hEvent)) { }
@@ -397,7 +318,7 @@ bool Luxko::Threading::Event::Reset() noexcept
 	return FALSE != ResetEvent(_hEvent.Get());
 }
 
-const Luxko::Threading::KernelObjectHandle& Luxko::Threading::Event::Get() const noexcept
+const Luxko::Win32Basic::KernelObjectHandle& Luxko::Threading::Event::Get() const noexcept
 {
 	return _hEvent;
 }
@@ -435,7 +356,7 @@ bool Luxko::Threading::Semaphore::IncreaseCount(LONG countToIncrease) noexcept
 	return FALSE != ReleaseSemaphore(_hSemaphore.Get(), countToIncrease, nullptr);
 }
 
-const Luxko::Threading::KernelObjectHandle& Luxko::Threading::Semaphore::Get() const noexcept
+const Luxko::Win32Basic::KernelObjectHandle& Luxko::Threading::Semaphore::Get() const noexcept
 {
 	return _hSemaphore;
 }
@@ -469,7 +390,7 @@ Luxko::Threading::Mutex Luxko::Threading::Mutex::Open(LPTSTR mutexName, bool inh
 	return std::move(m);
 }
 
-const Luxko::Threading::KernelObjectHandle& Luxko::Threading::Mutex::Get() const noexcept
+const Luxko::Win32Basic::KernelObjectHandle& Luxko::Threading::Mutex::Get() const noexcept
 {
 	return _hMutex;
 }
@@ -537,7 +458,7 @@ bool Luxko::Threading::Thread::Priority(ThreadPriority priority)
 	return FALSE != SetThreadPriority(_hThread.Get(), ToDword(priority));
 }
 
-const Luxko::Threading::KernelObjectHandle& Luxko::Threading::Thread::Get() const noexcept
+const Luxko::Win32Basic::KernelObjectHandle& Luxko::Threading::Thread::Get() const noexcept
 {
 	return _hThread;
 }
@@ -599,12 +520,12 @@ Luxko::Threading::IOCPort Luxko::Threading::IOCPort::Create(DWORD numberOfConcur
 	return std::move(result);
 }
 
-const Luxko::Threading::KernelObjectHandle& Luxko::Threading::IOCPort::Get() const noexcept
+const Luxko::Win32Basic::KernelObjectHandle& Luxko::Threading::IOCPort::Get() const noexcept
 {
 	return _hIOCompletionPort;
 }
 
-bool Luxko::Threading::IOCPort::AssociateDevice(const KernelObjectHandle& deviceHandle, ULONG_PTR completionKey) noexcept
+bool Luxko::Threading::IOCPort::AssociateDevice(const Luxko::Win32Basic::KernelObjectHandle& deviceHandle, ULONG_PTR completionKey) noexcept
 {
 	assert(_hIOCompletionPort.Valid());
 	return _hIOCompletionPort.Get() == CreateIoCompletionPort(deviceHandle.Get(), _hIOCompletionPort.Get(),
@@ -821,7 +742,7 @@ void Luxko::Threading::ThreadPoolTimer::Close() noexcept
 	}
 }
 
-void Luxko::Threading::ThreadPoolTimer::Set(const FileSystem::FileTime& firstSetAt, DWORD msPeriod /*= 0*/, DWORD msWindowLength /*= 0*/) noexcept
+void Luxko::Threading::ThreadPoolTimer::Set(const Luxko::Win32Basic::FileTime& firstSetAt, DWORD msPeriod /*= 0*/, DWORD msWindowLength /*= 0*/) noexcept
 {
 	SetThreadpoolTimer(_timer, const_cast<PFILETIME>(&firstSetAt.m_ft), msPeriod, msWindowLength);
 }
@@ -894,7 +815,7 @@ void Luxko::Threading::ThreadPoolWaiter::Close() noexcept
 	}
 }
 
-void Luxko::Threading::ThreadPoolWaiter::Set(const KernelObjectHandle& objectToWait, FileSystem::FileTime* waitTime /*= nullptr /* 0 == no waiting, nullptr == always wait */) noexcept
+void Luxko::Threading::ThreadPoolWaiter::Set(const Luxko::Win32Basic::KernelObjectHandle& objectToWait, Luxko::Win32Basic::FileTime* waitTime /*= nullptr /* 0 == no waiting, nullptr == always wait */) noexcept
 {
 	SetThreadpoolWait(_waiter, objectToWait.Get(), reinterpret_cast<PFILETIME>(waitTime));
 }
@@ -941,7 +862,7 @@ Luxko::Threading::ThreadPoolIO::~ThreadPoolIO()
 	Close();
 }
 
-Luxko::Threading::ThreadPoolIO Luxko::Threading::ThreadPoolIO::Create(const KernelObjectHandle& deviceHandle, Callback ioHandler, void* ioHandlerContext, const ThreadPoolEnvironment& tpe)
+Luxko::Threading::ThreadPoolIO Luxko::Threading::ThreadPoolIO::Create(const Luxko::Win32Basic::KernelObjectHandle& deviceHandle, Callback ioHandler, void* ioHandlerContext, const ThreadPoolEnvironment& tpe)
 {
 	ThreadPoolIO tpi;
 	tpi._io = CreateThreadpoolIo(deviceHandle.Get(), ioHandler, ioHandlerContext, tpe.Get());
