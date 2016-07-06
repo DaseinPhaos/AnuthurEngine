@@ -13,33 +13,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\AnuthurEngine\Timer.h">
+    <ClInclude Include="..\Src\CommonHeader.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\CommonHeader.h">
+    <ClInclude Include="..\Src\FileSystem.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\FileSystem.h">
+    <ClInclude Include="..\Src\MemorySystem.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\MemorySystem.h">
+    <ClInclude Include="..\Src\Timer.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Threading.h">
+    <ClInclude Include="..\Src\BasicWin32Structures.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Threading.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\Timer.cpp">
+    <ClCompile Include="..\Src\FileSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\FileSystem.cpp">
+    <ClCompile Include="..\Src\MemorySystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\MemorySystem.cpp">
+    <ClCompile Include="..\Src\Timer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Threading.cpp">
+    <ClCompile Include="..\Src\BasicWin32Structures.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Threading.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

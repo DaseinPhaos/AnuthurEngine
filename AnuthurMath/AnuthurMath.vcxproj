@@ -35,7 +35,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -71,18 +71,20 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)AnuthurEngine;$(IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)Src;$(IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)Src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)AnuthurEngine;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Src;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
     <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)Src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -148,37 +150,51 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\AnuthurEngine\FloatsComparision.h" />
-    <ClInclude Include="..\AnuthurEngine\Frame3DH.h" />
-    <ClInclude Include="..\AnuthurEngine\Line3DH.h" />
-    <ClInclude Include="..\AnuthurEngine\MathIO.h" />
-    <ClInclude Include="..\AnuthurEngine\Matrix3x3f.h" />
-    <ClInclude Include="..\AnuthurEngine\Matrix4x4f.h" />
-    <ClInclude Include="..\AnuthurEngine\Plane3DH.h" />
-    <ClInclude Include="..\AnuthurEngine\Point3DH.h" />
-    <ClInclude Include="..\AnuthurEngine\Quaternionf.h" />
-    <ClInclude Include="..\AnuthurEngine\RootFinding.h" />
-    <ClInclude Include="..\AnuthurEngine\Transform3DH.h" />
-    <ClInclude Include="..\AnuthurEngine\ValResult.h" />
-    <ClInclude Include="..\AnuthurEngine\Vector3DH.h" />
-    <ClInclude Include="..\AnuthurEngine\Vector3f.h" />
-    <ClInclude Include="..\AnuthurEngine\Vector4f.h" />
+    <ClInclude Include="..\Src\Box.h" />
+    <ClInclude Include="..\Src\Cone.h" />
+    <ClInclude Include="..\Src\Cylinder.h" />
+    <ClInclude Include="..\Src\Ellipsoid.h" />
+    <ClInclude Include="..\Src\FloatsComparision.h" />
+    <ClInclude Include="..\Src\Frame3DH.h" />
+    <ClInclude Include="..\Src\Line3DH.h" />
+    <ClInclude Include="..\Src\MathIO.h" />
+    <ClInclude Include="..\Src\Matrix3x3f.h" />
+    <ClInclude Include="..\Src\Matrix4x4f.h" />
+    <ClInclude Include="..\Src\OrientedObject.h" />
+    <ClInclude Include="..\Src\Plane3DH.h" />
+    <ClInclude Include="..\Src\Point3DH.h" />
+    <ClInclude Include="..\Src\Quaternionf.h" />
+    <ClInclude Include="..\Src\RootFinding.h" />
+    <ClInclude Include="..\Src\Sphere.h" />
+    <ClInclude Include="..\Src\Transform3DH.h" />
+    <ClInclude Include="..\Src\Triangle3DH.h" />
+    <ClInclude Include="..\Src\ValResult.h" />
+    <ClInclude Include="..\Src\Vector3DH.h" />
+    <ClInclude Include="..\Src\Vector3f.h" />
+    <ClInclude Include="..\Src\Vector4f.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Frame3DH.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Line3DH.cpp" />
-    <ClCompile Include="..\AnuthurEngine\MathIO.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Matrix3x3f.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Matrix4x4f.cpp" />
-    <None Include="..\AnuthurEngine\Quaternionf.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Plane3DH.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Point3DH.cpp" />
-    <ClCompile Include="..\AnuthurEngine\RootFinding.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Transform3DH.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Vector3DH.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Vector3f.cpp" />
-    <ClCompile Include="..\AnuthurEngine\Vector4f.cpp" />
+    <ClCompile Include="..\Src\Box.cpp" />
+    <ClCompile Include="..\Src\Cone.cpp" />
+    <ClCompile Include="..\Src\Cylinder.cpp" />
+    <ClCompile Include="..\Src\Ellipsoid.cpp" />
+    <ClCompile Include="..\Src\FloatsComparision.cpp" />
+    <ClCompile Include="..\Src\Frame3DH.cpp" />
+    <ClCompile Include="..\Src\Line3DH.cpp" />
+    <ClCompile Include="..\Src\MathIO.cpp" />
+    <ClCompile Include="..\Src\Matrix3x3f.cpp" />
+    <ClCompile Include="..\Src\Matrix4x4f.cpp" />
+    <ClCompile Include="..\Src\OrientedObject.cpp" />
+    <ClCompile Include="..\Src\Plane3DH.cpp" />
+    <ClCompile Include="..\Src\Point3DH.cpp" />
+    <ClCompile Include="..\Src\Quaternionf.cpp" />
+    <ClCompile Include="..\Src\RootFinding.cpp" />
+    <ClCompile Include="..\Src\Sphere.cpp" />
+    <ClCompile Include="..\Src\Transform3DH.cpp" />
+    <ClCompile Include="..\Src\Triangle3DH.cpp" />
+    <ClCompile Include="..\Src\Vector3DH.cpp" />
+    <ClCompile Include="..\Src\Vector3f.cpp" />
+    <ClCompile Include="..\Src\Vector4f.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

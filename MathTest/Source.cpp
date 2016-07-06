@@ -4,7 +4,7 @@
 //
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
-
+#include "PerspecCamera.h"
 #include "CommonHeader.h"
 #include "RootFinding.h"
 #include <iostream>
@@ -154,22 +154,42 @@ int TestMatrix4x4f() {
 int main() {
 	using namespace Luxko;
 	Vector3DH up = { 0.f,1.f,0.f };
-	Vector3DH look = { 0.f,0.f,-1.f };
-	Point3DH point = { 0.f,0.f,0.f };
+	Vector3DH look = { 10.f,0.f,30.f };
+	Point3DH point = { -20.f,35.f,-50.f };
 	Frame3DH f(look, up, point);
+	auto right = f.Right();
+	auto leftHand = f.GetTransformLH().Inverse();
+	auto rightHand = f.GetTransform().Inverse();
+	std::cout << "right direc = " << right.AsVector4f() <<std::endl
+		<< "Left hand = " << leftHand.AsMatrix4x4() << std::endl
+		<< "right hand = " << rightHand.AsMatrix4x4() << std::endl;
+
+	auto camera = Anuthur::PerspecCamera::FromHFOVAndAspectRatio(1.f, 11.f, 4.f / 3.f, static_cast<float>(M_PI_4),
+		f);
+	camera.ApplyTransform(f.GetTransform());
+	std::cout << "View Transform= " << camera.TransformVtoH().AsMatrix4x4();
+
 	std::default_random_engine dre(88);
 	std::uniform_real_distribution<float> urd(-100.f, 100.f);
-	Point3DH rp = { urd(dre),urd(dre),urd(dre) };
-	auto leftHand = f.LeftHandTransform();
-	auto rightHand = f.RightHandTransform();
-	std::cout << "Left hand = " << leftHand.AsMatrix4x4() << std::endl
-		<< "right hand = " << rightHand.AsMatrix4x4() << std::endl;
-	std::cout << "rp = " << rp.AsVector4f() << std::endl
-		<< "rh*rp = " << (rightHand*rp).AsVector4f() << std::endl
-		<< "lh*rp = " << (leftHand*rp).AsVector4f() << std::endl;
+	//Point3DH rp = { urd(dre),urd(dre),urd(dre) };
+	Point3DH rp = { 1,2,3 };
+	float temp;
+	size_t i = 0u;
+	while (std::cin>>temp) {
+		if (i < 3u) {
+			rp[i] = temp;
+			i++;
+		}
+		else {
+			i = 0u;
+			std::cout << "rp = " << rp.AsVector4f() << std::endl
+				<< "rh*rp = " << (rightHand*rp).AsVector4f() << std::endl
+				<< "lh*rp = " << (leftHand*rp).AsVector4f() << std::endl;
+		}
+	}
 
-	assert(rp == rightHand*rp);
-	assert(AlmostEqualRelativeAndAbs(-rp.z(),(leftHand*rp).z()));
+	//assert(rp == rightHand*rp);
+	//assert(AlmostEqualRelativeAndAbs(-rp.z(),(leftHand*rp).z()));
 
 
 
