@@ -14,7 +14,6 @@ namespace Luxko {
 		class SystemTime;
 		class LUXKOUTILITY_API FileTime {
 		public:
-
 			FileTime() {}
 			explicit FileTime(const SystemTime& st);
 			explicit FileTime(LARGE_INTEGER li);
@@ -46,6 +45,27 @@ namespace Luxko {
 			SYSTEMTIME m_st;
 		};
 
+		class LUXKOUTILITY_API SystemInfo {
+		public:
+			SystemInfo(const SystemInfo&) = delete;
+			SystemInfo& operator=(const SystemInfo&) = delete;
+			~SystemInfo() = default;
+
+			static const SystemInfo& Get()noexcept;
+
+			static DWORD PageSize() noexcept;
+			static LPVOID MinimumApplicationAddress() noexcept;
+			static LPVOID MaximumApplicationAddress() noexcept;
+			static DWORD NumberOfProcessors() noexcept;
+			static DWORD ProcessorType() noexcept;
+			static DWORD AllocationGranularity() noexcept;
+
+
+		private:
+			SystemInfo();
+			
+			SYSTEM_INFO s_si;
+		};
 
 		enum class LUXKOUTILITY_API WaitObjectResult : DWORD {
 			Object0Returned = WAIT_OBJECT_0,
@@ -57,6 +77,8 @@ namespace Luxko {
 
 		class LUXKOUTILITY_API KernelObjectHandle {
 		public:
+			static const KernelObjectHandle& InterpretAs(HANDLE* pHandle)noexcept;
+
 			static KernelObjectHandle Duplicate(HANDLE sourceProcessHandleRaw,
 				const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw,
 				DWORD desiredAccess, bool Inheritable);

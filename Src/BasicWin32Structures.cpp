@@ -69,6 +69,12 @@ bool Luxko::Win32Basic::SystemTime::operator==(const SystemTime& st)const
 	return std::memcmp(&m_st, &st.m_st, sizeof(SYSTEMTIME)) == 0;
 }
 
+const Luxko::Win32Basic::KernelObjectHandle& Luxko::Win32Basic::KernelObjectHandle::InterpretAs(HANDLE* pHandle) noexcept
+{
+	auto red = reinterpret_cast<KernelObjectHandle*>(pHandle);
+	return *red;
+}
+
 Luxko::Win32Basic::KernelObjectHandle Luxko::Win32Basic::KernelObjectHandle::Duplicate(HANDLE sourceProcessHandleRaw, const KernelObjectHandle& sourceHandle, HANDLE targetProcessHandleRaw, DWORD desiredAccess, bool Inheritable)
 {
 	BOOL iB = FALSE;
@@ -150,4 +156,45 @@ Luxko::Win32Basic::KernelObjectHandle::KernelObjectHandle(KernelObjectHandle&& k
 Luxko::Win32Basic::KernelObjectHandle::KernelObjectHandle() noexcept
 {
 	_handle = nullptr;
+}
+
+const Luxko::Win32Basic::SystemInfo& Luxko::Win32Basic::SystemInfo::Get() noexcept
+{
+	static SystemInfo si;
+	return si;
+}
+
+DWORD Luxko::Win32Basic::SystemInfo::PageSize() noexcept
+{
+	return Get().s_si.dwPageSize;
+}
+
+LPVOID Luxko::Win32Basic::SystemInfo::MinimumApplicationAddress() noexcept
+{
+	return Get().s_si.lpMinimumApplicationAddress;
+}
+
+LPVOID Luxko::Win32Basic::SystemInfo::MaximumApplicationAddress() noexcept
+{
+	return Get().s_si.lpMaximumApplicationAddress;
+}
+
+DWORD Luxko::Win32Basic::SystemInfo::NumberOfProcessors() noexcept
+{
+	return Get().s_si.dwNumberOfProcessors;
+}
+
+DWORD Luxko::Win32Basic::SystemInfo::ProcessorType() noexcept
+{
+	return Get().s_si.dwProcessorType;
+}
+
+DWORD Luxko::Win32Basic::SystemInfo::AllocationGranularity() noexcept
+{
+	return Get().s_si.dwAllocationGranularity;
+}
+
+Luxko::Win32Basic::SystemInfo::SystemInfo()
+{
+	GetSystemInfo(&s_si);
 }
