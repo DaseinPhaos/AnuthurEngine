@@ -18,6 +18,57 @@ namespace Luxko {
 	namespace Memory {
 		using namespace Luxko::Win32Basic;
 
+		enum class VirtualMemoryProtectionOptions : DWORD {
+			NoAccess = PAGE_NOACCESS,
+			ReadOnly = PAGE_READONLY,
+			ReadWrite = PAGE_READWRITE,
+			Execute = PAGE_EXECUTE,
+			ExecuteRead = PAGE_EXECUTE_READ,
+			ExecuteReadWrite = PAGE_EXECUTE_READWRITE
+		};
+
+		struct LUXKOUTILITY_API CommittedMemoryToken {
+		public:
+			CommittedMemoryToken() = default;
+			~CommittedMemoryToken() = default;
+			CommittedMemoryToken(void* sa, DWORD sizeInBytes);
+
+			void* StartAddress;
+			DWORD SizeInBytes;
+		};
+
+		class LUXKOUTILITY_API VirtualMemory {
+		public:
+			VirtualMemory();
+			VirtualMemory(const VirtualMemory&) = delete;
+			VirtualMemory& operator=(const VirtualMemory&) = delete;
+			VirtualMemory(VirtualMemory&& vm);
+			VirtualMemory& operator=(VirtualMemory&& vm);
+			~VirtualMemory();
+
+			void DeCommitAllAndRelease() noexcept;
+
+			static VirtualMemory Reserve(size_t bytesToReserve, VirtualMemoryProtectionOptions vpo);
+			static VirtualMemory ReserveAndCommit(size_t bytesToReserve, VirtualMemoryProtectionOptions vpo);
+
+			
+			const CommittedMemoryToken Commit(size_t startPageIndex, size_t numberOfPagesToCommit);
+			void DeCommit(const CommittedMemoryToken& cmt); // Only valid when cmt passed in is returned earlier from a call to this->Commit().
+			
+			size_t FindPageIndexFromAddress(void* address)const noexcept; // The caller should guarantee that the address passed in is valid.
+
+			void* GetAddressFromPageIndex(size_t index)const noexcept; // The caller should guarantee that the index passed in is valid.
+
+			size_t GetPagesCount()const noexcept;
+
+			bool IsPageCommitted(size_t pageIndex) const; // The caller should guarantee that the index passed in is valid.
+
+		private:
+			static size_t AlignToPageSize(size_t toBeAligned);
+			void* _basePtr;
+			std::vector<bool> _pagesCommitMask;
+			VirtualMemoryProtectionOptions _vpo;
+		};
 
 #pragma region Heap Related Scoped Enums
 		enum class LUXKOUTILITY_API HeapCreationOption : DWORD {

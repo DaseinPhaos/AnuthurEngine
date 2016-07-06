@@ -406,6 +406,16 @@ Luxko::Threading::Mutex& Luxko::Threading::Mutex::operator=(Mutex&& e) noexcept
 	return *this;
 }
 
+HANDLE Luxko::Threading::Thread::GetCurrentThreadFakeRawHandle()
+{
+	return GetCurrentThread();
+}
+
+DWORD Luxko::Threading::Thread::GetCurrentThreadId()
+{
+	return ::GetCurrentThreadId();
+}
+
 Luxko::Threading::Thread::Thread(PTHREAD_START_ROUTINE functionInvoked, void* param, ThreadCreationFlags flags /*= ThreadCreationFlags::Default*/, DWORD stackSizeInBytes /*= 0*/, PSECURITY_ATTRIBUTES sa /*= nullptr*/)
 {
 	_functionInvoked = functionInvoked;

@@ -252,6 +252,9 @@ namespace Luxko {
 
 		class LUXKOUTILITY_API Thread {
 		public:
+			static HANDLE GetCurrentThreadFakeRawHandle();
+			static DWORD GetCurrentThreadId();
+
 			Thread(PTHREAD_START_ROUTINE functionInvoked,
 				void* param, ThreadCreationFlags flags = ThreadCreationFlags::Default,
 				DWORD stackSizeInBytes = 0, PSECURITY_ATTRIBUTES sa = nullptr);

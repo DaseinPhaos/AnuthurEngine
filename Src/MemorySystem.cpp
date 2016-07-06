@@ -6,6 +6,7 @@
 //**********************************************************************
 
 #include "MemorySystem.h"
+#include <cassert>
 
 static DWORD ToDword() {
 	return 0x0;
@@ -273,4 +274,128 @@ Luxko::Memory::MappingObject& Luxko::Memory::MappingObject::operator=(MappingObj
 {
 	_hMappedObject = std::move(m._hMappedObject);
 	return *this;
+}
+
+Luxko::Memory::CommittedMemoryToken::CommittedMemoryToken(void* sa, DWORD sizeInBytes)
+{
+	StartAddress = sa;
+	SizeInBytes = sizeInBytes;
+}
+
+Luxko::Memory::VirtualMemory::VirtualMemory()
+{
+	_basePtr = nullptr;
+}
+
+Luxko::Memory::VirtualMemory::~VirtualMemory()
+{
+	DeCommitAllAndRelease();
+}
+
+void Luxko::Memory::VirtualMemory::DeCommitAllAndRelease() noexcept
+{
+	if (_basePtr) {
+		VirtualFree(_basePtr, 0, MEM_RELEASE);
+		_basePtr = nullptr;
+		_pagesCommitMask.clear();
+	}
+}
+
+Luxko::Memory::VirtualMemory Luxko::Memory::VirtualMemory::Reserve(size_t bytesToReserve, VirtualMemoryProtectionOptions vpo)
+{
+	VirtualMemory vm;
+	vm._basePtr = VirtualAlloc(nullptr, bytesToReserve, MEM_RESERVE | MEM_TOP_DOWN, ToDword(vpo));
+	auto pagesReserved = AlignToPageSize(bytesToReserve);
+	vm._pagesCommitMask = std::vector<bool>(pagesReserved, false);
+	vm._vpo = vpo;
+	return std::move(vm);
+}
+
+Luxko::Memory::VirtualMemory Luxko::Memory::VirtualMemory::ReserveAndCommit(size_t bytesToReserve, VirtualMemoryProtectionOptions vpo)
+{
+	VirtualMemory vm;
+	vm._basePtr = VirtualAlloc(nullptr, bytesToReserve, MEM_RESERVE | MEM_TOP_DOWN | MEM_COMMIT, ToDword(vpo));
+	static auto pageSize = Win32Basic::SystemInfo::PageSize();
+	auto pagesReserved = AlignToPageSize(bytesToReserve);
+	vm._pagesCommitMask = std::vector<bool>(pagesReserved, true);
+	vm._vpo = vpo;
+	return std::move(vm);
+}
+
+const Luxko::Memory::CommittedMemoryToken Luxko::Memory::VirtualMemory::Commit(size_t startPageIndex, size_t numberOfPagesToCommit)
+{
+	assert(startPageIndex + numberOfPagesToCommit <= _pagesCommitMask.size());
+	
+	auto sizeToCommit = numberOfPagesToCommit * Win32Basic::SystemInfo::PageSize();
+	auto startAddress = GetAddressFromPageIndex(startPageIndex);
+
+	auto ptr = VirtualAlloc(startAddress, sizeToCommit, MEM_COMMIT, ToDword(_vpo));
+
+	assert(ptr == startAddress);
+	for (auto i = 0u; i < numberOfPagesToCommit; ++i) {
+		assert(_pagesCommitMask[i + startPageIndex] == false);
+		_pagesCommitMask[i + startPageIndex] = true;
+	}
+	return CommittedMemoryToken(ptr, sizeToCommit);
+}
+
+void Luxko::Memory::VirtualMemory::DeCommit(const CommittedMemoryToken& cmt)
+{
+	static auto pageSize = Win32Basic::SystemInfo::PageSize();
+	BOOL result = VirtualFree(cmt.StartAddress, cmt.SizeInBytes, MEM_DECOMMIT);
+	assert(result != FALSE);
+	auto startIndex = FindPageIndexFromAddress(cmt.StartAddress);
+	auto indexCount = cmt.SizeInBytes / pageSize;
+	assert(startIndex + indexCount <= _pagesCommitMask.size());
+	assert(cmt.SizeInBytes % pageSize == 0);
+	for (auto i = 0u; i < indexCount; ++i) {
+		assert(_pagesCommitMask[i + startIndex] == true);
+		_pagesCommitMask[i + startIndex] = false;
+	}
+}
+
+size_t Luxko::Memory::VirtualMemory::FindPageIndexFromAddress(void* address) const noexcept
+{
+	auto offset = reinterpret_cast<size_t>(address) - reinterpret_cast<size_t>(_basePtr);
+	return offset / Win32Basic::SystemInfo::PageSize();
+}
+
+void* Luxko::Memory::VirtualMemory::GetAddressFromPageIndex(size_t index) const noexcept
+{
+	return reinterpret_cast<void*>(reinterpret_cast<size_t>(_basePtr) + index*Win32Basic::SystemInfo::PageSize());
+}
+
+size_t Luxko::Memory::VirtualMemory::GetPagesCount() const noexcept
+{
+	return _pagesCommitMask.size();
+}
+
+bool Luxko::Memory::VirtualMemory::IsPageCommitted(size_t pageIndex) const
+{
+	return _pagesCommitMask.at(pageIndex);
+}
+
+size_t Luxko::Memory::VirtualMemory::AlignToPageSize(size_t toBeAligned)
+{
+	static auto pageSize = static_cast<size_t>(Win32Basic::SystemInfo::PageSize());
+	return (toBeAligned + pageSize - 1) / pageSize;
+}
+
+Luxko::Memory::VirtualMemory& Luxko::Memory::VirtualMemory::operator=(VirtualMemory&& vm)
+{
+	if (&vm == this) return *this;
+	DeCommitAllAndRelease();
+	_basePtr = vm._basePtr;
+	vm._basePtr = nullptr;
+	_pagesCommitMask = std::move(vm._pagesCommitMask);
+	_vpo = vm._vpo;
+	return *this;
+}
+
+Luxko::Memory::VirtualMemory::VirtualMemory(VirtualMemory&& vm)
+{
+	_basePtr = vm._basePtr;
+	vm._basePtr = nullptr;
+	_pagesCommitMask = std::move(vm._pagesCommitMask);
+	_vpo = vm._vpo;
 }
