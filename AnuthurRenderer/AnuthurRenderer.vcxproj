@@ -22,7 +22,7 @@
     <ProjectGuid>{A8607237-E0DC-421E-8798-63572DB79728}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AnuthurRenderer</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -35,7 +35,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -71,17 +71,19 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)AnuthurEngine;$(IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)Src;$(IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)AnuthurEngine;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)Src;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)Src;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)Src;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,6 +92,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ANUTHURRENDERER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>RendererPCH.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -148,12 +151,43 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\AnuthurEngine\RendererDXGI.h" />
-    <ClInclude Include="..\AnuthurEngine\HelperMethods.h" />
-    <ClInclude Include="..\AnuthurEngine\RendererPCH.h" />
+    <ClInclude Include="..\Src\BasicGeometry.h" />
+    <ClInclude Include="..\Src\D3D12App.h" />
+    <ClInclude Include="..\Src\DDSTextureLoader.h" />
+    <ClInclude Include="..\Src\HelperMethods.h" />
+    <ClInclude Include="..\Src\LightandMaterial.h" />
+    <ClInclude Include="..\Src\MeshResource.h" />
+    <ClInclude Include="..\Src\PerspecCamera.h" />
+    <ClInclude Include="..\Src\RendererPCH.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\RendererDXGI.cpp" />
+    <ProjectReference Include="..\AnuthurApplication\AnuthurApplication.vcxproj">
+      <Project>{ce3e9058-bfa0-4e30-b277-1f5104dedc56}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
+      <Project>{95b6fe37-84de-486d-a9fb-9d8782718e1e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
+      <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\Src\BasicGeometry.cpp" />
+    <ClCompile Include="..\Src\D3D12App.cpp" />
+    <ClCompile Include="..\Src\DDSTextureLoader.cpp" />
+    <ClCompile Include="..\Src\HelperMethods.cpp" />
+    <ClCompile Include="..\Src\LightandMaterial.cpp" />
+    <ClCompile Include="..\Src\PerspecCamera.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\Src\HLSLShaders\LightandMaterial.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </DeploymentContent>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
