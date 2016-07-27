@@ -92,7 +92,7 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Box(flo
 	return result;
 }
 
-const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Cylinder(float bRadius, float tRadius, float height, size_t stackCount /*= 8u*/, size_t sliceCount /*= 8u*/, const float* textureCoordinates /*= nullptr*/)
+const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Cylinder(float bRadius, float tRadius, float height, unsigned int stackCount /*= 8u*/, unsigned int sliceCount /*= 8u*/, const float* textureCoordinates /*= nullptr*/)
 {
 	auto result = Mesh();
 	result.Vertices.reserve((1 + stackCount)*(sliceCount + 1) + 2);
@@ -146,21 +146,21 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Cylinde
 
 	for (auto i = 0u; i < sliceCount; ++i) {
 		result.Indices.push_back(i);
-		result.Indices.push_back(bi);
+		result.Indices.push_back(static_cast<unsigned int>(bi));
 		result.Indices.push_back(i + 1);
 	}
 
 	for (auto i = 0u; i < sliceCount; ++i) {
 		result.Indices.push_back(i + stackCount*(sliceCount + 1));
 		result.Indices.push_back(i + stackCount*(sliceCount + 1) + 1);
-		result.Indices.push_back(ti);
+		result.Indices.push_back(static_cast<unsigned int>(ti));
 
 	}
 
 	return result;
 }
 
-const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Sphere(float radius, size_t stackCount /*= 8u*/, size_t sliceCount /*= 8u*/, const float* textureCoordinates /*= nullptr*/)
+const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Sphere(float radius, unsigned int stackCount /*= 8u*/, unsigned int sliceCount /*= 8u*/, const float* textureCoordinates /*= nullptr*/)
 {
 	auto result = Mesh();
 	result.Vertices.reserve(2 * (1 + sliceCount)*(stackCount + 1));
@@ -334,13 +334,14 @@ void Luxko::Anuthur::BasicGeometry::ReviceMeshNormal(Mesh& m)
 		}
 		//norm /= n;
 		//m.Vertices[i].Norm = norm;
-		m.Vertices[i].Norm = norm/n;
+		m.Vertices[i].Norm = norm/static_cast<float>(n);
 	}
 }
 
 float Luxko::Anuthur::BasicGeometry::GetTerranHeight(float x, float z, float m, float n)
 {
-	return z*n * std::sin(x* M_PI*2*m) + x * m * std::cos(z* M_PI*2*n);
+	
+	return z*n * std::sinf(x* static_cast<float>(M_PI) *2*m) + x * m * std::cosf(z* static_cast<float>(M_PI) *2*n);
 }
 
 void Luxko::Anuthur::BasicGeometry::Mesh::ReviseNormal()

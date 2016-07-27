@@ -6,7 +6,7 @@
 //**********************************************************************
 #pragma once
 #include "RendererPCH.h"
-#include "HelperMethods.h"
+#include "D3D12HelperMethods.h"
 #include "Timer.h"
 
 namespace Luxko {

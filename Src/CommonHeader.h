@@ -31,11 +31,21 @@
 #include <algorithm>
 #include <emmintrin.h>
 
+#pragma warning ( disable: 4229)
+
 // constexpr auto Pi_f = static_cast<float>(M_PI);
 
-#ifdef LUXKOUTILITY_EXPORTS
-#define LUXKOUTILITY_API _declspec(dllexport)
-#else
-#define LUXKOUTILITY_API _declspec(dllimport)
-#endif
+//#ifdef LUXKOUTILITY_EXPORTS
+//#define LUXKOUTILITY_API _declspec(dllexport)
+//#else
+//#define LUXKOUTILITY_API _declspec(dllimport)
+//#endif
+//#ifdef ANUTHURMATH_EXPORTS
+//#define ANUTHURMATH_API _declspec(dllexport)
+//#else
+//#define ANUTHURMATH_API _declspec(dllimport)
+//#endif
+#define LUXKOUTILITY_API
+#define ANUTHURMATH_API
+
 using namespace std::rel_ops;

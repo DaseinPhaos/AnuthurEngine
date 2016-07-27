@@ -11,12 +11,12 @@
 //**********************************************************************
 
 #pragma once
-#ifdef ANUTHURAPPLICATION_EXPORTS
-#define ANUTHURAPPLICATION_API __declspec(dllexport)
-#else
-#define ANUTHURAPPLICATION_API __declspec(dllimport)
-#endif
-//#define ANUTHURAPPLICATION_API
+//#ifdef ANUTHURAPPLICATION_EXPORTS
+//#define ANUTHURAPPLICATION_API __declspec(dllexport)
+//#else
+//#define ANUTHURAPPLICATION_API __declspec(dllimport)
+//#endif
+#define ANUTHURAPPLICATION_API
 #include "CommonHeader.h"
 
 

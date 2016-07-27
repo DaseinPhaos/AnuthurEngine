@@ -6,7 +6,7 @@
 //**********************************************************************
 #pragma once
 #include "RendererPCH.h"
-#include "HelperMethods.h"
+#include "D3D12HelperMethods.h"
 #include "Vector3DH.h"
 
 
@@ -55,8 +55,8 @@ namespace Luxko {
 
 			// The following methods creates and returns Meshes as const objects.
 			static const Mesh Box(float width, float height, float length, const float* textureCoordinates = nullptr);
-			static const Mesh Cylinder(float bRadius, float tRadius, float height, size_t stackCount = 8u, size_t sliceCount = 8u, const float* textureCoordinates = nullptr);
-			static const Mesh Sphere(float radius, size_t stackCount = 8u, size_t sliceCount = 8u, const float* textureCoordinates = nullptr);
+			static const Mesh Cylinder(float bRadius, float tRadius, float height, unsigned int stackCount = 8u, unsigned int sliceCount = 8u, const float* textureCoordinates = nullptr);
+			static const Mesh Sphere(float radius, unsigned int stackCount = 8u, unsigned int sliceCount = 8u, const float* textureCoordinates = nullptr);
 
 			static const Mesh Grid(float width, float length, UINT m, UINT n);
 			static const Mesh Terran(float width, float length, UINT m, UINT n, float heightCoefficient = 2.f);

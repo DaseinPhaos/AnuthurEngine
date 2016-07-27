@@ -405,7 +405,7 @@ void BoxApp::InitializeBuffers()
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, 0u);
 	ThrowIfFailed(_d3d12Device->CreateDescriptorHeap(&cbdhDesc, IID_PPV_ARGS(_cbvHeap.GetAddressOf())));
 
-	_d3d12Device->CreateConstantBufferView(&CBVDescriptor(_cbBuffer->GetGPUVirtualAddress(), _cbBufferSize),
+	_d3d12Device->CreateConstantBufferView(&CBVDescriptor(_cbBuffer->GetGPUVirtualAddress(), static_cast<UINT>(_cbBufferSize)),
 		_cbvHeap->GetCPUDescriptorHandleForHeapStart());
 
 

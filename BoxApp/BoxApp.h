@@ -5,7 +5,7 @@
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
 #pragma once
-#include "HelperMethods.h"
+#include "D3D12HelperMethods.h"
 #include "D3D12App.h"
 #include "PerspecCamera.h"
 #include "Point3DH.h"

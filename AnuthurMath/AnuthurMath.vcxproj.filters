@@ -22,9 +22,6 @@
     <Filter Include="Headers\Object">
       <UniqueIdentifier>{c48af213-682e-415f-a1d5-4b87ee8f9ac3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headers\Shaders">
-      <UniqueIdentifier>{bd194e73-01f0-4929-8736-02dd05234ce6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Src\Frame3DH.h">

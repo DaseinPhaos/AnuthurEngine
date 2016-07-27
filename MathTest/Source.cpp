@@ -174,14 +174,14 @@ int main() {
 	//Point3DH rp = { urd(dre),urd(dre),urd(dre) };
 	Point3DH rp = { 1,2,3 };
 	float temp;
-	size_t i = 0u;
+	auto i = 0;
 	while (std::cin>>temp) {
-		if (i < 3u) {
+		if (i < 3) {
 			rp[i] = temp;
 			i++;
 		}
 		else {
-			i = 0u;
+			i = 0;
 			std::cout << "rp = " << rp.AsVector4f() << std::endl
 				<< "rh*rp = " << (rightHand*rp).AsVector4f() << std::endl
 				<< "lh*rp = " << (leftHand*rp).AsVector4f() << std::endl;

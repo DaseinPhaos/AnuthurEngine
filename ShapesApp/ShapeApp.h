@@ -5,7 +5,7 @@
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
 #pragma once
-#include "HelperMethods.h"
+#include "D3D12HelperMethods.h"
 #include "D3D12App.h"
 #include "Matrix4x4f.h"
 #include "PerspecCamera.h"

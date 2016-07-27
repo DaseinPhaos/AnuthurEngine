@@ -6,7 +6,7 @@
 //**********************************************************************
 #pragma once
 #include "D3D12App.h"
-#include "HelperMethods.h"
+#include "D3D12HelperMethods.h"
 #include "Matrix4x4f.h"
 #include "PerspecCamera.h"
 using namespace Luxko;

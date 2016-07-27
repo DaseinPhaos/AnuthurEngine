@@ -6,11 +6,11 @@
 //**********************************************************************
 
 #pragma once
-#ifdef ANUTHURMATH_EXPORTS
-#define ANUTHURMATH_API _declspec(dllexport)
-#else
-#define ANUTHURMATH_API _declspec(dllimport)
-#endif
+//#ifdef ANUTHURMATH_EXPORTS
+//#define ANUTHURMATH_API _declspec(dllexport)
+//#else
+//#define ANUTHURMATH_API _declspec(dllimport)
+//#endif
 #include "CommonHeader.h"
 //#include "Vector3f.h"
 #include "Vector4f.h"
@@ -62,7 +62,7 @@ namespace Luxko {
 
 		bool operator==(const Matrix4x4f& m)const;
 
-		inline Matrix4x4f Transpose()const;
+		Matrix4x4f Transpose()const;
 		Vector4f Row(int i)const;
 		Vector4f Column(int i)const;
 		float At(int c, int r)const noexcept { return _data[c * 4 + r]; }

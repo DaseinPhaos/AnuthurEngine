@@ -6,11 +6,11 @@
 //**********************************************************************
 
 #pragma once
-#ifdef ANUTHURMATH_EXPORTS
-#define ANUTHURMATH_API _declspec(dllexport)
-#else
-#define ANUTHURMATH_API _declspec(dllimport)
-#endif
+//#ifdef ANUTHURMATH_EXPORTS
+//#define ANUTHURMATH_API _declspec(dllexport)
+//#else
+//#define ANUTHURMATH_API _declspec(dllimport)
+//#endif
 #include "CommonHeader.h"
 #include "Vector4f.h"
 #include "Vector3f.h"
