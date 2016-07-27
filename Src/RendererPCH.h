@@ -6,12 +6,12 @@
 //**********************************************************************
 #pragma once
 
-#ifdef ANUTHURRENDERER_EXPORTS
-#define ANUTHURRENDERER_API _declspec(dllexport)
-#else
-#define ANUTHURRENDERER_API _declspec(dllimport)
-#endif
-//#define ANUTHURRENDERER_API
+//#ifdef ANUTHURRENDERER_EXPORTS
+//#define ANUTHURRENDERER_API _declspec(dllexport)
+//#else
+//#define ANUTHURRENDERER_API _declspec(dllimport)
+//#endif
+#define ANUTHURRENDERER_API
 
 #ifndef UNICODE
 #define UNICODE

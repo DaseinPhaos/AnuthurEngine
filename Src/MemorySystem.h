@@ -31,10 +31,10 @@ namespace Luxko {
 		public:
 			CommittedMemoryToken() = default;
 			~CommittedMemoryToken() = default;
-			CommittedMemoryToken(void* sa, DWORD sizeInBytes);
+			CommittedMemoryToken(void* sa, size_t sizeInBytes);
 
 			void* StartAddress;
-			DWORD SizeInBytes;
+			size_t SizeInBytes;
 		};
 
 		class LUXKOUTILITY_API VirtualMemory {

@@ -5,7 +5,7 @@
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
 
-#include "HelperMethods.h"
+#include "D3D12HelperMethods.h"
 
 Luxko::Anuthur::D3D12Helper::InputElementDescriptor::InputElementDescriptor(LPCSTR semanticName, DXGI_FORMAT format, UINT bytedOffsetAligned, UINT inputSlot /*= 0u*/, UINT semanticIndex/* = 0u*/, UINT instanceDataSR /*= 0u*/, D3D12_INPUT_CLASSIFICATION classification /*= D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA*/)
 	:D3D12_INPUT_ELEMENT_DESC{ semanticName, semanticIndex, format, inputSlot, bytedOffsetAligned,
@@ -25,7 +25,7 @@ void Luxko::Anuthur::D3D12Helper::InputLayoutDescriptor::PushElementDescription(
 D3D12_INPUT_LAYOUT_DESC Luxko::Anuthur::D3D12Helper::InputLayoutDescriptor::Get() const
 {
 	D3D12_INPUT_LAYOUT_DESC result;
-	result.NumElements = _ilds.size();
+	result.NumElements = static_cast<UINT>(_ilds.size());
 	result.pInputElementDescs = _ilds.data();
 	return result;
 }
@@ -252,7 +252,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::D3D12Helper::CreateDefaul
 		D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
 		IID_PPV_ARGS(uploadBuffer.GetAddressOf())));
 
-	D3D12_SUBRESOURCE_DATA sbData = { data, sizeInBytes, sizeInBytes };
+	D3D12_SUBRESOURCE_DATA sbData = { data, static_cast<LONG_PTR>(sizeInBytes), static_cast<LONG_PTR>(sizeInBytes) };
 
 	cmdlst->ResourceBarrier(1, &ResourceBarrier::TransitionBarrier(defaultBuffer.Get(),
 		D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
@@ -277,7 +277,7 @@ void Luxko::Anuthur::D3D12Helper::VertexBuffersDescriptor::Push(D3D12_GPU_VIRTUA
 
 void Luxko::Anuthur::D3D12Helper::VertexBuffersDescriptor::Apply(ID3D12GraphicsCommandList* cmdlst, UINT startSlot) const
 {
-	cmdlst->IASetVertexBuffers(startSlot, _vbvs.size(), _vbvs.data());
+	cmdlst->IASetVertexBuffers(startSlot, static_cast<UINT>(_vbvs.size()), _vbvs.data());
 }
 
 void Luxko::Anuthur::D3D12Helper::IndexBufferDescriptor::Apply(ID3D12GraphicsCommandList* cmdlst) const
@@ -327,7 +327,7 @@ void Luxko::Anuthur::D3D12Helper::RootDescriptorTable::Emplace(D3D12_DESCRIPTOR_
 D3D12_ROOT_DESCRIPTOR_TABLE Luxko::Anuthur::D3D12Helper::RootDescriptorTable::Get() const
 {
 	D3D12_ROOT_DESCRIPTOR_TABLE result;
-	result.NumDescriptorRanges = _dRanges.size();
+	result.NumDescriptorRanges = static_cast<UINT>(_dRanges.size());
 	result.pDescriptorRanges = _dRanges.data();
 	return result;
 }
@@ -458,9 +458,9 @@ D3D12_ROOT_SIGNATURE_DESC Luxko::Anuthur::D3D12Helper::RootSignatureDescriptor::
 	desc.pStaticSamplers = nullptr;
 	desc.pParameters = nullptr;
 	desc.Flags = flags;
-	desc.NumParameters = _rootParamters.size();
+	desc.NumParameters = static_cast<UINT>(_rootParamters.size());
 	if (desc.NumParameters != 0u) desc.pParameters = _rootParamters.data();
-	desc.NumStaticSamplers = _staticSamplerDescs.size();
+	desc.NumStaticSamplers = static_cast<UINT>(_staticSamplerDescs.size());
 	if (desc.NumStaticSamplers != 0u) desc.pStaticSamplers = _staticSamplerDescs.data();
 	return desc;
 }

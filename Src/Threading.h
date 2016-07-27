@@ -139,8 +139,8 @@ namespace Luxko {
 			void Offset(long long offset);
 			void SetEvent(const Event& e);
 			OVERLAPPED* OvPtr() { return &_ov; }
-			DWORD ErrorCode()const;
-			DWORD BytesTransferred()const;
+			ULONG_PTR ErrorCode()const;
+			ULONG_PTR BytesTransferred()const;
 
 		private:
 			OVERLAPPED _ov;

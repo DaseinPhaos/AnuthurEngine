@@ -35,7 +35,7 @@ int FileSystemTest() {
 		auto file = File::Create(fileName);
 		std::wcout << L"正在写入一些数据..";
 		DWORD bytesWritten;
-		if (!WriteFile(file.Handle(), fileName.c_str(), fileName.size() * sizeof(wchar_t), &bytesWritten, nullptr)) {
+		if (!WriteFile(file.Handle(), fileName.c_str(), static_cast<DWORD>(fileName.size() * sizeof(wchar_t)), &bytesWritten, nullptr)) {
 			std::wcout << L"写入失败.\r\n";
 		}
 		if (bytesWritten != fileName.size() * sizeof(wchar_t)) {
@@ -51,7 +51,7 @@ int FileSystemTest() {
 	OVERLAPPED ov = { 0 };
 	ov.Offset = 0x0;
 	ov.OffsetHigh = 0x0;
-	if (!ReadFile(outerfile.Handle(), &content, fileName.size() * sizeof(wchar_t), &bytesRead, &ov)
+	if (!ReadFile(outerfile.Handle(), &content, static_cast<DWORD>(fileName.size() * sizeof(wchar_t)), &bytesRead, &ov)
 		|| bytesRead != fileName.size() * sizeof(wchar_t)) {
 		std::wcout << L"读取文件内容失败.." << std::endl;
 	}

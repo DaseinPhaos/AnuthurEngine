@@ -58,22 +58,22 @@ namespace Luxko {
 					UINT sampleQuality = 0, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN,
 					D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_UNKNOWN);
 
-				static inline ResourceDescriptor Buffer(UINT64 sizeBytes,
+				static /*inline*/ ResourceDescriptor Buffer(UINT64 sizeBytes,
 					D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
 					UINT64 alignment = 0);
 
-				static inline ResourceDescriptor Tex1D(UINT64 width, DXGI_FORMAT format,
+				static /*inline*/ ResourceDescriptor Tex1D(UINT64 width, DXGI_FORMAT format,
 					UINT arraySize = 1, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
 					UINT64 alignment = 0, UINT16 mipLevels = 1,
 					D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR);
 
-				static inline ResourceDescriptor Tex2D(UINT64 width, UINT height,
+				static /*inline*/ ResourceDescriptor Tex2D(UINT64 width, UINT height,
 					DXGI_FORMAT format, UINT16 arraySize = 1,
 					D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
 					UINT64 alignment = 0, UINT16 mipLevels = 1,
 					D3D12_TEXTURE_LAYOUT layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
 					UINT sampleCount = 1, UINT sampleQuality = 0);
-				static inline ResourceDescriptor Tex3D(UINT64 width, UINT height,
+				static /*inline*/ ResourceDescriptor Tex3D(UINT64 width, UINT height,
 					UINT16 depth, DXGI_FORMAT format,
 					D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE,
 					UINT64 alignment = 0, UINT16 mipLevels = 1,

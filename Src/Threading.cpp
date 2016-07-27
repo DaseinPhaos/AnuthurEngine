@@ -113,12 +113,12 @@ void Luxko::Threading::Overlapped::SetEvent(const Event& e)
 	_ov.hEvent = e.Get().Get();
 }
 
-DWORD Luxko::Threading::Overlapped::ErrorCode() const
+ULONG_PTR Luxko::Threading::Overlapped::ErrorCode() const
 {
 	return _ov.Internal;
 }
 
-DWORD Luxko::Threading::Overlapped::BytesTransferred() const
+ULONG_PTR Luxko::Threading::Overlapped::BytesTransferred() const
 {
 	return _ov.InternalHigh;
 }

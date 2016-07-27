@@ -276,7 +276,7 @@ Luxko::Memory::MappingObject& Luxko::Memory::MappingObject::operator=(MappingObj
 	return *this;
 }
 
-Luxko::Memory::CommittedMemoryToken::CommittedMemoryToken(void* sa, DWORD sizeInBytes)
+Luxko::Memory::CommittedMemoryToken::CommittedMemoryToken(void* sa, size_t sizeInBytes)
 {
 	StartAddress = sa;
 	SizeInBytes = sizeInBytes;

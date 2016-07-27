@@ -42,14 +42,14 @@
     <ClInclude Include="..\Src\DDSTextureLoader.h">
       <Filter>Headers\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\Src\HelperMethods.h">
-      <Filter>Headers\Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\Src\RendererPCH.h">
       <Filter>Headers\Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\Src\MeshResource.h">
       <Filter>Headers\SceneComponents</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\D3D12HelperMethods.h">
+      <Filter>Headers\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -68,7 +68,7 @@
     <ClCompile Include="..\Src\PerspecCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\HelperMethods.cpp">
+    <ClCompile Include="..\Src\D3D12HelperMethods.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

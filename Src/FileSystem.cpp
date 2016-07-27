@@ -154,7 +154,7 @@ bool Luxko::FileSystem::File::SetFileName(const std::wstring& newName)
 		DWORD fileNameLength;
 		wchar_t temp[256];
 	}temp;
-	temp.fileNameLength = newName.size();
+	temp.fileNameLength = static_cast<DWORD>(newName.size());
 	if (temp.fileNameLength >= 256) {
 		return false;
 	}
