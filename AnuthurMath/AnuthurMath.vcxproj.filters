@@ -122,9 +122,6 @@
     <ClCompile Include="..\Src\Matrix4x4f.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Src\OrientedObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Src\Plane3DH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
