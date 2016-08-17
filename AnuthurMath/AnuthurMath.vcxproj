@@ -186,7 +186,6 @@
     <ClCompile Include="..\Src\MathIO.cpp" />
     <ClCompile Include="..\Src\Matrix3x3f.cpp" />
     <ClCompile Include="..\Src\Matrix4x4f.cpp" />
-    <ClCompile Include="..\Src\OrientedObject.cpp" />
     <ClCompile Include="..\Src\Plane3DH.cpp" />
     <ClCompile Include="..\Src\Point3DH.cpp" />
     <ClCompile Include="..\Src\Quaternionf.cpp" />
