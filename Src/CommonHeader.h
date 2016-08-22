@@ -49,3 +49,10 @@
 #define ANUTHURMATH_API
 
 using namespace std::rel_ops;
+
+namespace Luxko {
+	namespace MathConstants {
+		template<class T>
+		constexpr T Pi = T(M_PI);
+	}
+}
