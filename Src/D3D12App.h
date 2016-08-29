@@ -47,10 +47,13 @@ namespace Luxko {
 
 		class ANUTHURRENDERER_API D3D12App abstract : public Luxko::Application::BaseApp {
 		public:
+
+			// Ctors
 			D3D12App(UINT width, UINT height, const std::wstring& name) :
 				BaseApp(width, height, name) {}
 			D3D12App(const D3D12App&) = delete;
 			D3D12App& operator=(const D3D12App&) = delete;
+			// Dtors
 			virtual ~D3D12App();
 
 		protected:
