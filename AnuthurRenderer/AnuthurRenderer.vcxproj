@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="..\Src\BasicGeometry.h" />
     <ClInclude Include="..\Src\D3D12App.h" />
+    <ClInclude Include="..\Src\D3D12Renderer.h" />
     <ClInclude Include="..\Src\DDSTextureLoader.h" />
     <ClInclude Include="..\Src\D3D12HelperMethods.h" />
     <ClInclude Include="..\Src\LightandMaterial.h" />

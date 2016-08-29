@@ -140,7 +140,7 @@ void Luxko::Anuthur::D3D12App::ResetSwapChain(BOOL windowed)
 	sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	sd.BufferCount = SwapChainBufferCount;
 	sd.OutputWindow = _hWindow;
-	sd.Windowed = true;
+	sd.Windowed = windowed;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	sd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 	ThrowIfFailed(_dxgiFactory->CreateSwapChain(_cmdQueue.Get(), &sd,
@@ -186,7 +186,7 @@ void Luxko::Anuthur::D3D12App::OnResize()
 		_depthStencilBuffer.Reset();
 
 		ThrowIfFailed(_swapChain->ResizeBuffers(SwapChainBufferCount, _width, _height,
-			_depthStencilFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
+			_backBufferFormat, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH));
 
 		_currentBackBufferIndex = 0;
 

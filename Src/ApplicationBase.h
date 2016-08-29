@@ -40,6 +40,8 @@ namespace Luxko {
 			virtual bool OnEvent(MSG msg) = 0;
 			virtual void ParseCommandLineArgs() {}
 			virtual ATOM RegisterWindowClass(HINSTANCE hInstance);
+
+			// Asset path is initialized as the exe files' file path.
 			std::wstring GetAssetFullPath(const std::wstring& assetName)const;
 			
 			static LRESULT CALLBACK WindProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
