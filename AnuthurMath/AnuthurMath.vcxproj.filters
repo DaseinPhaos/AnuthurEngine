@@ -13,110 +13,144 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Source Files\Math">
-      <UniqueIdentifier>{4ac8b0c5-f057-46dd-aca9-d067e33afb93}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Geometry">
-      <UniqueIdentifier>{8afe58ee-2b7a-44cd-9197-61734d284ac1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headers\Geometry">
       <UniqueIdentifier>{5a6c1f75-b9f8-4f8a-8779-b22dd3c1ffdf}</UniqueIdentifier>
     </Filter>
     <Filter Include="Headers\Math">
       <UniqueIdentifier>{eac9967d-1607-46c8-99e7-43b1ff23da11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headers\Object">
+      <UniqueIdentifier>{c48af213-682e-415f-a1d5-4b87ee8f9ac3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\AnuthurEngine\FloatsComparision.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Matrix4x4f.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Quaternionf.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\RootFinding.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Vector4f.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\MathIO.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Matrix3x3f.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Vector3f.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\ValResult.h">
-      <Filter>Headers\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Line3DH.h">
+    <ClInclude Include="..\Src\Frame3DH.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Plane3DH.h">
+    <ClInclude Include="..\Src\Line3DH.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Point3DH.h">
+    <ClInclude Include="..\Src\Plane3DH.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Transform3DH.h">
+    <ClInclude Include="..\Src\Point3DH.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Vector3DH.h">
+    <ClInclude Include="..\Src\Transform3DH.h">
       <Filter>Headers\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="..\AnuthurEngine\Frame3DH.h">
+    <ClInclude Include="..\Src\Triangle3DH.h">
       <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Vector3DH.h">
+      <Filter>Headers\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\FloatsComparision.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\MathIO.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Matrix3x3f.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Matrix4x4f.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Quaternionf.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\RootFinding.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\ValResult.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Vector3f.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Vector4f.h">
+      <Filter>Headers\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Box.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Cone.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Cylinder.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Ellipsoid.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\OrientedObject.h">
+      <Filter>Headers\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Sphere.h">
+      <Filter>Headers\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\AnuthurEngine\FloatsComparision.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="..\Src\Box.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\MathIO.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="..\Src\Cone.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Matrix3x3f.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="..\Src\Cylinder.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Matrix4x4f.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="..\Src\Ellipsoid.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\RootFinding.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="..\Src\FloatsComparision.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Vector3f.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="..\Src\Frame3DH.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Vector4f.cpp">
-      <Filter>Source Files\Math</Filter>
+    <ClCompile Include="..\Src\Line3DH.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Line3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
+    <ClCompile Include="..\Src\MathIO.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Plane3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
+    <ClCompile Include="..\Src\Matrix3x3f.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Point3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
+    <ClCompile Include="..\Src\Matrix4x4f.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Transform3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
+    <ClCompile Include="..\Src\Plane3DH.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Vector3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
+    <ClCompile Include="..\Src\Point3DH.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\AnuthurEngine\Frame3DH.cpp">
-      <Filter>Source Files\Geometry</Filter>
+    <ClCompile Include="..\Src\Quaternionf.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\AnuthurEngine\Quaternionf.cpp">
-      <Filter>Source Files\Math</Filter>
-    </None>
+    <ClCompile Include="..\Src\RootFinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Sphere.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Transform3DH.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Triangle3DH.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Vector3DH.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Vector3f.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Vector4f.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
