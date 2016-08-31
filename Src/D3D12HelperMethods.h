@@ -398,6 +398,20 @@ namespace Luxko {
 				static DepthStencilDescriptor Default();
 			};
 
+			class ANUTHURMATH_API SwapChainDescriptor : public DXGI_SWAP_CHAIN_DESC {
+			public:
+				SwapChainDescriptor() {}
+				SwapChainDescriptor(UINT width, UINT height, HWND outputWindow,
+					DXGI_FORMAT format, UINT bufferCount, BOOL windowed = TRUE,
+					UINT sampleCount = 1, UINT sampleQuality = 0,
+					DXGI_USAGE bufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
+					DXGI_SWAP_EFFECT swapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD,
+					UINT flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH,
+					DXGI_MODE_SCANLINE_ORDER scanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED,
+					DXGI_MODE_SCALING scaling = DXGI_MODE_SCALING_UNSPECIFIED,
+					UINT refreshRateNumerator = 60, UINT refreshRateDenomerator = 1);
+			};
+
 			ANUTHURRENDERER_API Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(
 				ID3D12Device* device, ID3D12GraphicsCommandList* cmdlst,
 				const void* data, UINT64 sizeInBytes,

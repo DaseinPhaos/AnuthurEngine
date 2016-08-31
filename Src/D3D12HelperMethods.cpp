@@ -670,3 +670,22 @@ Luxko::Anuthur::D3D12Helper::DepthStencilDescriptor Luxko::Anuthur::D3D12Helper:
 
 Luxko::Anuthur::D3D12Helper::StencilOperationDescriptor::StencilOperationDescriptor(D3D12_STENCIL_OP stencilFailOp, D3D12_STENCIL_OP stencilPassDepthFailOp, D3D12_STENCIL_OP stencilPassOp, D3D12_COMPARISON_FUNC stencilFunction)
 	:D3D12_DEPTH_STENCILOP_DESC{stencilFailOp, stencilPassDepthFailOp, stencilPassOp, stencilFunction} {}
+
+Luxko::Anuthur::D3D12Helper::SwapChainDescriptor::SwapChainDescriptor(UINT width, UINT height, HWND outputWindow, DXGI_FORMAT format, UINT bufferCount, BOOL windowed /*= TRUE*/, UINT sampleCount /*= 1*/, UINT sampleQuality /*= 0*/, DXGI_USAGE bufferUsage /*= DXGI_USAGE_RENDER_TARGET_OUTPUT*/, DXGI_SWAP_EFFECT swapEffect /*= DXGI_SWAP_EFFECT_FLIP_DISCARD*/, UINT flags /*= DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH*/, DXGI_MODE_SCANLINE_ORDER scanlineOrdering /*= DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED*/, DXGI_MODE_SCALING scaling /*= DXGI_MODE_SCALING_UNSPECIFIED*/, UINT refreshRateNumerator /*= 60*/, UINT refreshRateDenomerator /*= 1*/)
+{
+	BufferDesc.Width = width;
+	BufferDesc.Height = height;
+	BufferDesc.RefreshRate.Numerator = refreshRateNumerator;
+	BufferDesc.RefreshRate.Denominator = refreshRateDenomerator;
+	BufferDesc.Format = format;
+	BufferDesc.ScanlineOrdering = scanlineOrdering;
+	BufferDesc.Scaling = scaling;
+	SampleDesc.Count = sampleCount;
+	SampleDesc.Quality = sampleQuality;
+	BufferUsage = bufferUsage;
+	BufferCount = bufferCount;
+	OutputWindow = outputWindow;
+	Windowed = windowed;
+	SwapEffect = swapEffect;
+	Flags = flags;
+}
