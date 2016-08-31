@@ -8,6 +8,7 @@
 
 #include "RendererPCH.h"
 #include "DDSTextureLoader.h"
+#include "Vector4f.h"
 
 namespace Luxko {
 	namespace Anuthur {
@@ -295,6 +296,7 @@ namespace Luxko {
 			class ANUTHURRENDERER_API SRVDescriptor : public D3D12_SHADER_RESOURCE_VIEW_DESC {
 			public:
 				SRVDescriptor() = default;
+				
 				static SRVDescriptor BufferDesc(DXGI_FORMAT format, UINT64 firstElement, UINT byteStride,
 					UINT numberELements, D3D12_BUFFER_SRV_FLAGS flags = D3D12_BUFFER_SRV_FLAG_NONE,
 					UINT shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING);
@@ -333,6 +335,49 @@ namespace Luxko {
 					UINT firstFace, UINT numCubes, UINT mipLevels = -1, FLOAT minLODClamp = 0.f,
 					UINT shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING);
 
+			};
+
+			class ANUTHURRENDERER_API RTVDescriptor : public D3D12_RENDER_TARGET_VIEW_DESC {
+			public:
+				RTVDescriptor() {}
+				static RTVDescriptor BufferDesc(DXGI_FORMAT format, UINT64 firstElement, UINT numELements);
+				static RTVDescriptor Texture1DDesc(DXGI_FORMAT format, UINT mipSlice);
+				static RTVDescriptor Texture1DArrayDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstArraySlice, UINT arraySize);
+				static RTVDescriptor Texture2DDesc(DXGI_FORMAT format, UINT mipSlice, UINT planeSlice);
+				static RTVDescriptor Texture2DMSDesc(DXGI_FORMAT format);
+				static RTVDescriptor Texture2DArrayDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstArraySlice, UINT arraySize, UINT planeSlice);
+				static RTVDescriptor Texture3DDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstWSlice, UINT wSize);
+			};
+
+			class ANUTHURRENDERER_API UAVDescriptor : public D3D12_UNORDERED_ACCESS_VIEW_DESC {
+			public:
+				UAVDescriptor() {}
+				static UAVDescriptor BufferDesc(DXGI_FORMAT format, UINT64 firstElement, UINT numELements,
+					UINT structureByteStride, UINT64 counterOffsetInBytes,
+					D3D12_BUFFER_UAV_FLAGS flags = D3D12_BUFFER_UAV_FLAG_NONE);
+
+				static UAVDescriptor Texture1DDesc(DXGI_FORMAT format, UINT mipSlice);
+				static UAVDescriptor Texture1DArrayDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstArraySlice, UINT arraySize);
+				static UAVDescriptor Texture2DDesc(DXGI_FORMAT format, UINT mipSlice, UINT planeSlice);
+				static UAVDescriptor Texture2DArrayDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstArraySlice, UINT arraySize, UINT planeSlice);
+				static UAVDescriptor Texture3DDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstWSlice, UINT wSize);
+			};
+
+			class ANUTHURRENDERER_API DSVDescriptor : public D3D12_DEPTH_STENCIL_VIEW_DESC {
+			public:
+				DSVDescriptor() {}
+				// TODO: implement the...
+			};
+
+			class ANUTHURRENDERER_API SamplerDescriptor : public D3D12_SAMPLER_DESC {
+			public:
+				SamplerDescriptor() {}
+				SamplerDescriptor(D3D12_FILTER filter, 
+					D3D12_TEXTURE_ADDRESS_MODE addressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+					D3D12_TEXTURE_ADDRESS_MODE addressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER, 
+					D3D12_TEXTURE_ADDRESS_MODE addressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER,
+					float mipLODBias = 0.f, UINT maxAnisotropy = 16, D3D12_COMPARISON_FUNC compareFunc = D3D12_COMPARISON_FUNC_ALWAYS,
+					const Vector4f& borderColor = Vector4f(0.f, 0.f, 0.f, 0.f), float minLOD = 0.f, float maxLOD = 16.f);
 			};
 
 			class ANUTHURRENDERER_API RasterizerDescriptor : public D3D12_RASTERIZER_DESC {
@@ -389,14 +434,14 @@ namespace Luxko {
 
 			};
 
-			class ANUTHURRENDERER_API DepthStencilDescriptor : public D3D12_DEPTH_STENCIL_DESC {
+			class ANUTHURRENDERER_API DepthStencilStateDescriptor : public D3D12_DEPTH_STENCIL_DESC {
 			public:
-				DepthStencilDescriptor() {}
-				DepthStencilDescriptor(BOOL depthEnable, D3D12_DEPTH_WRITE_MASK dwm,
+				DepthStencilStateDescriptor() {}
+				DepthStencilStateDescriptor(BOOL depthEnable, D3D12_DEPTH_WRITE_MASK dwm,
 					D3D12_COMPARISON_FUNC dcf, BOOL stencilEnable, UINT8 stencilReadMask,
 					UINT8 stencilWriteMask, D3D12_DEPTH_STENCILOP_DESC frontFace,
 					D3D12_DEPTH_STENCILOP_DESC backFace);
-				static DepthStencilDescriptor Default();
+				static DepthStencilStateDescriptor Default();
 			};
 
 			class ANUTHURMATH_API SwapChainDescriptor : public DXGI_SWAP_CHAIN_DESC {
@@ -480,6 +525,7 @@ namespace Luxko {
 					_haveIt = true;
 				}
 				~UpdateBuffer() { if (_haveIt)_buffer->Unmap(0u, nullptr); }
+				void Release() { if (_haveIt)_buffer->Unmap(0u, nullptr); _buffer = nullptr; _haveIt = false; }
 				void Update(const RT& data) {
 					CopyMemory(_bufferPtr, &data, /*GetCBSizeAligned(sizeof(RT))*/ sizeof(RT));
 				}

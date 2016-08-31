@@ -10,8 +10,9 @@
 constexpr auto FrameResourceCount = 3u;
 void CrateApp::OnInit()
 {
-	BasicD3D12ElementsInitialization();
-	_mainCmdList->Reset(_mainCmdAllocator.Get(), nullptr);
+	//BasicD3D12ElementsInitialization();
+	D3D12App::OnInit();
+	_d3d12Manager.GetMainCmdList()->Reset(_d3d12Manager.GetMainCmdAllocator(), nullptr);
 	InitializeShaders();
 	InitializeRootSignature();
 	InitializePSOs();
@@ -25,9 +26,9 @@ void CrateApp::OnUpdate()
 {
 	LogFPSToTitle();
 	auto& cfr = _frameResources[_currentFRindex];
-	if (_mainFence->GetCompletedValue() < cfr._fenceCount) {
+	if (_d3d12Manager.GetMainFence()->GetCompletedValue() < cfr._fenceCount) {
 		auto hEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
-		ThrowIfFailed(_mainFence->SetEventOnCompletion(cfr._fenceCount, hEvent));
+		ThrowIfFailed(_d3d12Manager.GetMainFence()->SetEventOnCompletion(cfr._fenceCount, hEvent));
 		WaitForSingleObject(hEvent, INFINITE);
 		CloseHandle(hEvent);
 	}
@@ -62,9 +63,9 @@ void CrateApp::OnUpdate()
 		if (_mainTimer.TicksToMs(currentTick - lastTickl) > 250.f) {
 			lastTickl = currentTick;
 			if (GetAsyncKeyState(VK_SPACE)/* & 0x8000*/) {
-				if (_currentPSO == _PSOs["wireframe"].Get())
-					_currentPSO = _PSOs["normal"].Get();
-				else _currentPSO = _PSOs["wireframe"].Get();
+				if (_currentPSO == _d3d12Manager.FindPSO("wireframe").Get())
+					_currentPSO = _d3d12Manager.FindPSO("normal").Get();
+				else _currentPSO = _d3d12Manager.FindPSO("wireframe").Get();
 			}
 		}
 
@@ -79,60 +80,66 @@ void CrateApp::OnUpdate()
 
 void CrateApp::OnRender()
 {
+	auto _mainCmdList = _d3d12Manager.GetMainCmdList();
 	auto& cfr = _frameResources[_currentFRindex];
 	ThrowIfFailed(cfr._cmdAllocator->Reset());
 	ThrowIfFailed(_mainCmdList->Reset(cfr._cmdAllocator.Get(), _currentPSO));
 
 	_mainCmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	_mainCmdList->SetGraphicsRootSignature(_rootSignature.Get());
+	_mainCmdList->SetGraphicsRootSignature(_d3d12Manager.FindRootSignature(_rootSignature).Get());
 
 	//ID3D12DescriptorHeap* dhs[] = { cfr._CBVheap.Get()/*, _mainSRVUAVheap.Get()*/ };
 	//_mainCmdList->SetGraphicsRootShaderResourceView(1u, _crateTextureGPU->GetGPUVirtualAddress());
 	//_mainCmdList->SetDescriptorHeaps(_countof(dhs), dhs);
 	//_mainCmdList->SetGraphicsRootDescriptorTable(0u, cfr._CBVheap->GetGPUDescriptorHandleForHeapStart());
 	//_mainCmdList->SetGraphicsRootDescriptorTable(1u, _mainSRVUAVheap->GetGPUDescriptorHandleForHeapStart());
-	_mainCmdList->RSSetScissorRects(1u, &_mainScissorRect);
-	_mainCmdList->RSSetViewports(1u, &_mainViewport);
+	_mainCmdList->RSSetScissorRects(1u, &_d3d12Manager.FindWindowResource(_wndResourceID).GetMainScissor());
+	_mainCmdList->RSSetViewports(1u, &_d3d12Manager.FindWindowResource(_wndResourceID).GetMainViewport());
 	_mainCmdList->SetGraphicsRootConstantBufferView(1u, cfr._cameraData.Get()->GetGPUVirtualAddress());
 	_mainCmdList->SetGraphicsRootConstantBufferView(2u, cfr._lightPack.Get()->GetGPUVirtualAddress());
 
 
 	_mainCmdList->ResourceBarrier(1u, &D3D12Helper::ResourceBarrier::TransitionBarrier(
-		_swapChainBuffer[_currentBackBufferIndex].Get(),
+		_d3d12Manager.FindWindowResource(_wndResourceID).GetCurrentBackBufferResource(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-	_mainCmdList->ClearDepthStencilView(_mainDSVHeap->GetCPUDescriptorHandleForHeapStart(),
+	_mainCmdList->ClearDepthStencilView(_d3d12Manager.FindWindowResource(_wndResourceID).GetCPUDSV(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0u, nullptr);
 	static FLOAT bgColor[] = { 0.8f, 0.8f, 0.8f, 1.f };
-	_mainCmdList->ClearRenderTargetView(GetCurrentBackBufferView(),
+	_mainCmdList->ClearRenderTargetView(_d3d12Manager.FindWindowResource(_wndResourceID).GetCurrentCPURTV(),
 		bgColor, 0u, nullptr);
-	_mainCmdList->OMSetRenderTargets(1u, &GetCurrentBackBufferView(), TRUE, &_mainDSVHeap->GetCPUDescriptorHandleForHeapStart());
+	_mainCmdList->OMSetRenderTargets(1u, &_d3d12Manager.FindWindowResource(_wndResourceID).GetCurrentCPURTV(),
+		TRUE, &_d3d12Manager.FindWindowResource(_wndResourceID).GetCPUDSV());
 
 	_mainCmdList->IASetIndexBuffer(&_crateIBV);
 	_mainCmdList->IASetVertexBuffers(0u, 1u, &_crateVBV);
-	ID3D12DescriptorHeap* dhs[] = { _crateSRVUAVheap.Get()/*, _mainSRVUAVheap.Get()*/ };
+	//_mainCmdList->IASetIndexBuffer(&_d3d12Manager.FindIBD(_crateIBV));	
+	//_d3d12Manager.FindVBD(_crateVBV).Apply(_mainCmdList, 0u);
+	ID3D12DescriptorHeap* dhs[] = { _d3d12Manager.FindDescriptorHeap(_crateSRVUAVheap).Get()/*, _mainSRVUAVheap.Get()*/ };
 	_mainCmdList->SetDescriptorHeaps(_countof(dhs), dhs);
-	_mainCmdList->SetGraphicsRootDescriptorTable(0u, _crateSRVUAVheap->GetGPUDescriptorHandleForHeapStart());
+	_mainCmdList->SetGraphicsRootDescriptorTable(0u, _d3d12Manager.FindDescriptorHeap(_crateSRVUAVheap)->GetGPUDescriptorHandleForHeapStart());
 	_mainCmdList->DrawIndexedInstanced(_crateMesh.GetTotoalIndexCount(), 1u, 0u, 0u, 0u);
-
 
 	_mainCmdList->IASetIndexBuffer(&_gridIBV);
 	_mainCmdList->IASetVertexBuffers(0u, 1u, &_gridVBV);
-	ID3D12DescriptorHeap* dhs1[] = { _gridSRVUAVheap.Get()/*, _mainSRVUAVheap.Get()*/ };
+	//_mainCmdList->IASetIndexBuffer(&_d3d12Manager.FindIBD(_gridIBV));
+	//_d3d12Manager.FindVBD(_gridVBV).Apply(_mainCmdList, 0u);
+	ID3D12DescriptorHeap* dhs1[] = { _d3d12Manager.FindDescriptorHeap(_gridSRVUAVheap).Get()/*, _mainSRVUAVheap.Get()*/ };
 	_mainCmdList->SetDescriptorHeaps(_countof(dhs1), dhs1);
-	_mainCmdList->SetGraphicsRootDescriptorTable(0u, _gridSRVUAVheap->GetGPUDescriptorHandleForHeapStart());
+	_mainCmdList->SetGraphicsRootDescriptorTable(0u, _d3d12Manager.FindDescriptorHeap(_gridSRVUAVheap)->GetGPUDescriptorHandleForHeapStart());
 	_mainCmdList->DrawIndexedInstanced(_gridMesh.GetTotoalIndexCount(), 1u, 0u, 0u, 0u);
 
 	_mainCmdList->ResourceBarrier(1u, &D3D12Helper::ResourceBarrier::TransitionBarrier(
-		_swapChainBuffer[_currentBackBufferIndex].Get(),
+		_d3d12Manager.FindWindowResource(_wndResourceID).GetCurrentBackBufferResource(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	_mainCmdList->Close();
 	
-	ID3D12CommandList* cmdlsts[] = { _mainCmdList.Get() };
-	_cmdQueue->ExecuteCommandLists(1u, cmdlsts);
-	cfr._fenceCount = ++_currentMainFenceCount;
-	_cmdQueue->Signal(_mainFence.Get(), _currentMainFenceCount);
-	_swapChain->Present(0u, 0u);
-	_currentBackBufferIndex = (_currentBackBufferIndex + 1) % SwapChainBufferCount;
+	ID3D12CommandList* cmdlsts[] = { _mainCmdList };
+	_d3d12Manager.GetCmdQueue()->ExecuteCommandLists(1u, cmdlsts);
+	cfr._fenceCount = _d3d12Manager.IncrementMainFenceCount();
+	_d3d12Manager.GetCmdQueue()->Signal(_d3d12Manager.GetMainFence(), 
+		_d3d12Manager.GetMainFenceCount());
+	_d3d12Manager.FindWindowResource(_wndResourceID).GetSwapChain()->Present(0u, 0u);
+	_d3d12Manager.FindWindowResource(_wndResourceID).AdvanceBackBufferIndex();
 	_currentFRindex = (_currentFRindex + 1) % FrameResourceCount;
 
 }
@@ -194,6 +201,22 @@ void CrateApp::OnMouseMove(WPARAM wParam, int x, int y)
 	}
 }
 
+void CrateApp::OnDestroy()
+{
+	if(_d3d12Manager.GetD3D12Device() != nullptr) _d3d12Manager.FlushCommandQueue();
+	_crateTextureGPU = nullptr;
+	_gridTextureGPU = nullptr;
+	_crateTGPU.Release();
+	_crateMGPU.Release();
+	_gridTGPU.Release();
+	_gridMGPU.Release();
+	for (auto& e : _frameResources) {
+		e._cameraData.Release();
+		e._lightPack.Release();
+		e._CBVheap = nullptr;
+	}
+}
+
 void CrateApp::InitializeSceneComponents()
 {
 	// Initialize main camera
@@ -209,8 +232,8 @@ void CrateApp::InitializeSceneComponents()
 		
 
 		_crateMaterial = BlinnPhongMaterial{ Vector3f(10.02f, 10.12f, 10.12f), 10.1f, Vector3f(1.5f, 1.5f, 1.5f) };
-		_crateTGPU = D3D12Helper::UpdateBuffer<ComponentTransformationData>(_d3d12Device.Get());
-		_crateMGPU = D3D12Helper::UpdateBuffer<BlinnPhongMaterial>(_d3d12Device.Get());
+		_crateTGPU = D3D12Helper::UpdateBuffer<ComponentTransformationData>(_d3d12Manager.GetD3D12Device());
+		_crateMGPU = D3D12Helper::UpdateBuffer<BlinnPhongMaterial>(_d3d12Manager.GetD3D12Device());
 
 		ComponentTransformationData ctd;
 		ctd.CrateLW = _crateLWTransform.AsMatrix4x4();
@@ -242,7 +265,7 @@ void CrateApp::InitializeSceneComponents()
 			static_cast<UINT>(crateIndiceData.size()), crateIndiceData.data(),
 			sizeof(Vertex), static_cast<UINT>(crateVertexData.size()),
 			crateVertexData.data());
-		_crateMesh.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
+		_crateMesh.RecordUpdateFromCPUtoGPU(_d3d12Manager.GetD3D12Device(), _d3d12Manager.GetMainCmdList());
 	}
 
 	// Initialize grid
@@ -250,8 +273,8 @@ void CrateApp::InitializeSceneComponents()
 		//_gridLWTransform = Transform3DH::RotationN(Vector3DH::E1(), static_cast<float>(M_PI_4)/2.f) * _gridLWTransform;
 		//_gridMaterial = BlinnPhongMaterial{ Vector3f(0.95f, 0.64f, 0.54f), 0.f, Vector3f(1.f, 1.f, 1.f) };
 		_gridMaterial = BlinnPhongMaterial{ Vector3f(0.95f, 0.64f, 0.54f), 10.f, Vector3f(1.f, 1.f, 1.f) };
-		_gridTGPU = D3D12Helper::UpdateBuffer<ComponentTransformationData>(_d3d12Device.Get());
-		_gridMGPU = D3D12Helper::UpdateBuffer<BlinnPhongMaterial>(_d3d12Device.Get());
+		_gridTGPU = D3D12Helper::UpdateBuffer<ComponentTransformationData>(_d3d12Manager.GetD3D12Device());
+		_gridMGPU = D3D12Helper::UpdateBuffer<BlinnPhongMaterial>(_d3d12Manager.GetD3D12Device());
 
 		ComponentTransformationData ctd;
 		ctd.CrateLW = _gridLWTransform.AsMatrix4x4();
@@ -272,7 +295,7 @@ void CrateApp::InitializeSceneComponents()
 		auto& gridID = gridMD.GetIndices16Bit();
 		_gridMesh.InitializeCPUResource(DXGI_FORMAT_R16_UINT, static_cast<UINT>(gridID.size()),
 			gridID.data(), sizeof(Vertex), static_cast<UINT>(gridVD.size()), gridVD.data());
-		_gridMesh.RecordUpdateFromCPUtoGPU(_d3d12Device.Get(), _mainCmdList.Get());
+		_gridMesh.RecordUpdateFromCPUtoGPU(_d3d12Manager.GetD3D12Device(), _d3d12Manager.GetMainCmdList());
 	}
 
 	// Initialize lights
@@ -305,7 +328,7 @@ void CrateApp::InitializeFrameResources()
 	using namespace D3D12Helper;
 	_frameResources.reserve(FrameResourceCount);
 	for (auto i = 0u; i < FrameResourceCount; ++i) {
-		_frameResources.emplace_back(_d3d12Device.Get());
+		_frameResources.emplace_back(_d3d12Manager.GetD3D12Device());
 		auto& fr = _frameResources.back();
 		fr.UpdateCamera(_mainCamera);
 		//fr.UpdateCrateTransform(_crateLWTransform.AsMatrix4x4());
@@ -313,10 +336,10 @@ void CrateApp::InitializeFrameResources()
 		//fr.UpdateMaterial(_crateMaterial);
 		auto cpuHandle = static_cast<DescriptorHandleCPU>(fr._CBVheap->GetCPUDescriptorHandleForHeapStart());
 
-		_d3d12Device->CreateConstantBufferView(&CBVDescriptor(fr._cameraData.Get(), 0u, fr._cameraData.Size()),
+		_d3d12Manager.GetD3D12Device()->CreateConstantBufferView(&CBVDescriptor(fr._cameraData.Get(), 0u, fr._cameraData.Size()),
 			cpuHandle);
-		_d3d12Device->CreateConstantBufferView(&CBVDescriptor(fr._lightPack.Get(), 0u, fr._lightPack.Size()),
-			cpuHandle.Offset(static_cast<SIZE_T>(_cbvSrvUavDescriptorSize)));
+		_d3d12Manager.GetD3D12Device()->CreateConstantBufferView(&CBVDescriptor(fr._lightPack.Get(), 0u, fr._lightPack.Size()),
+			cpuHandle.Offset(static_cast<SIZE_T>(_d3d12Manager.GetCbvSrvUavDescriptorSize())));
 		//_d3d12Device->CreateConstantBufferView(
 		//	&CBVDescriptor(fr._crateLWTransform.Get(), 0u, fr._crateLWTransform.Size()),
 		//	cpuHandle.Offset(static_cast<SIZE_T>(_cbvSrvUavDescriptorSize)));
@@ -334,13 +357,14 @@ void CrateApp::InitializeFrameResources()
 void CrateApp::InitializeShaders()
 {
 	using namespace D3D12Helper;
-	_shaders["VS"] = ShaderByteCode();
-	auto& vs = _shaders["VS"];
-	ThrowIfFailed(vs.CompileFromFile(ShaderPath, "VS", "vs_5_0"));
+	_d3d12Manager.AddShader(ShaderPath, "VS", "vs_5_0", "VS");
+	_d3d12Manager.AddShader(ShaderPath, "PS", "ps_5_0", "PS");
+// 	auto& vs = _shaders["VS"];
+// 	ThrowIfFailed(vs.CompileFromFile(ShaderPath, "VS", "vs_5_0"));
 
-	_shaders["PS"] = ShaderByteCode();
-	auto& ps = _shaders["PS"];
-	ThrowIfFailed(ps.CompileFromFile(ShaderPath, "PS", "ps_5_0"));
+// 	_shaders["PS"] = ShaderByteCode();
+// 	auto& ps = _shaders["PS"];
+// 	ThrowIfFailed(ps.CompileFromFile(ShaderPath, "PS", "ps_5_0"));
 
 }
 
@@ -378,11 +402,12 @@ void CrateApp::InitializeRootSignature()
 			D3D12_TEXTURE_ADDRESS_MODE_WRAP);
 
 	}
-	ComPtr<ID3DBlob> serializedRootSignature;
-	ThrowIfFailed(rsd.SerializeRootSignature(serializedRootSignature.GetAddressOf(),
-		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT));
-	ThrowIfFailed(_d3d12Device->CreateRootSignature(0u, serializedRootSignature->GetBufferPointer(),
-		serializedRootSignature->GetBufferSize(), IID_PPV_ARGS(_rootSignature.GetAddressOf())));
+	_rootSignature = _d3d12Manager.AddRootSignature(rsd, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+// 	ComPtr<ID3DBlob> serializedRootSignature;
+// 	ThrowIfFailed(rsd.SerializeRootSignature(serializedRootSignature.GetAddressOf(),
+// 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT));
+// 	ThrowIfFailed(_d3d12Manager.GetD3D12Device()->CreateRootSignature(0u, serializedRootSignature->GetBufferPointer(),
+// 		serializedRootSignature->GetBufferSize(), IID_PPV_ARGS(_rootSignature.GetAddressOf())));
 
 }
 
@@ -395,25 +420,28 @@ void CrateApp::InitializePSOs()
 	ild.PushElementDescription("NORMAL", DXGI_FORMAT_R32G32B32_FLOAT);
 	ild.PushElementDescription("TEXTURE", DXGI_FORMAT_R32G32_FLOAT);
 	gpsd.InputLayout = ild.Get();
-	gpsd.pRootSignature = _rootSignature.Get();
-	gpsd.VS = _shaders["VS"].Get();
-	gpsd.PS = _shaders["PS"].Get();
+	gpsd.pRootSignature = _d3d12Manager.FindRootSignature(_rootSignature).Get();
+	gpsd.VS = _d3d12Manager.FindShader("VS").Get();
+	gpsd.PS = _d3d12Manager.FindShader("PS").Get();
 	gpsd.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	gpsd.SampleMask = UINT_MAX;
 	gpsd.RasterizerState = RasterizerDescriptor();
 	gpsd.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	gpsd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	gpsd.NumRenderTargets = 1u;
-	gpsd.RTVFormats[0] = _backBufferFormat;
-	gpsd.DSVFormat = _depthStencilFormat;
+	gpsd.RTVFormats[0] = _d3d12Manager.FindWindowResource(_wndResourceID).GetBackBufferFormat();
+	gpsd.DSVFormat = _d3d12Manager.FindWindowResource(_wndResourceID).GetDepthStencilFormat();
 	gpsd.SampleDesc.Count = 1;
 	gpsd.SampleDesc.Quality = 0;
-	_PSOs["normal"] = ComPtr<ID3D12PipelineState>();
-	ThrowIfFailed(_d3d12Device->CreateGraphicsPipelineState(&gpsd, IID_PPV_ARGS(_PSOs["normal"].GetAddressOf())));
+	_d3d12Manager.AddPSO(gpsd, "normal");
+// 	_PSOs["normal"] = ComPtr<ID3D12PipelineState>();
+// 	ThrowIfFailed(_d3d12Device->CreateGraphicsPipelineState(&gpsd, IID_PPV_ARGS(_PSOs["normal"].GetAddressOf())));
 	gpsd.RasterizerState = D3D12Helper::RasterizerDescriptor(D3D12_FILL_MODE_WIREFRAME, D3D12_CULL_MODE_NONE);
-	_PSOs["wireframe"] = ComPtr<ID3D12PipelineState>();
-	ThrowIfFailed(_d3d12Device->CreateGraphicsPipelineState(&gpsd, IID_PPV_ARGS(_PSOs["wireframe"].GetAddressOf())));
-	_currentPSO = _PSOs["wireframe"].Get();
+	_d3d12Manager.AddPSO(gpsd, "wireframe");
+	_currentPSO = _d3d12Manager.FindPSO("wireframe").Get();
+// 	_PSOs["wireframe"] = ComPtr<ID3D12PipelineState>();
+// 	ThrowIfFailed(_d3d12Device->CreateGraphicsPipelineState(&gpsd, IID_PPV_ARGS(_PSOs["wireframe"].GetAddressOf())));
+// 	_currentPSO = _PSOs["wireframe"].Get();
 }
 
 void CrateApp::InitializeDescriptors()
@@ -427,47 +455,27 @@ void CrateApp::InitializeDescriptors()
 	_gridVBV = _gridMesh.VertexBufferView();
 
 	
-	auto handle = D3D12Helper::DescriptorHandleCPU(_crateSRVUAVheap->GetCPUDescriptorHandleForHeapStart());
-	_d3d12Device->CreateConstantBufferView(&D3D12Helper::CBVDescriptor(_crateTGPU.Get(), 0u, _crateTGPU.Size()),
-		handle);
+	auto pHeap = _d3d12Manager.FindDescriptorHeap(_crateSRVUAVheap).Get();
+	_d3d12Manager.CreateCBVOnHeap(&D3D12Helper::CBVDescriptor(_crateTGPU.Get(), 0u, _crateTGPU.Size()), pHeap, 0u);
+	_d3d12Manager.CreateCBVOnHeap(&D3D12Helper::CBVDescriptor(_crateMGPU.Get(), 0u, _crateMGPU.Size()), pHeap, 1u);
+	_d3d12Manager.CreateSRVOnHeap(_crateTextureGPU.Get(), nullptr, pHeap, 2u);
+
+
+	pHeap = _d3d12Manager.FindDescriptorHeap(_gridSRVUAVheap).Get();
+	_d3d12Manager.CreateCBVOnHeap(&D3D12Helper::CBVDescriptor(_gridTGPU.Get(), 0u, _gridTGPU.Size()), pHeap, 0u);
+	_d3d12Manager.CreateCBVOnHeap(&D3D12Helper::CBVDescriptor(_gridMGPU.Get(), 0u, _gridMGPU.Size()), pHeap, 1u);
+	_d3d12Manager.CreateSRVOnHeap(_gridTextureGPU.Get(), nullptr, pHeap, 2u);
 	
-	_d3d12Device->CreateConstantBufferView(&D3D12Helper::CBVDescriptor(_crateMGPU.Get(), 0u, _crateMGPU.Size()),
-		handle.Offset(_cbvSrvUavDescriptorSize));
-
-	auto texDesc = _crateTextureGPU->GetDesc();
-	_d3d12Device->CreateShaderResourceView(_crateTextureGPU.Get(),
-		&D3D12Helper::SRVDescriptor::Texture2DDesc(texDesc.Format, 0, 0u, texDesc.MipLevels),
-		handle.Offset(_cbvSrvUavDescriptorSize));
-
-
-	handle = D3D12Helper::DescriptorHandleCPU(_gridSRVUAVheap->GetCPUDescriptorHandleForHeapStart());
-	_d3d12Device->CreateConstantBufferView(&D3D12Helper::CBVDescriptor(_gridTGPU.Get(), 0u, _gridTGPU.Size()),
-		handle);
-
-	_d3d12Device->CreateConstantBufferView(&D3D12Helper::CBVDescriptor(_gridMGPU.Get(), 0u, _gridMGPU.Size()),
-		handle.Offset(_cbvSrvUavDescriptorSize));
-
-	texDesc = _gridTextureGPU->GetDesc();
-	_d3d12Device->CreateShaderResourceView(_gridTextureGPU.Get(),
-		&D3D12Helper::SRVDescriptor::Texture2DDesc(texDesc.Format, 0, 0u, texDesc.MipLevels),
-		handle.Offset(_cbvSrvUavDescriptorSize));
-
-
-	//for (auto& fr : _frameResources) {
-	//	_d3d12Device->CreateShaderResourceView(
-	//		_crateTextureGPU.Get(),
-	//		&D3D12Helper::SRVDescriptor::Texture2DDesc(
-	//			texDesc.Format, 0, 0u, texDesc.MipLevels),
-	//		D3D12Helper::DescriptorHandleCPU(fr._CBVheap->GetCPUDescriptorHandleForHeapStart()).Offset(2 * _cbvSrvUavDescriptorSize));
-	//}
 }
 
 void CrateApp::InitializeTextures()
 {
+	auto _d3d12Device = _d3d12Manager.GetD3D12Device();
+	auto _mainCmdList = _d3d12Manager.GetMainCmdList();
 	ComPtr<ID3D12Resource> uploader = nullptr;
 	std::wstring textureName = TextureDir;
 	textureName += L"bricks.dds";
-	ThrowIfFailed(D3D12Helper::ReadDDSTextureFromFile(_d3d12Device.Get(), _mainCmdList.Get(),
+	ThrowIfFailed(D3D12Helper::ReadDDSTextureFromFile(_d3d12Device, _mainCmdList,
 		textureName.c_str(), _crateTextureGPU, uploader));
 	//ThrowIfFailed(_mainCmdList->Close());
 	//ID3D12CommandList* cmdlsts[] = { _mainCmdList.Get() };
@@ -476,17 +484,15 @@ void CrateApp::InitializeTextures()
 	ComPtr<ID3D12Resource> uploader2;
 	textureName = TextureDir;
 	textureName += L"ice.dds";
-	ThrowIfFailed(D3D12Helper::ReadDDSTextureFromFile(_d3d12Device.Get(), _mainCmdList.Get(),
+	ThrowIfFailed(D3D12Helper::ReadDDSTextureFromFile(_d3d12Device, _mainCmdList,
 		textureName.c_str(), _gridTextureGPU, uploader2));
 	ThrowIfFailed(_mainCmdList->Close());
-	ID3D12CommandList* cmdlsts[] = { _mainCmdList.Get() };
-	_cmdQueue->ExecuteCommandLists(1u, cmdlsts);
+	ID3D12CommandList* cmdlsts[] = { _mainCmdList };
+	_d3d12Manager.GetCmdQueue()->ExecuteCommandLists(1u, cmdlsts);
 	
-	ThrowIfFailed(_d3d12Device->CreateDescriptorHeap(&D3D12Helper::DescriptorHeapDescriptor(
-		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 3u, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE),
-		IID_PPV_ARGS(_crateSRVUAVheap.GetAddressOf())));
-	ThrowIfFailed(_d3d12Device->CreateDescriptorHeap(&D3D12Helper::DescriptorHeapDescriptor(
-		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 3u, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE),
-		IID_PPV_ARGS(_gridSRVUAVheap.GetAddressOf())));
-	FlushCommandQueue();
+	_crateSRVUAVheap = _d3d12Manager.AddDescriptorHeap(D3D12Helper::DescriptorHeapDescriptor(
+		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 3u, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
+	_gridSRVUAVheap = _d3d12Manager.AddDescriptorHeap(D3D12Helper::DescriptorHeapDescriptor(
+		D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 3u, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
+	_d3d12Manager.FlushCommandQueue();
 }

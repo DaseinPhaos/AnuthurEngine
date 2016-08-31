@@ -138,6 +138,7 @@ protected:
 	virtual void OnMouseDown(WPARAM wParam, int x, int y) override;
 	virtual void OnMouseUp(WPARAM wParam, int x, int y) override;
 	virtual void OnMouseMove(WPARAM wParam, int x, int y) override;
+	virtual void OnDestroy() override;
 
 private:
 	void InitializeSceneComponents();
@@ -167,9 +168,9 @@ private:
 
 	// crate texture resource
 	ComPtr<ID3D12Resource>											_crateTextureGPU;
-	ComPtr<ID3D12DescriptorHeap>									_crateSRVUAVheap;
+	UINT64															_crateSRVUAVheap;
 	ComPtr<ID3D12Resource>											_gridTextureGPU;
-	ComPtr<ID3D12DescriptorHeap>									_gridSRVUAVheap;
+	UINT64															_gridSRVUAVheap;
 	
 
 	D3D12Helper::UpdateBuffer<ComponentTransformationData>			_crateTGPU;
@@ -178,10 +179,10 @@ private:
 	D3D12Helper::UpdateBuffer<BlinnPhongMaterial>					_gridMGPU;
 	
 	// pipeline resources
-	ComPtr<ID3D12RootSignature>										_rootSignature;
-	std::unordered_map<std::string, ComPtr<ID3D12PipelineState>>	_PSOs;
+	UINT64															_rootSignature;
+	//std::unordered_map<std::string, ComPtr<ID3D12PipelineState>>	_PSOs;
 	ID3D12PipelineState*											_currentPSO;
-	std::unordered_map<std::string, D3D12Helper::ShaderByteCode>	_shaders;
+	//std::unordered_map<std::string, D3D12Helper::ShaderByteCode>	_shaders;
 	// frame resources
 	std::vector<CrateFrameResource>									_frameResources;
 	FRDirtyCounts													_frDirtyCounts;
