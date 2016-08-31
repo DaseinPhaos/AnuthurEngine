@@ -155,7 +155,7 @@
   <ItemGroup>
     <ClInclude Include="..\Src\BasicGeometry.h" />
     <ClInclude Include="..\Src\D3D12App.h" />
-    <ClInclude Include="..\Src\D3D12Renderer.h" />
+    <ClInclude Include="..\Src\D3D12Manager.h" />
     <ClInclude Include="..\Src\DDSTextureLoader.h" />
     <ClInclude Include="..\Src\D3D12HelperMethods.h" />
     <ClInclude Include="..\Src\LightandMaterial.h" />
@@ -177,6 +177,7 @@
   <ItemGroup>
     <ClCompile Include="..\Src\BasicGeometry.cpp" />
     <ClCompile Include="..\Src\D3D12App.cpp" />
+    <ClCompile Include="..\Src\D3D12Manager.cpp" />
     <ClCompile Include="..\Src\DDSTextureLoader.cpp" />
     <ClCompile Include="..\Src\D3D12HelperMethods.cpp" />
     <ClCompile Include="..\Src\LightandMaterial.cpp" />

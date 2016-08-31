@@ -32,6 +32,11 @@ namespace Luxko {
 
 			void SetCustomWindowText(const std::wstring& text);
 
+			// Queries
+			inline UINT Width()const noexcept { return _width; }
+			inline UINT Height()const noexcept { return _height; }
+			inline HWND WindowHandle()const noexcept { return _hWindow; }
+
 		protected:
 			virtual void OnInit() = 0;
 			virtual void OnUpdate() = 0;
