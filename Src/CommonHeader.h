@@ -54,5 +54,7 @@ namespace Luxko {
 	namespace MathConstants {
 		template<class T>
 		constexpr T Pi = T(M_PI);
+
+		constexpr DWORD Infinite_DWORD = INFINITE;
 	}
 }

@@ -215,8 +215,12 @@ public:
 	shared_ptr<Bar> _ptr;
 };
 
+#include <wrl.h>
+#include "d3dx12.h"
 int main()
 {
+	Microsoft::WRL::ComPtr<ID3D12Resource> test;
+	cout << reinterpret_cast<unsigned long long>(test.ReleaseAndGetAddressOf())<<endl;
 	Foo foo;
 	foo._ptr = make_shared<Bar>();
 	cout << foo->Value();
