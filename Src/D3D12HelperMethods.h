@@ -125,6 +125,7 @@ namespace Luxko {
 
 			class ANUTHURRENDERER_API IndexBufferDescriptor : public D3D12_INDEX_BUFFER_VIEW {
 			public:
+				IndexBufferDescriptor() {}
 				IndexBufferDescriptor(D3D12_GPU_VIRTUAL_ADDRESS bufferLocation,
 					UINT sizeInBytes, DXGI_FORMAT format = DXGI_FORMAT_R16_UINT) :
 					D3D12_INDEX_BUFFER_VIEW{ bufferLocation, sizeInBytes, format } {}

@@ -16,6 +16,11 @@ void Luxko::Threading::SleepFor(DWORD millieSeconds, bool altertable /*= false*/
 	SleepEx(millieSeconds, bA);
 }
 
+Luxko::Win32Basic::WaitObjectResult Luxko::Threading::WaitForSignal(const Luxko::Win32Basic::KernelObjectHandle& kh, DWORD milliseconds /*= MathConstants::Infinite_DWORD*/)
+{
+	return static_cast<WaitObjectResult>(WaitForSingleObject(kh.Get(), milliseconds));
+}
+
 Luxko::Threading::EventSynchronizationAccessRight Luxko::Threading::operator|(EventSynchronizationAccessRight a, EventSynchronizationAccessRight b)
 {
 	return static_cast<EventSynchronizationAccessRight>(ToDword(a, b));

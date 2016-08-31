@@ -154,7 +154,7 @@ void CrateApp::OnMouseDown(WPARAM wParam, int x, int y)
 
 void CrateApp::OnMouseUp(WPARAM wParam, int x, int y)
 {
-	if (_lbDown = true) {
+	if (_lbDown == true) {
 		_lbDown = false;
 		ReleaseCapture();
 	}

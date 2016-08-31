@@ -64,42 +64,68 @@ namespace Luxko {
 		class D3D12Manager {
 		public:
 			// Ctors
-			D3D12Manager()=default;
+			D3D12Manager() = default;
 			D3D12Manager(const D3D12Manager&) = delete;
 			D3D12Manager& operator=(const D3D12Manager&) = delete;
-			
+
 			// Dtors
 			~D3D12Manager() = default;
 
 			// Initializer
-			void Initialize(const Luxko::Application::BaseApp& appPtr);
+			void Initialize(const Application::BaseApp& targetApp, BOOL windowed, DXGI_FORMAT backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM, UINT backBufferCount = 2, UINT sampleCount = 1, UINT sampleQuality = 0);
 
 			// Modifiers, return a UUID for the created resource. If the name already exist,
 			// the former resource would be replaced by the new one, the ID would be reused.
 			// Names can be identical across different types of resources, while the ID would
 			// be universally unique.
-			UINT64 AddBuffer(const D3D12Helper::ResourceDescriptor& bufferDescription, const D3D12Helper::ResourceHeapProperties& heapProperties, const char* name = nullptr);
-			UINT64 AddTexture1D(const D3D12Helper::ResourceDescriptor& bufferDescription, const D3D12Helper::ResourceHeapProperties& heapProperties, const char* name = nullptr);
-			UINT64 AddTexture2D(const D3D12Helper::ResourceDescriptor& bufferDescription, const D3D12Helper::ResourceHeapProperties& heapProperties, const char* name = nullptr);
-			UINT64 AddTexture3D(const D3D12Helper::ResourceDescriptor& bufferDescription, const D3D12Helper::ResourceHeapProperties& heapProperties, const char* name = nullptr);
+			UINT64 AddBuffer(const D3D12Helper::ResourceHeapProperties& heapProperties,
+				D3D12_HEAP_FLAGS heapFlags, const D3D12Helper::ResourceDescriptor& resourceDescription,
+				D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON,
+				const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr, const char* name = nullptr);
+
+			UINT64 AddTexture1D(const D3D12Helper::ResourceHeapProperties& heapProperties,
+				D3D12_HEAP_FLAGS heapFlags, const D3D12Helper::ResourceDescriptor& resourceDescription,
+				D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON,
+				const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr, const char* name = nullptr);
+
+			UINT64 AddTexture2D(const D3D12Helper::ResourceHeapProperties& heapProperties,
+				D3D12_HEAP_FLAGS heapFlags, const D3D12Helper::ResourceDescriptor& resourceDescription,
+				D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON,
+				const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr, const char* name = nullptr);
+
+			UINT64 AddTexture3D(const D3D12Helper::ResourceHeapProperties& heapProperties,
+				D3D12_HEAP_FLAGS heapFlags, const D3D12Helper::ResourceDescriptor& resourceDescription,
+				D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COMMON,
+				const D3D12_CLEAR_VALUE* pOptimizedClearValue = nullptr, const char* name = nullptr);
+
 			UINT64 AddDescriptorHeap(const D3D12Helper::DescriptorHeapDescriptor& desc, const char* name = nullptr);
-			UINT64 AddRootSignature(const D3D12Helper::RootSignatureDescriptor& rsd, UINT nodeMask = 0u, const char* name = nullptr);
+
+			UINT64 AddRootSignature(const D3D12Helper::RootSignatureDescriptor& rsd,
+				D3D12_ROOT_SIGNATURE_FLAGS flags, UINT nodeMask = 0u, const char* name = nullptr);
+
 			UINT64 AddPSO(const D3D12_GRAPHICS_PIPELINE_STATE_DESC& gpsd, const char* name = nullptr);
-			UINT64 AddShader(const wchar_t* shaderFilePathName, const char* entryPoint, const char* target, const char* shaderName = nullptr,
-				const D3D_SHADER_MACRO* pDefines = nullptr, ID3DInclude* include = D3D_COMPILE_STANDARD_FILE_INCLUDE);
+
+			UINT64 AddShader(const wchar_t* shaderFilePathName, const char* entryPoint,
+				const char* target, const char* shaderName = nullptr,
+				const D3D_SHADER_MACRO* pDefines = nullptr,
+				ID3DInclude* include = D3D_COMPILE_STANDARD_FILE_INCLUDE);
+
 			UINT64 AddIBD(D3D12_GPU_VIRTUAL_ADDRESS bufferLocation, UINT sizeInBytes,
 				DXGI_FORMAT format = DXGI_FORMAT_R16_UINT, const char* name = nullptr);
+
 			UINT64 AddVBD(const char* name = nullptr);
-			UINT64 AddCommandAllocator(D3D12_COMMAND_LIST_TYPE type = D3D12_COMMAND_LIST_TYPE_DIRECT, const char* name = nullptr);
+			UINT64 AddCommandAllocator(D3D12_COMMAND_LIST_TYPE type = D3D12_COMMAND_LIST_TYPE_DIRECT,
+				const char* name = nullptr);
+
 			UINT64 AddCommandList(D3D12_COMMAND_LIST_TYPE type, ID3D12CommandAllocator* pAllocator,
 				UINT nodeMask = 0u, ID3D12PipelineState* pInitialState = nullptr, const char* name = nullptr);
 
 			inline auto RemoveBuffer(UINT64 id) { return _buffers.erase(id); }
 			inline auto RemoveBuffer(const std::string& name) { return RemoveBuffer(_bufferIDTable[name]); }
-			
+
 			inline auto RemoveTexture1D(UINT64 id) { return _texture1Ds.erase(id); }
 			inline auto RemoveTexture1D(const std::string& name) { return RemoveTexture1D(_texture1DIDTable[name]); }
-			
+
 			inline auto RemoveTexture2D(UINT64 id) { return _texture2Ds.erase(id); }
 			inline auto RemoveTexture2D(const std::string& name) { return RemoveTexture2D(_texture2DIDTable[name]); }
 
@@ -108,35 +134,35 @@ namespace Luxko {
 
 			inline auto RemoveDescriptorHeap(UINT64 id) { return _descriptorHeaps.erase(id); }
 			inline auto RemoveDescriptorHeap(const std::string& name) { return RemoveDescriptorHeap(_descriptorHeapIDTable[name]); }
-			
+
 			inline auto RemoveRootSignature(UINT64 id) { return _rootSignatures.erase(id); }
 			inline auto RemoveRootSignature(const std::string& name) { return RemoveRootSignature(_rootSignatureIDTable[name]); }
-			
+
 			inline auto RemovePSO(UINT64 id) { return _PSOs.erase(id); }
 			inline auto RemovePSO(const std::string& name) { return RemovePSO(_psoIDTable[name]); }
 
 			inline auto RemoveShader(UINT64 id) { return _shaders.erase(id); }
 			inline auto RemoveShader(const std::string& name) { return RemoveShader(_shaderIDTable[name]); }
-			
+
 			inline auto RemoveIBD(UINT64 id) { return _ibds.erase(id); }
 			inline auto RemoveIBD(const std::string& name) { return RemoveIBD(_ibdIDTable[name]); }
-			
+
 			inline auto RemoveVBD(UINT64 id) { return _vbds.erase(id); }
 			inline auto RemoveVBD(const std::string& name) { return RemoveVBD(_vbdIDTable[name]); }
-			
+
 			inline auto RemoveCommandAllocator(UINT64 id) { return _additionalCmdAllocators.erase(id); }
 			inline auto RemoveCommandAllocator(const std::string& name) { return RemoveCommandAllocator(_additionalCmdAllocatorIDTable[name]); }
-			
+
 			inline auto RemoveCommandList(UINT64 id) { return _additionalCmdLists.erase(id); }
 			inline auto RemoveCommandList(const std::string& name) { return RemoveCommandList(_additionalCmdListIDTable[name]); }
-			
+
 			inline void IncrementMainFenceCount()noexcept { _mainFenceCount++; }
 
 
 			// Queries
 			inline auto& FindBuffer(UINT64 id) { return _buffers[id]; }
 			inline auto& FindBuffer(const std::string& name) { return FindBuffer(_bufferIDTable[name]); }
-			inline bool HaveBuffer(const std::string& name)const noexcept{ return _bufferIDTable.find(name) != _bufferIDTable.end(); }
+			inline bool HaveBuffer(const std::string& name)const noexcept { return _bufferIDTable.find(name) != _bufferIDTable.end(); }
 
 			inline auto& FindTexture1D(UINT64 id) { return _texture1Ds[id]; }
 			inline auto& FindTexture1D(const std::string& name) { return FindTexture1D(_texture1DIDTable[name]); }
@@ -144,7 +170,7 @@ namespace Luxko {
 
 			inline auto& FindTexture2D(UINT64 id) { return _texture2Ds[id]; }
 			inline auto& FindTexture2D(const std::string& name) { return FindTexture2D(_texture2DIDTable[name]); }
-			inline bool HaveTexture2D(const std::string& name)const noexcept{ return _texture2DIDTable.find(name) != _texture2DIDTable.end(); }
+			inline bool HaveTexture2D(const std::string& name)const noexcept { return _texture2DIDTable.find(name) != _texture2DIDTable.end(); }
 
 			inline auto& FindTexture3D(UINT64 id) { return _texture3Ds[id]; }
 			inline auto& FindTexture3D(const std::string& name) { return FindTexture3D(_texture3DIDTable[name]); }
@@ -181,7 +207,7 @@ namespace Luxko {
 			inline auto& FindCommandList(UINT64 id) { return _additionalCmdLists[id]; }
 			inline auto& FindCommandList(const std::string& name) { return FindCommandList(_additionalCmdListIDTable[name]); }
 			inline bool HaveCommandList(const std::string& name)const noexcept { return _additionalCmdListIDTable.find(name) != _additionalCmdListIDTable.end(); }
-			
+
 			inline auto GetDXGIFactory()const noexcept { return _dxgiFactory.Get(); }
 			inline auto GetD3D12Device()const noexcept { return _d3d12Device.Get(); }
 			inline auto GetMainFence()const noexcept { return _mainFence.Get(); }
@@ -194,7 +220,8 @@ namespace Luxko {
 			inline auto GetDSVDescriptorSize()const noexcept { return _dsvDescriptorSize; }
 			inline auto GetCbvSrvUavDescriptorSize()const noexcept { return _cbvSrvUavDescriptorSize; }
 			inline auto GetMainFenceCount()const noexcept { return _mainFenceCount; }
-			
+
+			D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentSwapChainBackBufferView()const;
 
 			// Properties
 			inline auto& GetMainViewport()noexcept { return _mainViewport; }
@@ -205,6 +232,14 @@ namespace Luxko {
 			void ResetSwapChain(const Application::BaseApp& targetApp, BOOL windowed, UINT sampleCount = 1, UINT sampleQuality = 0);
 			void ResetSwapChainWithConfigurationChange(const Application::BaseApp& targetApp, BOOL windowed, DXGI_FORMAT format, UINT backBufferCount, UINT sampleCount = 1, UINT sampleQuality = 0);
 			void ResizeSwapChain(UINT width, UINT height, DXGI_FORMAT backBufferFormat);
+			void ResetMainViewport(float topLeftX, float topLeftY, float width, float height, float minDepth, float maxDepth);
+			void ResetMainScissor(long left, long right, long top, long bottom);
+			
+			void FlushCommandQueue();
+
+		private:
+			// Helper functions
+			UINT64 GenerateIDByName(const char* name, HashTable<std::string, UINT64>& container) noexcept;
 
 		private:
 
@@ -252,10 +287,10 @@ namespace Luxko {
 
 			HashTable<UINT64, ComPtr<ID3D12CommandAllocator>> _additionalCmdAllocators;
 			HashTable<UINT64, ComPtr<ID3D12GraphicsCommandList>> _additionalCmdLists;
-			
+
 			UINT64								_nextID = 0ull;
 			UINT64								_mainFenceCount = 0ull;
-			
+
 
 		};
 	}

@@ -153,9 +153,6 @@
     <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
       <Project>{95b6fe37-84de-486d-a9fb-9d8782718e1e}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\AnuthurRenderer\AnuthurRenderer.vcxproj">
-      <Project>{a8607237-e0dc-421e-8798-63572db79728}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
       <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>
     </ProjectReference>

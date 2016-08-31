@@ -19,8 +19,8 @@ namespace Luxko {
 	namespace Threading {
 		using namespace Luxko::Win32Basic;
 		LUXKOUTILITY_API void SleepFor(DWORD millieSeconds, bool altertable = false);
-
-
+		LUXKOUTILITY_API WaitObjectResult WaitForSignal(const KernelObjectHandle& kh, DWORD milliseconds = MathConstants::Infinite_DWORD);
+		
 
 		enum class LUXKOUTILITY_API EventSynchronizationAccessRight :DWORD {
 			// Basic access rights
