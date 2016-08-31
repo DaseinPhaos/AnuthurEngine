@@ -41,7 +41,7 @@ int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 		throw "Window Creation Fucking failed!";
 	}
 	//**********************************************************************
-
+	OnInit();
 	//**********************************************************************
 	// @Luxko: Now we're ready to show the window.
 	ShowWindow(_hWindow, nCmdShow);
@@ -50,7 +50,7 @@ int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 
 	//**********************************************************************
 	// @Luxko: Do the initialization necessary for the application.
-	OnInit();
+	//OnInit();
 
 	//**********************************************************************
 

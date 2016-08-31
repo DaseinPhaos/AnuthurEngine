@@ -298,6 +298,131 @@ Luxko::Anuthur::D3D12Helper::CBVDescriptor::CBVDescriptor(ID3D12Resource* buffer
 	SizeInBytes = sizeInBytes;
 }
 
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::BufferDesc(DXGI_FORMAT format, UINT64 firstElement, UINT byteStride, UINT numberELements, D3D12_BUFFER_SRV_FLAGS flags, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+	srv.Buffer.FirstElement = firstElement;
+	srv.Buffer.Flags = flags;
+	srv.Buffer.NumElements = numberELements;
+	srv.Buffer.StructureByteStride = byteStride;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture1DDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
+	srv.Texture1D.MipLevels = mipLevels;
+	srv.Texture1D.MostDetailedMip = mostDetailedMip;
+	srv.Texture1D.ResourceMinLODClamp = minLODClamp;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture1DArrayDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT firstArraySlice, UINT arraySize, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+	srv.Texture1DArray.ArraySize = arraySize;
+	srv.Texture1DArray.FirstArraySlice = firstArraySlice;
+	srv.Texture1DArray.MipLevels = mipLevels;
+	srv.Texture1DArray.MostDetailedMip = mostDetailedMip;
+	srv.Texture1DArray.ResourceMinLODClamp = minLODClamp;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture2DDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT planeSlice, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srv.Texture2D.MipLevels = mipLevels;
+	srv.Texture2D.MostDetailedMip = mostDetailedMip;
+	srv.Texture2D.PlaneSlice = planeSlice;
+	srv.Texture2D.ResourceMinLODClamp = minLODClamp;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture2DArrayDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT planeSlice, UINT firstArraySlice, UINT arraySize, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+	srv.Texture2DArray.ArraySize = arraySize;
+	srv.Texture2DArray.FirstArraySlice = firstArraySlice;
+	srv.Texture2DArray.MipLevels = mipLevels;
+	srv.Texture2DArray.MostDetailedMip = mostDetailedMip;
+	srv.Texture2DArray.PlaneSlice = planeSlice;
+	srv.Texture2DArray.ResourceMinLODClamp = minLODClamp;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture2DMSDesc(DXGI_FORMAT format, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture2DMSArrayDesc(DXGI_FORMAT format, UINT firstArraySlice, UINT arraySize, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
+	srv.Texture2DMSArray.ArraySize = arraySize;
+	srv.Texture2DMSArray.FirstArraySlice = firstArraySlice;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture3DDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
+	srv.Texture3D.MipLevels = mipLevels;
+	srv.Texture3D.MostDetailedMip = mostDetailedMip;
+	srv.Texture3D.ResourceMinLODClamp = minLODClamp;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::TextureCubeDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+	srv.TextureCube.MipLevels = mipLevels;
+	srv.TextureCube.MostDetailedMip = mostDetailedMip;
+	srv.TextureCube.ResourceMinLODClamp = minLODClamp;
+	return srv;
+}
+
+Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::TextureCubeArrayDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT firstFace, UINT numCubes, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
+{
+	SRVDescriptor srv;
+	srv.Format = format;
+	srv.Shader4ComponentMapping = shader4ComponentMapping;
+	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+	srv.TextureCubeArray.First2DArrayFace = firstFace;
+	srv.TextureCubeArray.MipLevels = mipLevels;
+	srv.TextureCubeArray.MostDetailedMip = mostDetailedMip;
+	srv.TextureCubeArray.NumCubes = numCubes;
+	srv.TextureCubeArray.ResourceMinLODClamp = minLODClamp;
+	return srv;
+}
+
 Luxko::Anuthur::D3D12Helper::RootDescriptorRange::RootDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE type, UINT numDescriptors /*= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND*/, UINT baseShaderRegister /*= 0u*/, UINT registerSpace /*= 0u*/, UINT offsetInDescriptorsFromTableStart /*= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND*/)
 	:D3D12_DESCRIPTOR_RANGE{ type, numDescriptors, baseShaderRegister, registerSpace, offsetInDescriptorsFromTableStart } {}
 
@@ -495,131 +620,6 @@ Luxko::Anuthur::D3D12Helper::DescriptorHandleCPU& Luxko::Anuthur::D3D12Helper::D
 	return *this;
 }
 
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::BufferDesc(DXGI_FORMAT format, UINT64 firstElement, UINT byteStride, UINT numberELements, D3D12_BUFFER_SRV_FLAGS flags, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
-	srv.Buffer.FirstElement = firstElement;
-	srv.Buffer.Flags = flags;
-	srv.Buffer.NumElements = numberELements;
-	srv.Buffer.StructureByteStride = byteStride;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture1DDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1D;
-	srv.Texture1D.MipLevels = mipLevels;
-	srv.Texture1D.MostDetailedMip = mostDetailedMip;
-	srv.Texture1D.ResourceMinLODClamp = minLODClamp;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture1DArrayDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT firstArraySlice, UINT arraySize, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
-	srv.Texture1DArray.ArraySize = arraySize;
-	srv.Texture1DArray.FirstArraySlice = firstArraySlice;
-	srv.Texture1DArray.MipLevels = mipLevels;
-	srv.Texture1DArray.MostDetailedMip = mostDetailedMip;
-	srv.Texture1DArray.ResourceMinLODClamp = minLODClamp;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture2DDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT planeSlice, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srv.Texture2D.MipLevels = mipLevels;
-	srv.Texture2D.MostDetailedMip = mostDetailedMip;
-	srv.Texture2D.PlaneSlice = planeSlice;
-	srv.Texture2D.ResourceMinLODClamp = minLODClamp;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture2DArrayDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT planeSlice, UINT firstArraySlice, UINT arraySize, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
-	srv.Texture2DArray.ArraySize = arraySize;
-	srv.Texture2DArray.FirstArraySlice = firstArraySlice;
-	srv.Texture2DArray.MipLevels = mipLevels;
-	srv.Texture2DArray.MostDetailedMip = mostDetailedMip;
-	srv.Texture2DArray.PlaneSlice = planeSlice;
-	srv.Texture2DArray.ResourceMinLODClamp = minLODClamp;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture2DMSDesc(DXGI_FORMAT format, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMS;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture2DMSArrayDesc(DXGI_FORMAT format, UINT firstArraySlice, UINT arraySize, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY;
-	srv.Texture2DMSArray.ArraySize = arraySize;
-	srv.Texture2DMSArray.FirstArraySlice = firstArraySlice;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::Texture3DDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE3D;
-	srv.Texture3D.MipLevels = mipLevels;
-	srv.Texture3D.MostDetailedMip = mostDetailedMip;
-	srv.Texture3D.ResourceMinLODClamp = minLODClamp;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::TextureCubeDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-	srv.TextureCube.MipLevels = mipLevels;
-	srv.TextureCube.MostDetailedMip = mostDetailedMip;
-	srv.TextureCube.ResourceMinLODClamp = minLODClamp;
-	return srv;
-}
-
-Luxko::Anuthur::D3D12Helper::SRVDescriptor Luxko::Anuthur::D3D12Helper::SRVDescriptor::TextureCubeArrayDesc(DXGI_FORMAT format, UINT mostDetailedMip, UINT firstFace, UINT numCubes, UINT mipLevels /*= -1*/, FLOAT minLODClamp /*= 0.f*/, UINT shader4ComponentMapping /*= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING*/)
-{
-	SRVDescriptor srv;
-	srv.Format = format;
-	srv.Shader4ComponentMapping = shader4ComponentMapping;
-	srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
-	srv.TextureCubeArray.First2DArrayFace = firstFace;
-	srv.TextureCubeArray.MipLevels = mipLevels;
-	srv.TextureCubeArray.MostDetailedMip = mostDetailedMip;
-	srv.TextureCubeArray.NumCubes = numCubes;
-	srv.TextureCubeArray.ResourceMinLODClamp = minLODClamp;
-	return srv;
-}
-
 Luxko::Anuthur::D3D12Helper::BlendDescriptor Luxko::Anuthur::D3D12Helper::BlendDescriptor::Default()
 {
 	BlendDescriptor bd;
@@ -652,12 +652,12 @@ Luxko::Anuthur::D3D12Helper::BlendDescriptor Luxko::Anuthur::D3D12Helper::BlendD
 	return bd;
 }
 
-Luxko::Anuthur::D3D12Helper::DepthStencilDescriptor::DepthStencilDescriptor(BOOL depthEnable, D3D12_DEPTH_WRITE_MASK dwm, D3D12_COMPARISON_FUNC dcf, BOOL stencilEnable, UINT8 stencilReadMask, UINT8 stencilWriteMask, D3D12_DEPTH_STENCILOP_DESC frontFace, D3D12_DEPTH_STENCILOP_DESC backFace)
+Luxko::Anuthur::D3D12Helper::DepthStencilStateDescriptor::DepthStencilStateDescriptor(BOOL depthEnable, D3D12_DEPTH_WRITE_MASK dwm, D3D12_COMPARISON_FUNC dcf, BOOL stencilEnable, UINT8 stencilReadMask, UINT8 stencilWriteMask, D3D12_DEPTH_STENCILOP_DESC frontFace, D3D12_DEPTH_STENCILOP_DESC backFace)
 	:D3D12_DEPTH_STENCIL_DESC{depthEnable, dwm, dcf, stencilEnable, stencilReadMask, stencilWriteMask, frontFace, backFace} {}
 
-Luxko::Anuthur::D3D12Helper::DepthStencilDescriptor Luxko::Anuthur::D3D12Helper::DepthStencilDescriptor::Default()
+Luxko::Anuthur::D3D12Helper::DepthStencilStateDescriptor Luxko::Anuthur::D3D12Helper::DepthStencilStateDescriptor::Default()
 {
-	DepthStencilDescriptor dsd;
+	DepthStencilStateDescriptor dsd;
 	dsd.DepthEnable = TRUE;
 	dsd.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	dsd.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
@@ -688,4 +688,148 @@ Luxko::Anuthur::D3D12Helper::SwapChainDescriptor::SwapChainDescriptor(UINT width
 	Windowed = windowed;
 	SwapEffect = swapEffect;
 	Flags = flags;
+}
+
+Luxko::Anuthur::D3D12Helper::UAVDescriptor Luxko::Anuthur::D3D12Helper::UAVDescriptor::BufferDesc(DXGI_FORMAT format, UINT64 firstElement, UINT numELements, UINT structureByteStride, UINT64 counterOffsetInBytes, D3D12_BUFFER_UAV_FLAGS flags /*= D3D12_BUFFER_UAV_FLAG_NONE*/)
+{
+	UAVDescriptor uavd;
+	uavd.ViewDimension = D3D12_UAV_DIMENSION_BUFFER;
+	uavd.Format = format;
+	uavd.Buffer.CounterOffsetInBytes = counterOffsetInBytes;
+	uavd.Buffer.FirstElement = firstElement;
+	uavd.Buffer.Flags = flags;
+	uavd.Buffer.NumElements = numELements;
+	uavd.Buffer.StructureByteStride = structureByteStride;
+
+	return uavd;
+}
+
+Luxko::Anuthur::D3D12Helper::UAVDescriptor Luxko::Anuthur::D3D12Helper::UAVDescriptor::Texture1DDesc(DXGI_FORMAT format, UINT mipSlice)
+{
+	UAVDescriptor uavd;
+	uavd.Format = format;
+	uavd.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE1D;
+	uavd.Texture1D.MipSlice = mipSlice;
+	
+	return uavd;
+}
+
+Luxko::Anuthur::D3D12Helper::UAVDescriptor Luxko::Anuthur::D3D12Helper::UAVDescriptor::Texture1DArrayDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstArraySlice, UINT arraySize)
+{
+	UAVDescriptor uavd;
+	uavd.Format = format;
+	uavd.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
+	uavd.Texture1DArray.ArraySize = arraySize;
+	uavd.Texture1DArray.FirstArraySlice = firstArraySlice;
+	uavd.Texture1DArray.MipSlice = mipSlice;
+
+	return uavd;
+}
+
+Luxko::Anuthur::D3D12Helper::UAVDescriptor Luxko::Anuthur::D3D12Helper::UAVDescriptor::Texture2DDesc(DXGI_FORMAT format, UINT mipSlice, UINT planeSlice)
+{
+	UAVDescriptor uavd;
+	uavd.Format = format;
+	uavd.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+	uavd.Texture2D.MipSlice = mipSlice;
+	uavd.Texture2D.PlaneSlice = planeSlice;
+
+	return uavd;
+}
+
+Luxko::Anuthur::D3D12Helper::UAVDescriptor Luxko::Anuthur::D3D12Helper::UAVDescriptor::Texture2DArrayDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstArraySlice, UINT arraySize, UINT planeSlice)
+{
+	UAVDescriptor uavd;
+	uavd.Format = format;
+	uavd.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+	uavd.Texture2DArray.ArraySize = arraySize;
+	uavd.Texture2DArray.FirstArraySlice = firstArraySlice;
+	uavd.Texture2DArray.MipSlice = mipSlice;
+	uavd.Texture2DArray.PlaneSlice = planeSlice;
+
+	return uavd;
+}
+
+Luxko::Anuthur::D3D12Helper::UAVDescriptor Luxko::Anuthur::D3D12Helper::UAVDescriptor::Texture3DDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstWSlice, UINT wSize)
+{
+	UAVDescriptor uavd;
+	uavd.Format = format;
+	uavd.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE3D;
+	uavd.Texture3D.FirstWSlice = firstWSlice;
+	uavd.Texture3D.MipSlice = mipSlice;
+	uavd.Texture3D.WSize = wSize;
+
+	return uavd;
+}
+
+Luxko::Anuthur::D3D12Helper::RTVDescriptor Luxko::Anuthur::D3D12Helper::RTVDescriptor::BufferDesc(DXGI_FORMAT format, UINT64 firstElement, UINT numELements)
+{
+	RTVDescriptor RTVd;
+	RTVd.ViewDimension = D3D12_RTV_DIMENSION_BUFFER;
+	RTVd.Format = format;	
+	RTVd.Buffer.FirstElement = firstElement;
+	RTVd.Buffer.NumElements = numELements;
+
+	return RTVd;
+}
+
+Luxko::Anuthur::D3D12Helper::RTVDescriptor Luxko::Anuthur::D3D12Helper::RTVDescriptor::Texture1DDesc(DXGI_FORMAT format, UINT mipSlice)
+{
+	RTVDescriptor rtvd;
+	rtvd.Format = format;
+	rtvd.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
+	rtvd.Texture1D.MipSlice = mipSlice;
+	return rtvd;
+}
+
+Luxko::Anuthur::D3D12Helper::RTVDescriptor Luxko::Anuthur::D3D12Helper::RTVDescriptor::Texture1DArrayDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstArraySlice, UINT arraySize)
+{
+	RTVDescriptor rtvd;
+	rtvd.Format = format;
+	rtvd.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1DARRAY;
+	rtvd.Texture1DArray.ArraySize = arraySize;
+	rtvd.Texture1DArray.FirstArraySlice = firstArraySlice;
+	rtvd.Texture1DArray.MipSlice = mipSlice;
+	return rtvd;
+}
+
+Luxko::Anuthur::D3D12Helper::RTVDescriptor Luxko::Anuthur::D3D12Helper::RTVDescriptor::Texture2DDesc(DXGI_FORMAT format, UINT mipSlice, UINT planeSlice)
+{
+	RTVDescriptor rtvd;
+	rtvd.Format = format;
+	rtvd.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvd.Texture2D.MipSlice = mipSlice;
+	rtvd.Texture2D.PlaneSlice = planeSlice;
+	return rtvd;
+}
+
+Luxko::Anuthur::D3D12Helper::RTVDescriptor Luxko::Anuthur::D3D12Helper::RTVDescriptor::Texture2DMSDesc(DXGI_FORMAT format)
+{
+	RTVDescriptor rtvd;
+	rtvd.Format = format;
+	rtvd.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
+	return rtvd;
+}
+
+Luxko::Anuthur::D3D12Helper::RTVDescriptor Luxko::Anuthur::D3D12Helper::RTVDescriptor::Texture2DArrayDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstArraySlice, UINT arraySize, UINT planeSlice)
+{
+	RTVDescriptor rtvd;
+	rtvd.Format = format;
+	rtvd.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
+	rtvd.Texture2DArray.ArraySize = arraySize;
+	rtvd.Texture2DArray.FirstArraySlice = firstArraySlice;
+	rtvd.Texture2DArray.MipSlice = mipSlice;
+	rtvd.Texture2DArray.PlaneSlice = planeSlice;
+	return rtvd;
+}
+
+Luxko::Anuthur::D3D12Helper::RTVDescriptor Luxko::Anuthur::D3D12Helper::RTVDescriptor::Texture3DDesc(DXGI_FORMAT format, UINT mipSlice, UINT firstWSlice, UINT wSize)
+{
+	RTVDescriptor rtvd;
+	rtvd.Format = format;
+	rtvd.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE3D;
+	rtvd.Texture3D.FirstWSlice = firstWSlice;
+	rtvd.Texture3D.MipSlice = mipSlice;
+	rtvd.Texture3D.WSize = wSize;
+	return rtvd;
 }
