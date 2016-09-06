@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="..\Src\BasicWin32Structures.h" />
     <ClInclude Include="..\Src\CommonHeader.h" />
+    <ClInclude Include="..\Src\Delegate.h" />
     <ClInclude Include="..\Src\FileSystem.h" />
     <ClInclude Include="..\Src\MemorySystem.h" />
     <ClInclude Include="..\Src\Threading.h" />

@@ -1,5 +1,6 @@
 #include "FileSystem.h"
 #include "Threading.h"
+#include "Delegate.h"
 #include <iostream>
 #include <cassert>
 #include <thread>
@@ -94,7 +95,7 @@ int FileSystemTest() {
 
 
 
-int main() {
+int ThreadingTest() {
 	//using namespace Luxko::FileSystem;
 	//FileFlag ff = FileFlag::BackupSemantics;
 	//FileFlag fff = FileFlag::DeleteOnClose;
@@ -138,4 +139,49 @@ int main() {
 	}
 
 	getchar();
+	return 0;
+}
+
+
+class Base {
+public:
+	void Method(int a) {
+		std::cout << "CLass Method invoked, a == " << a << std::endl;
+	}
+};
+
+void Function(int a) {
+	std::cout << "Function invoked, a == " << a << std::endl;
+}
+
+
+int DelegateTest() {
+	auto MethodSig = &Base::Method;
+	Base b;
+	(b.*MethodSig)(0);
+
+	using TestDel = Luxko::Delegate<void, int>;
+	TestDel test;
+	test.Bind<Function>();
+	test.Invoke(1);
+
+
+	test.Bind<Base, &Base::Method>(&b);
+	test.Invoke(2);
+
+	using TestDelA = Luxko::Delegate<int, int, int>;
+	TestDelA t2;
+	{
+		auto another_free_func = [test](int x, int y) {test.Invoke(x + y); return x + y; };
+		t2.Bind(&another_free_func);
+	}
+	
+	std::cout << "1 + 2 == " << t2.Invoke(1, 2) << std::endl;
+	getchar();
+	return 0;
+
+}
+
+int main() {
+	return DelegateTest();
 }

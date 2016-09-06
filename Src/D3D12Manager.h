@@ -28,12 +28,7 @@ namespace Luxko {
 			D3D12WindowResource(const D3D12WindowResource&) = delete;
 			D3D12WindowResource& operator=(const D3D12WindowResource&) = delete;
 
-		public:
 			// Initializers
-			//void ResetSwapChain(IDXGIFactory4* pFactory, const Luxko::Application::BaseApp& targetApp,
-			//	BOOL windowed = TRUE, UINT SampleCount = 1, UINT SampleQuality = 0);
-			//void ResetSwapChain(IDXGIFactory4* pFactory, const Luxko::Application::BaseApp& targetApp,
-			//	DXGI_FORMAT backBufferFormat, BOOL windowed = TRUE, UINT SampleCount = 1, UINT SampleQuality = 0);
 
 			// Dtor
 			~D3D12WindowResource() = default;
