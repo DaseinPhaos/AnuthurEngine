@@ -145,9 +145,15 @@ int ThreadingTest() {
 
 class Base {
 public:
+	Base(float r = 0.f) :_result(0) {}
 	void Method(int a) {
 		std::cout << "CLass Method invoked, a == " << a << std::endl;
 	}
+
+	float operator()(float x) { return _result - x; }
+
+	~Base() { std::cout << "~Base() called at" << _result << std::endl; }
+	float _result;
 };
 
 void Function(int a) {
@@ -177,6 +183,17 @@ int DelegateTest() {
 	}
 	
 	std::cout << "1 + 2 == " << t2.Invoke(1, 2) << std::endl;
+	
+	using TestDelC = Luxko::Delegate<float, float>;
+	TestDelC t3;
+	{
+		Base b1(1.0f);
+		t3.Bind<Base, &Base::operator()>(&b1);
+		std::cout << "1 - 20 == " << t3.Invoke(20.f) << std::endl;
+		b1._result = 2.f;
+		std::cout << "2 - 20 == " << t3.Invoke(20.f) << std::endl;
+	}
+	std::cout << "This should through" << t3.Invoke(1.f);
 	getchar();
 	return 0;
 
