@@ -29,7 +29,7 @@ void Luxko::Anuthur::D3D12WindowResource::Reset(const Application::BaseApp& targ
 	auto swapChainDesc = D3D12Helper::SwapChainDescriptor(width, height, targetApp.WindowHandle(),
 		_backBufferFormat, static_cast<UINT>(_swapChainBuffers.size()), windowed, sampleCount, sampleQuality);
 	ThrowIfFailed(_manager->GetDXGIFactory()->CreateSwapChain(_manager->GetCmdQueue(), &swapChainDesc, _swapChain.GetAddressOf()));
-	
+
 
 
 	// reset back-buffers and back-buffer-views.
@@ -37,7 +37,7 @@ void Luxko::Anuthur::D3D12WindowResource::Reset(const Application::BaseApp& targ
 	for (size_t i = 0; i < _swapChainBuffers.size(); ++i) {
 		ThrowIfFailed(_swapChain->GetBuffer(static_cast<UINT>(i), IID_PPV_ARGS(_swapChainBuffers[i].GetAddressOf())));
 		_manager->GetD3D12Device()->CreateRenderTargetView(_swapChainBuffers[i].Get(), nullptr, rtvHandle);
-		
+
 		rtvHandle.ptr += _manager->GetRTVDescriptorSize();
 	}
 	_currentBackBufferIndex = 0u;
@@ -164,7 +164,7 @@ void Luxko::Anuthur::D3D12Manager::Initialize()
 				L"Device Creation Failed: Can't obtain device from wARP adapter.");
 		}
 	}
-	
+
 	// Create the main fence, obtain descriptors' sizes.
 	{
 		ThrowIfFailed(_d3d12Device->CreateFence(_mainFenceCount, D3D12_FENCE_FLAG_NONE,

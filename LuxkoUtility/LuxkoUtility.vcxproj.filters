@@ -31,6 +31,9 @@
     <ClInclude Include="..\Src\Threading.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\Delegate.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\FileSystem.cpp">
