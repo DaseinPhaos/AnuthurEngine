@@ -9,6 +9,9 @@
 #include "CommonHeader.h"
 
 namespace Luxko {
+
+	// Note that if used improperly there might be a chance
+	// to introduce dangling pointers.
 	template <class RT, class ... PTs>
 	class Delegate {
 		using InsPtr = void*;
