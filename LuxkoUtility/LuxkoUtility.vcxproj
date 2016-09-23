@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Src\AllocatorMP.h" />
     <ClInclude Include="..\Src\BasicWin32Structures.h" />
     <ClInclude Include="..\Src\CommonHeader.h" />
     <ClInclude Include="..\Src\Delegate.h" />

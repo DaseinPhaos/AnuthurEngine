@@ -31,19 +31,19 @@ namespace Luxko {
 		}
 
 		
-		template<class LambdaType>
-		static inline RT LambdaFuncStub(InsPtr insPtr, PTs... args) {
-			return (*static_cast<LambdaType*>(insPtr))(args...);
+		template<class FuncObjType>
+		static inline RT FunctionObjectStub(InsPtr insPtr, PTs... args) {
+			return (*static_cast<FuncObjType*>(insPtr))(args...);
 		}
 
 	public:
 		Delegate() :_stub(nullptr, nullptr) {}
 		~Delegate() = default;
 
-		template<class LambdaType>
-		void Bind(LambdaType* lambda) {
+		template<class FuncObjType>
+		void Bind(FuncObjType* lambda) {
 			_stub.first = static_cast<InsPtr>(lambda);
-			_stub.second = &LambdaFuncStub<LambdaType>;
+			_stub.second = &FunctionObjectStub<FuncObjType>;
 		}
 
 		template<FuncType ft>
