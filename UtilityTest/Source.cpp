@@ -145,14 +145,17 @@ int ThreadingTest() {
 
 class Base {
 public:
-	Base(float r = 0.f) :_result(0) {}
+	Base(float r = 0.f) :_result(r) {}
 	void Method(int a) {
 		std::cout << "CLass Method invoked, a == " << a << std::endl;
 	}
 
 	float operator()(float x) { return _result - x; }
 
-	~Base() { std::cout << "~Base() called at" << _result << std::endl; }
+	~Base() {
+		std::cout << "~Base() called at" << _result << std::endl; 
+		_result = 0.f;
+	}
 	float _result;
 };
 
@@ -188,12 +191,14 @@ int DelegateTest() {
 	TestDelC t3;
 	{
 		Base b1(1.0f);
-		t3.Bind<Base, &Base::operator()>(&b1);
+		//t3.Bind<Base, &Base::operator()>(&b1);
+		t3.Bind<Base>(&b1);
 		std::cout << "1 - 20 == " << t3.Invoke(20.f) << std::endl;
 		b1._result = 2.f;
 		std::cout << "2 - 20 == " << t3.Invoke(20.f) << std::endl;
 	}
-	std::cout << "This should through" << t3.Invoke(1.f);
+	// UNSAFE :
+	// std::cout << "2 - 1 == " << t3.Invoke(1.f);
 	getchar();
 	return 0;
 
