@@ -152,8 +152,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Src\AllocatorMP.h" />
+    <ClInclude Include="..\Src\Allocator.h" />
     <ClInclude Include="..\Src\BasicWin32Structures.h" />
+    <ClInclude Include="..\Src\CmdArgParser.h" />
     <ClInclude Include="..\Src\CommonHeader.h" />
     <ClInclude Include="..\Src\Delegate.h" />
     <ClInclude Include="..\Src\FileSystem.h" />
@@ -162,6 +163,7 @@
     <ClInclude Include="..\Src\Timer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Src\Allocator.cpp" />
     <ClCompile Include="..\Src\BasicWin32Structures.cpp" />
     <ClCompile Include="..\Src\FileSystem.cpp" />
     <ClCompile Include="..\Src\MemorySystem.cpp" />

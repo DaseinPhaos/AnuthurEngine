@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cassert>
 #include <thread>
+#include "Allocator.h"
 //#include "ApplicationHelper.h"
 
 int FileSystemTest() {
@@ -204,6 +205,16 @@ int DelegateTest() {
 
 }
 
+
+int AllocatorTest() {
+	using Luxko::MemAlloc::Allocator;
+	
+	std::list<int, Allocator<int>> ints = { 1, 3, 5, 7, 9 };
+
+
+	return 0;
+}
+
 int main() {
-	return DelegateTest();
+	return AllocatorTest();
 }
