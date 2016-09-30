@@ -215,6 +215,42 @@ int AllocatorTest() {
 	return 0;
 }
 
+int DEventTest() {
+	using Luxko::DEvent;
+	using Luxko::Delegate;
+
+	DEvent<int, int, int> dEvent;
+	using d_type = decltype(dEvent)::delegate_type;
+	
+	auto f0 = [](int x, int y) {
+		std::cout << "Addition invoked.";
+		return x + y;
+	};
+
+	auto f1 = [](int x, int y) {
+		std::cout << "Subtraction invoked.";
+		return x - y;
+	};
+
+	d_type d0;
+	d0.Bind(&f0);
+
+	d_type d1;
+	d1.Bind(&f1);
+
+	dEvent.Add(d0);
+	dEvent.Add(d1);
+	dEvent.Raise(1, 2);
+
+	dEvent.Remove(d0);
+	dEvent.Raise(3, 4);
+
+	return 0;
+
+}
+
 int main() {
-	return AllocatorTest();
+	DEventTest();
+	getchar();
+	return 0;
 }

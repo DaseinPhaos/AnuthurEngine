@@ -135,9 +135,6 @@ protected:
 	virtual void OnInit() override;
 	virtual void OnUpdate() override;
 	virtual void OnRender() override;
-	virtual void OnMouseDown(WPARAM wParam, int x, int y) override;
-	virtual void OnMouseUp(WPARAM wParam, int x, int y) override;
-	virtual void OnMouseMove(WPARAM wParam, int x, int y) override;
 	virtual void OnDestroy() override;
 
 private:
@@ -189,9 +186,8 @@ private:
 	size_t															_currentFRindex;
 
 	// mouse control
-	//Point3DH _pivot;
-	int _lastMousePosX;
-	int _lastMousePosY;
-	bool _lbDown = false;
+	DirectX::Mouse::ButtonStateTracker _mouseStateTracker;
 
+	// key control
+	DirectX::Keyboard::KeyboardStateTracker _keyboardStateTracker;
 };

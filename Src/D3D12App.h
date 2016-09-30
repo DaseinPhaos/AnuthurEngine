@@ -9,6 +9,8 @@
 #include "D3D12HelperMethods.h"
 #include "Timer.h"
 #include "D3D12Manager.h"
+#include "DirectXTKInc/Keyboard.h"
+#include "DirectXTKInc/Mouse.h"
 
 namespace Luxko {
 	namespace Anuthur {
@@ -68,12 +70,6 @@ namespace Luxko {
 			// This method is called when OnEvent receives a WM_SIZE message.
 			virtual void OnResize();
 
-			virtual void OnMouseDown(WPARAM wParam, int x, int y) {}
-
-			virtual void OnMouseUp(WPARAM wParam, int x, int y) {}
-
-			virtual void OnMouseMove(WPARAM wParam, int x, int y) {}
-
 			virtual void CreateMainDsvDescriptorHeaps();
 
 			void LogFPSToTitle(); // Called every OnRender() to display fps on windows title.
@@ -84,6 +80,8 @@ namespace Luxko {
 			Luxko::Timer						_mainTimer;
 			BOOL								_appPaused = FALSE;
 			UINT64								_wndResourceID;
+			std::unique_ptr<DirectX::Keyboard>	_keyboard;
+			std::unique_ptr<DirectX::Mouse>		_mouse;
 		};
 	}
 }

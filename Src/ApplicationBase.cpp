@@ -41,6 +41,8 @@ int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 		throw "Window Creation Fucking failed!";
 	}
 	//**********************************************************************
+	// @Luxko: Do the initialization necessary for the application.
+
 	OnInit();
 	//**********************************************************************
 	// @Luxko: Now we're ready to show the window.
@@ -118,6 +120,32 @@ LRESULT CALLBACK Luxko::Application::BaseApp::WindProc(HWND hWnd, UINT message, 
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
+
+	//case WM_ACTIVATEAPP:
+
+	//	break;
+
+	//case WM_KEYDOWN:
+	//case WM_SYSKEYDOWN:
+	//case WM_KEYUP:
+	//case WM_SYSKEYUP:
+	//	DirectX::Keyboard::ProcessMessage(message, wParam, lParam);
+	//	break;
+
+	//case WM_INPUT:
+	//case WM_MOUSEMOVE:
+	//case WM_LBUTTONDOWN:
+	//case WM_LBUTTONUP:
+	//case WM_RBUTTONDOWN:
+	//case WM_RBUTTONUP:
+	//case WM_MBUTTONDOWN:
+	//case WM_MBUTTONUP:
+	//case WM_MOUSEWHEEL:
+	//case WM_XBUTTONDOWN:
+	//case WM_XBUTTONUP:
+	//case WM_MOUSEHOVER:
+	//	DirectX::Mouse::ProcessMessage(message, wParam, lParam);
+	//	break;
 	}
 
 	// Handle any messages the switch statement didn't.

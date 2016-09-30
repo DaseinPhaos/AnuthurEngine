@@ -59,12 +59,59 @@ namespace Luxko {
 			_stub.second = &ClassMethodStub<C, cmt>;
 		}
 
-		RT Invoke(PTs... args)const {
+		inline RT Invoke(PTs... args)const {
 			return _stub.second(_stub.first, args...);
 		}
 
+
+		inline bool operator==(const Delegate<RT, PTs...>& d) {
+			return _stub == d._stub;
+		}
+
+		inline bool operator!=(const Delegate<RT, PTs...>& d) {
+			return !(this->operator ==(d));
+		}
 	private:
 		Stub _stub;
 		
+	};
+
+	template<class RT, class ... PTs>
+	class DEvent {
+	public:
+		using delegate_type = Delegate<RT, PTs...>;
+	private:
+		using EventSink = std::list<delegate_type>;
+	public:
+		DEvent() = default;
+		~DEvent() = default;
+
+		DEvent(const DEvent&) = delete;
+		DEvent& operator=(const DEvent&) = delete;
+		
+		DEvent(DEvent&& d) {
+			_events = std::move(d._events);
+		}
+		DEvent& operator=(DEvent&& d) {
+			_events = std::move(d._events);
+			return *this;
+		}
+
+		void Raise(PTs... args) {
+			for (auto& e : _events)
+			{
+				e.Invoke(args...);
+			}
+		}
+
+		inline void Add(Delegate<RT, PTs...> d) {
+			_events.push_back(std::move(d));
+		}
+
+		inline void Remove(Delegate<RT, PTs...> d) {
+			_events.remove(d);
+		}
+	private:
+		EventSink _events;
 	};
 }

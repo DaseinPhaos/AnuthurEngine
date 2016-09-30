@@ -22,7 +22,7 @@
     <ProjectGuid>{A8607237-E0DC-421E-8798-63572DB79728}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AnuthurRenderer</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -169,6 +169,9 @@
     </ProjectReference>
     <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
       <Project>{95b6fe37-84de-486d-a9fb-9d8782718e1e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DirectXTK12\DirectXTK_Desktop_2015_Win10.vcxproj">
+      <Project>{3e0e8608-cd9b-4c76-af33-29ca38f2c9f0}</Project>
     </ProjectReference>
     <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
       <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>

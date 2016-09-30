@@ -25,7 +25,14 @@ void CrateApp::OnInit()
 void CrateApp::OnUpdate()
 {
 	LogFPSToTitle();
+
+
 	auto& cfr = _frameResources[_currentFRindex];
+	if (_frDirtyCounts.Camera > 0) {
+
+		cfr.UpdateCamera(_mainCamera);
+		_frDirtyCounts.Camera--;
+	}
 	if (_d3d12Manager.GetMainFence()->GetCompletedValue() < cfr._fenceCount) {
 		auto hEvent = CreateEventEx(nullptr, nullptr, 0, EVENT_ALL_ACCESS);
 		ThrowIfFailed(_d3d12Manager.GetMainFence()->SetEventOnCompletion(cfr._fenceCount, hEvent));
@@ -38,44 +45,64 @@ void CrateApp::OnUpdate()
 	auto currentTick = _mainTimer.PeekCurrentTick();
 	if (_mainTimer.TicksToMs(currentTick - lastTick) > 16.f) {
 		lastTick = currentTick;
-		
-		auto translateDelta = Vector3DH(0.f, 0.f, 0.f);
-		if (GetAsyncKeyState('W') & 0x8000) {
-			translateDelta += _mainCamera.GetLookDirection()*0.5f;
-			_frDirtyCounts.Camera = FrameResourceCount;
-		}
-		if (GetAsyncKeyState('S') & 0x8000) {
-			translateDelta -= _mainCamera.GetLookDirection()*0.5f;
-			_frDirtyCounts.Camera = FrameResourceCount;
-		}
-		if (GetAsyncKeyState('A') & 0x8000) {
-			translateDelta -= _mainCamera.GetRightDirection()*0.18f;
-			_frDirtyCounts.Camera = FrameResourceCount;
-		}
-		if (GetAsyncKeyState('D') & 0x8000) {
-			translateDelta += _mainCamera.GetRightDirection()*0.18f;
-			_frDirtyCounts.Camera = FrameResourceCount;
-		}
-		if (_frDirtyCounts.Camera == FrameResourceCount) {
-			_mainCamera.ApplyTransform(Transform3DH::Translation(translateDelta));
+
+		// Update mouse
+		{
+			auto mouseState = _mouse->GetState();
+			_mouseStateTracker.Update(mouseState);
+			if (_mouseStateTracker.leftButton == DirectX::Mouse::ButtonStateTracker::PRESSED) {
+				_mouse->SetMode(DirectX::Mouse::Mode::MODE_RELATIVE);
+			}
+			else if (_mouseStateTracker.leftButton == DirectX::Mouse::ButtonStateTracker::RELEASED) {
+				_mouse->SetMode(DirectX::Mouse::Mode::MODE_ABSOLUTE);
+			}
+
+			static float f_pi = static_cast<float>(M_PI)*360.f;
+			if (mouseState.positionMode == DirectX::Mouse::MODE_RELATIVE) {
+				// FPS-like transform
+				auto deltaH = 2.f*static_cast<float>(M_PI) - (mouseState.x) / f_pi;
+				auto deltaV = 2.f*static_cast<float>(M_PI) - (mouseState.y) / f_pi;
+				auto rotation = Transform3DH::RotationN(_mainCamera.GetRightDirection(), deltaV);
+				rotation = Transform3DH::RotationN(_mainCamera.GetUpDirection(), deltaH) * rotation;
+				_mainCamera._orientation.ApplyTransformOnOrientation(rotation);
+				_frDirtyCounts.Camera = FrameResourceCount;
+			}
 		}
 
-		if (_mainTimer.TicksToMs(currentTick - lastTickl) > 250.f) {
-			lastTickl = currentTick;
-			if (GetAsyncKeyState(VK_SPACE)/* & 0x8000*/) {
+		{
+			auto keysState = _keyboard->GetState();
+			auto translateDelta = Vector3DH(0.f, 0.f, 0.f);
+			if (keysState.W) {
+				translateDelta += _mainCamera.GetLookDirection()*0.5f;
+				_frDirtyCounts.Camera = FrameResourceCount;
+			}
+			if (keysState.S) {
+				translateDelta -= _mainCamera.GetLookDirection()*0.5f;
+				_frDirtyCounts.Camera = FrameResourceCount;
+			}
+			if (keysState.A) {
+				translateDelta -= _mainCamera.GetRightDirection()*0.18f;
+				_frDirtyCounts.Camera = FrameResourceCount;
+			}
+			if (keysState.D) {
+				translateDelta += _mainCamera.GetRightDirection()*0.18f;
+				_frDirtyCounts.Camera = FrameResourceCount;
+			}
+			if (_frDirtyCounts.Camera == FrameResourceCount) {
+				_mainCamera.ApplyTransform(Transform3DH::Translation(translateDelta));
+			}
+
+			_keyboardStateTracker.Update(keysState);
+			if (_keyboardStateTracker.IsKeyPressed(DirectX::Keyboard::Space)) {
 				if (_currentPSO == _d3d12Manager.FindPSO("wireframe").Get())
 					_currentPSO = _d3d12Manager.FindPSO("normal").Get();
 				else _currentPSO = _d3d12Manager.FindPSO("wireframe").Get();
 			}
+
 		}
 
-
 	}
-	if (_frDirtyCounts.Camera > 0) {
 
-		cfr.UpdateCamera(_mainCamera);
-		_frDirtyCounts.Camera--;
-	}
 }
 
 void CrateApp::OnRender()
@@ -142,63 +169,6 @@ void CrateApp::OnRender()
 	_d3d12Manager.FindWindowResource(_wndResourceID).AdvanceBackBufferIndex();
 	_currentFRindex = (_currentFRindex + 1) % FrameResourceCount;
 
-}
-
-void CrateApp::OnMouseDown(WPARAM wParam, int x, int y)
-{
-	_lastMousePosX = x;
-	_lastMousePosY = y;
-	if (wParam&MK_LBUTTON) {
-		_lbDown = true;
-		SetCapture(_hWindow);
-		//auto v = Vector4f(static_cast<float>(x) / _width, 1.f - static_cast<float>(y) / _height, 0.f, 1.f);
-		//v *= 1.f;
-		//v = _mainCamera.TransformWtoH().AsMatrix4x4().Inverse()*v;
-		//_pivot = Point3DH(v.xyz());
-	}
-
-}
-
-void CrateApp::OnMouseUp(WPARAM wParam, int x, int y)
-{
-	if (_lbDown == true) {
-		_lbDown = false;
-		ReleaseCapture();
-	}
-}
-
-void CrateApp::OnMouseMove(WPARAM wParam, int x, int y)
-{
-	static float f_pi = static_cast<float>(M_PI)*300.f;
-	if (_lbDown) {
-//		auto deltaH = (x - _lastMousePosX) / f_pi;
-//		auto deltaV = (y - _lastMousePosY) / f_pi;
-//
-//		auto wotranslation = Transform3DH::Translation(/*_mainCamera.GetPosition()-Point3DH(0.f,0.f, 0.f)*/ -5.f * _mainCamera.GetLookDirection());
-//		
-//		auto rotation = Transform3DH::RotationN(_mainCamera.GetRightDirection(), deltaV) *(wotranslation.Inverse());
-//		rotation = Transform3DH::RotationN(_mainCamera.GetUpDirection(), deltaH) * rotation;
-//// 		auto formerUp = _mainCamera.GetUpDirection();
-//// 		rotation *= Luxko::Transform3DH::RotationN(formerUp, deltaH);
-//		rotation = wotranslation * rotation;
-//
-//		_mainCamera.ApplyTransform(rotation);
-//		_lastMousePosX = x;
-//		_lastMousePosY = y;
-//		_frDirtyCounts.Camera = FrameResourceCount;
-
-		// FPS-like transform
-		auto deltaH = 2.f*static_cast<float>(M_PI) -  (x - _lastMousePosX) / f_pi;
-		auto deltaV = 2.f*static_cast<float>(M_PI) - (y - _lastMousePosY) / f_pi;
-		auto rotation = Transform3DH::RotationN(_mainCamera.GetRightDirection(), deltaV);
-		rotation = Transform3DH::RotationN(_mainCamera.GetUpDirection(), deltaH) * rotation;
-		_mainCamera._orientation.ApplyTransformOnOrientation(rotation);
-
-
-		_lastMousePosX = x;
-		_lastMousePosY = y;
-		_frDirtyCounts.Camera = FrameResourceCount;
-	}
 }
 
 void CrateApp::OnDestroy()

@@ -254,6 +254,10 @@ namespace Luxko {
 
 				StyleChanging = WM_STYLECHANGING, // Sent when the SetWindowlong is about to change one or more of the window's style. WParam can be a bitwise OR of GWL_EXSTYLE and GWL_STYLE. lParam is a pStyleStruct that contains the new styles for the window. This structure can be examined and modified if necessary.
 
+				SysKeyDown = WM_SYSKEYDOWN,
+
+				SysKeyUp = WM_SYSKEYUP,
+
 				PositionOrSizeChanged = WM_WINDOWPOSCHANGED, // Sent when the window's position/size/Z-order has changed as a result of SetWindowsPos function or other window-managment function. lParam==pWINDOWPOS which contains info. about the new size and position. The DefWindowProc sends WM_SIZE and WM_MOVE messages to the window.
 
 				PositionOrSizeChanging = WM_WINDOWPOSCHANGING, // Sent to a window whose size/pos/Z-order is about to change as a result off relating function calls. lParam==pWINDOWPOS, which can be modified during processing. The DefWindowProc of an overlapped or thickframe window would send a WM_GETMINMAXINFO to the window, which aims at validating if the new pos/size meets the style's requirements. 

@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <emmintrin.h>
 
+
 #pragma warning ( disable: 4229)
 
 // constexpr auto Pi_f = static_cast<float>(M_PI);
