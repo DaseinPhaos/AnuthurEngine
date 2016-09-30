@@ -71,8 +71,10 @@ int Luxko::Application::BaseApp::Run(HINSTANCE hInstance, int nCmdShow)
 			OnEvent(msg);
 		}
 
-		OnUpdate();
-		OnRender();
+		else {
+			OnUpdate();
+			OnRender();
+		}
 	}
 
 	OnDestroy();

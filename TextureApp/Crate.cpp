@@ -50,6 +50,7 @@ void CrateApp::OnUpdate()
 		{
 			auto mouseState = _mouse->GetState();
 			_mouseStateTracker.Update(mouseState);
+			//auto mouseState = _mouseStateTracker.GetLastState();
 			if (_mouseStateTracker.leftButton == DirectX::Mouse::ButtonStateTracker::PRESSED) {
 				_mouse->SetMode(DirectX::Mouse::Mode::MODE_RELATIVE);
 			}
@@ -71,6 +72,8 @@ void CrateApp::OnUpdate()
 
 		{
 			auto keysState = _keyboard->GetState();
+			_keyboardStateTracker.Update(keysState);
+			//auto keysState = _keyboardStateTracker.GetLastState();
 			auto translateDelta = Vector3DH(0.f, 0.f, 0.f);
 			if (keysState.W) {
 				translateDelta += _mainCamera.GetLookDirection()*0.5f;
@@ -91,8 +94,7 @@ void CrateApp::OnUpdate()
 			if (_frDirtyCounts.Camera == FrameResourceCount) {
 				_mainCamera.ApplyTransform(Transform3DH::Translation(translateDelta));
 			}
-
-			_keyboardStateTracker.Update(keysState);
+			
 			if (_keyboardStateTracker.IsKeyPressed(DirectX::Keyboard::Space)) {
 				if (_currentPSO == _d3d12Manager.FindPSO("wireframe").Get())
 					_currentPSO = _d3d12Manager.FindPSO("normal").Get();

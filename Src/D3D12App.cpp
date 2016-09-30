@@ -36,6 +36,8 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 	case Luxko::Application::Message::UsefulWindowMessage::ApplicationActiveDeactive:
 		DirectX::Keyboard::ProcessMessage(msg.message, msg.wParam, msg.lParam);
 		DirectX::Mouse::ProcessMessage(msg.message, msg.wParam, msg.lParam);
+		//_mouseStateTracker.Update(_mouse->GetState());
+		//_keyboardStateTracker.Update(_keyboard->GetState());
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::WindowActiveDeactive:
 		if (LOWORD(msg.wParam) == WA_INACTIVE) {
@@ -91,6 +93,7 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::RawInput:
 		DirectX::Mouse::ProcessMessage(msg.message, msg.wParam, msg.lParam);
+		//_mouseStateTracker.Update(_mouse->GetState());
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::InputDeviceChanged:
 		break;
@@ -109,6 +112,7 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 	case Luxko::Application::Message::UsefulWindowMessage::MouseHovering:
 	case Luxko::Application::Message::UsefulWindowMessage::HorizontalMouseWheel:
 		DirectX::Mouse::ProcessMessage(msg.message, msg.wParam, msg.lParam);
+		//_mouseStateTracker.Update(_mouse->GetState());
 		break;
 	//	OnMouseMove(msg.wParam, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
 	//	break;
@@ -148,6 +152,7 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 	case Luxko::Application::Message::UsefulWindowMessage::SysKeyDown:
 	case Luxko::Application::Message::UsefulWindowMessage::SysKeyUp:
 		DirectX::Keyboard::ProcessMessage(msg.message, msg.wParam, msg.lParam);
+		//_keyboardStateTracker.Update(_keyboard->GetState());
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::KeyboardFocusLost:
 		break;

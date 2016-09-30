@@ -80,8 +80,15 @@ namespace Luxko {
 			Luxko::Timer						_mainTimer;
 			BOOL								_appPaused = FALSE;
 			UINT64								_wndResourceID;
+
 			std::unique_ptr<DirectX::Keyboard>	_keyboard;
 			std::unique_ptr<DirectX::Mouse>		_mouse;
+
+			// mouse control
+			DirectX::Mouse::ButtonStateTracker _mouseStateTracker;
+
+			// key control
+			DirectX::Keyboard::KeyboardStateTracker _keyboardStateTracker;
 		};
 	}
 }

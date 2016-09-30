@@ -185,9 +185,5 @@ private:
 	FRDirtyCounts													_frDirtyCounts;
 	size_t															_currentFRindex;
 
-	// mouse control
-	DirectX::Mouse::ButtonStateTracker _mouseStateTracker;
 
-	// key control
-	DirectX::Keyboard::KeyboardStateTracker _keyboardStateTracker;
 };
