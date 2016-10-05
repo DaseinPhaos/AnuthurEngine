@@ -212,3 +212,4 @@ _Pvt_Extensions/
 ModelManifest.xml
 
 *.VC.db
+/AnuthurEngine.VC.VC.opendb
