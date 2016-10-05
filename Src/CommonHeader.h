@@ -37,6 +37,9 @@
 #include <utility>
 #include <algorithm>
 #include <emmintrin.h>
+#include <exception>
+#include <type_traits>
+#include <typeinfo>
 
 
 #pragma warning ( disable: 4229)

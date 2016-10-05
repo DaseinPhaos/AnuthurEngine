@@ -6,6 +6,7 @@
 #include <thread>
 #include "Allocator.h"
 //#include "ApplicationHelper.h"
+#include "AnyOptional.h"
 
 int FileSystemTest() {
 	std::wcout.imbue(std::locale("chs"));
@@ -249,8 +250,71 @@ int DEventTest() {
 
 }
 
+void OptionalTest() {
+	Luxko::Optional<Base> ob;
+	auto shouldFalse = ob.has_value();
+	if (!ob) {
+		ob.operator=(3.f);
+		std::cout << "ob == " << ob->_result << std::endl;
+		std::cout << "ob == " << (*ob)._result << std::endl;
+
+		Luxko::Optional<Base> anotherOb;
+		std::cout << "1 == " << anotherOb.value_or(1)._result << std::endl;
+		try
+		{
+			auto r = anotherOb.value()._result;
+			std::cout << "This should have no effect.." << r;
+		}
+		catch (Luxko::bad_optional_access& e)
+		{
+			std::cout << "Exception caught: " << e.what() << std::endl;
+		}
+		
+		anotherOb.swap(ob);
+		std::cout << "anotherOb == " << anotherOb.value()._result << std::endl;
+	}
+
+	auto od = Luxko::Optional<Luxko::Delegate<Base>>();
+	try
+	{
+		auto v = od.value();
+		v.Invoke();
+	}
+	catch (Luxko::bad_optional_access& e)
+	{
+		std::cout << "Exception caught: " << e.what() << std::endl;
+	}
+
+	auto ot = Luxko::make_optional<Luxko::Delegate<void, int>>();
+	std::cout << "ot.has_value(): " << ot.has_value() << std::endl;
+	ot->Bind<Base, &Base::Method>(&(*ob));
+	ot.value().Invoke(4);
+}
+
+void AnyTest() {
+	auto a = Luxko::Any();
+	std::cout << "typeid(void) == " << a.type().name() << std::endl;
+	a.emplace<Base>(3);
+	std::cout << "typeid(Base) == " << a.type().name() << std::endl;
+	std::cout << "3 == " << Luxko::any_cast<Base&>(a)._result << std::endl;
+	try {
+		auto f = Luxko::any_cast<float>(a);
+		std::cout << "This line won't get executed.." << std::endl;
+	}
+	catch (Luxko::bad_any_cast& e) {
+		std::cout << "bad_any_cast caught, what() == " << e.what() << std::endl;
+	}
+	a.emplace<int>(4);
+	std::cout << "typeid(int) == " << a.type().name() << std::endl;
+	std::cout << "4 == " << Luxko::any_cast<int>(a) << std::endl;
+	std::cout << "nullptr == " << reinterpret_cast<size_t>(Luxko::any_cast<float*>(&a)) << std::endl;
+	a.reset();
+	std::cout << "typeid(void) == " << a.type().name() << std::endl;
+	
+}
+
 int main() {
-	DEventTest();
+	AnyTest();
 	getchar();
 	return 0;
 }

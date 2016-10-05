@@ -159,6 +159,7 @@
     <ClInclude Include="..\Src\Delegate.h" />
     <ClInclude Include="..\Src\FileSystem.h" />
     <ClInclude Include="..\Src\MemorySystem.h" />
+    <ClInclude Include="..\Src\AnyOptional.h" />
     <ClInclude Include="..\Src\Threading.h" />
     <ClInclude Include="..\Src\Timer.h" />
   </ItemGroup>
