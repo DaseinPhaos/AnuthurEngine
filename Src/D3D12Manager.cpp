@@ -157,18 +157,18 @@ void Luxko::Anuthur::D3D12Manager::Initialize()
 			ComPtr<IDXGIAdapter> warpAdapter;
 
 			ThrowIfFailed(_dxgiFactory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)),
-				L"Device Creation Failed: No adapters available.");
+				"Device Creation Failed: No adapters available.");
 
 			ThrowIfFailed(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0,
 				IID_PPV_ARGS(_d3d12Device.GetAddressOf())),
-				L"Device Creation Failed: Can't obtain device from wARP adapter.");
+				"Device Creation Failed: Can't obtain device from WARP adapter.");
 		}
 	}
 
 	// Create the main fence, obtain descriptors' sizes.
 	{
 		ThrowIfFailed(_d3d12Device->CreateFence(_mainFenceCount, D3D12_FENCE_FLAG_NONE,
-			IID_PPV_ARGS(&_mainFence)), L"Failed to create the main fence.");
+			IID_PPV_ARGS(&_mainFence)), "Failed to create the main fence.");
 
 		_rtvDescriptorSize = _d3d12Device->
 			GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);

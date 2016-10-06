@@ -10,13 +10,35 @@
 #include "DDSTextureLoader.h"
 #include "Vector4f.h"
 
+
 namespace Luxko {
+	class com_exception : public std::exception {
+	public:
+		com_exception(HRESULT hr, const char* str = nullptr) {
+			
+			if (str) {
+				static std::string addOnPrefix = "\nAdditional Info: ";
+				_addOns = addOnPrefix + str;
+			}
+
+			char s_str[64] = {};
+			snprintf(s_str, 64, "Failure with HRESULT of %08x", hr);
+			_addOns = s_str + _addOns;
+
+		}
+
+		virtual const char* what()const override {
+			return _addOns.c_str();
+		}
+	private:
+		std::string _addOns;
+	};
+
 	namespace Anuthur {
 
-		inline void ThrowIfFailed(HRESULT hr, const wchar_t* wstr = nullptr) {
+		inline void ThrowIfFailed(HRESULT hr, const char* str = nullptr) {
 			if (FAILED(hr)) {
-				if (wstr) throw std::wstring(wstr) + L"\nError code: " + std::to_wstring(hr);
-				else throw L"Operation failed!\nError code " + std::to_wstring(hr);
+				throw com_exception(hr, str);
 			}
 		}
 

@@ -37,6 +37,7 @@
 #include <D3Dcompiler.h>
 
 #include <cstddef>
+#include <cstdio>
 #include <memory>
 #include <array>
 #include <vector>

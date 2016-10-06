@@ -53,9 +53,13 @@ namespace Luxko {
 		Frame3DH() {}
 		union {
 			struct {
+				//Vector3DH _up;
+				//Vector3DH _look;
+				//Vector3DH _right;
+				//Point3DH _Pos;
+				Vector3DH _right;
 				Vector3DH _up;
 				Vector3DH _look;
-				Vector3DH _right;
 				Point3DH _Pos;
 			};
 			Matrix4x4f _data;
