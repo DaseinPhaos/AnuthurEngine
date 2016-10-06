@@ -31,6 +31,18 @@
     <ClInclude Include="..\Src\Threading.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\Delegate.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\Allocator.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\CmdArgParser.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\AnyOptional.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\FileSystem.cpp">
@@ -46,6 +58,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\Threading.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\Allocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

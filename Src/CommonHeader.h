@@ -23,13 +23,24 @@
 #endif
 #include <windows.h>
 #include <wrl.h>
+#include <list>
+#include <cstring>
+#include <cassert>
 #include <vector>
+#include <set>
+#include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <random>
 #include <cmath>
 #include <utility>
 #include <algorithm>
 #include <emmintrin.h>
+#include <exception>
+#include <type_traits>
+#include <typeinfo>
+
 
 #pragma warning ( disable: 4229)
 

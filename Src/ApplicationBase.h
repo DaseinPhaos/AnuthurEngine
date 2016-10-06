@@ -15,6 +15,7 @@
 #define ANUTHURAPPLICATION_API
 #include "CommonHeader.h"
 
+
 namespace Luxko {
 	namespace Application {
 		class ANUTHURAPPLICATION_API BaseApp abstract {

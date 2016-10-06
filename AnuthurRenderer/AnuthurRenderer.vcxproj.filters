@@ -54,6 +54,12 @@
     <ClInclude Include="..\Src\D3D12App.h">
       <Filter>Headers\Application</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\ApplicationBase.h">
+      <Filter>Headers\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Src\ApplicationHelper.h">
+      <Filter>Headers\Application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\BasicGeometry.cpp">
@@ -75,6 +81,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\D3D12Manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\ApplicationBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\ApplicationHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

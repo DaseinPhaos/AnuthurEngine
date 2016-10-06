@@ -22,7 +22,7 @@
     <ProjectGuid>{A8607237-E0DC-421E-8798-63572DB79728}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>AnuthurRenderer</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -153,6 +153,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Src\ApplicationBase.h" />
+    <ClInclude Include="..\Src\ApplicationHelper.h" />
     <ClInclude Include="..\Src\BasicGeometry.h" />
     <ClInclude Include="..\Src\D3D12App.h" />
     <ClInclude Include="..\Src\D3D12Manager.h" />
@@ -164,17 +166,19 @@
     <ClInclude Include="..\Src\RendererPCH.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AnuthurApplication\AnuthurApplication.vcxproj">
-      <Project>{ce3e9058-bfa0-4e30-b277-1f5104dedc56}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
       <Project>{95b6fe37-84de-486d-a9fb-9d8782718e1e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\DirectXTK12\DirectXTK_Desktop_2015_Win10.vcxproj">
+      <Project>{3e0e8608-cd9b-4c76-af33-29ca38f2c9f0}</Project>
     </ProjectReference>
     <ProjectReference Include="..\LuxkoUtility\LuxkoUtility.vcxproj">
       <Project>{76099858-376c-4df4-a305-06fdee5ebb31}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Src\ApplicationBase.cpp" />
+    <ClCompile Include="..\Src\ApplicationHelper.cpp" />
     <ClCompile Include="..\Src\BasicGeometry.cpp" />
     <ClCompile Include="..\Src\D3D12App.cpp" />
     <ClCompile Include="..\Src\D3D12Manager.cpp" />

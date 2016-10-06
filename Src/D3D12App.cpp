@@ -10,8 +10,12 @@
 
 void Luxko::Anuthur::D3D12App::OnInit()
 {
+	_keyboard = std::make_unique<DirectX::Keyboard>();
+	_mouse = std::make_unique<DirectX::Mouse>();
+	_mouse->SetWindow(_hWindow);
+
 	_d3d12Manager.Initialize();
-	_wndResourceID = _d3d12Manager.AddWindowResource((*this), TRUE);
+	_d3d12Manager.ConfigureMainWndResource(*(static_cast<Luxko::Application::BaseApp*>(this)), _windowed);
 }
 
 
@@ -30,8 +34,8 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 	case Luxko::Application::Message::UsefulWindowMessage::ApplicationCommand:
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::ApplicationActiveDeactive:
-		break;
-	case Luxko::Application::Message::UsefulWindowMessage::WindowActiveDeactive:
+		DirectX::Keyboard::ProcessMessage(msg.message, msg.wParam, msg.lParam);
+		DirectX::Mouse::ProcessMessage(msg.message, msg.wParam, msg.lParam);
 		if (LOWORD(msg.wParam) == WA_INACTIVE) {
 			_appPaused = true;
 			_mainTimer.Pause();
@@ -40,6 +44,10 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 			_appPaused = FALSE;
 			_mainTimer.Start();
 		}
+		//_mouseStateTracker.Update(_mouse->GetState());
+		//_keyboardStateTracker.Update(_keyboard->GetState());
+		break;
+	case Luxko::Application::Message::UsefulWindowMessage::WindowActiveDeactive:
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::Close:
 		break;
@@ -84,6 +92,8 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 	case Luxko::Application::Message::UsefulWindowMessage::PositionOrSizeChanging:
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::RawInput:
+		DirectX::Mouse::ProcessMessage(msg.message, msg.wParam, msg.lParam);
+		//_mouseStateTracker.Update(_mouse->GetState());
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::InputDeviceChanged:
 		break;
@@ -94,14 +104,20 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 	case Luxko::Application::Message::UsefulWindowMessage::MidButtonDown:
 	case Luxko::Application::Message::UsefulWindowMessage::RightButtonDown:
 	case Luxko::Application::Message::UsefulWindowMessage::XButtonDown:
-		OnMouseDown(msg.wParam, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
-		break;
 	case Luxko::Application::Message::UsefulWindowMessage::LeftButtonUp:
 	case Luxko::Application::Message::UsefulWindowMessage::MidButtonUp:
 	case Luxko::Application::Message::UsefulWindowMessage::RightButtonUp:
 	case Luxko::Application::Message::UsefulWindowMessage::XButtonUp:
-		OnMouseUp(msg.wParam, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+	case Luxko::Application::Message::UsefulWindowMessage::MouseMoving:
+	case Luxko::Application::Message::UsefulWindowMessage::MouseHovering:
+	case Luxko::Application::Message::UsefulWindowMessage::HorizontalMouseWheel:
+		DirectX::Mouse::ProcessMessage(msg.message, msg.wParam, msg.lParam);
+		//_mouseStateTracker.Update(_mouse->GetState());
 		break;
+	//	OnMouseMove(msg.wParam, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+	//	break;
+	//	OnMouseUp(msg.wParam, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+	//	break;
 
 	case Luxko::Application::Message::UsefulWindowMessage::LeftButtonDoubleClick:
 		break;
@@ -114,17 +130,13 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 
 	case Luxko::Application::Message::UsefulWindowMessage::ActivatedByMouse:
 		break;
-	case Luxko::Application::Message::UsefulWindowMessage::MouseMoving:
-		OnMouseMove(msg.wParam, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
-		break;
-	case Luxko::Application::Message::UsefulWindowMessage::MouseHovering:
-		break;
+
+
 	case Luxko::Application::Message::UsefulWindowMessage::MouseLeft:
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::NCHitTest:
 		break;
-	case Luxko::Application::Message::UsefulWindowMessage::HorizontalMouseWheel:
-		break;
+
 	case Luxko::Application::Message::UsefulWindowMessage::DeviceChanged:
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::CopyData:
@@ -136,8 +148,11 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 	case Luxko::Application::Message::UsefulWindowMessage::HotKeyPressed:
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::KeyDown:
-		break;
 	case Luxko::Application::Message::UsefulWindowMessage::KeyUp:
+	case Luxko::Application::Message::UsefulWindowMessage::SysKeyDown:
+	case Luxko::Application::Message::UsefulWindowMessage::SysKeyUp:
+		DirectX::Keyboard::ProcessMessage(msg.message, msg.wParam, msg.lParam);
+		//_keyboardStateTracker.Update(_keyboard->GetState());
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::KeyboardFocusLost:
 		break;
