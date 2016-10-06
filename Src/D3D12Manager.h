@@ -87,8 +87,12 @@ namespace Luxko {
 
 			// Initializer
 			void Initialize();
+			void ConfigureMainWndResource(const Application::BaseApp& targetApp, BOOL windowed,
+				UINT sampleCount = 1, UINT sampleQuality = 0, size_t backBufferCount = 2,
+				DXGI_FORMAT backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM,
+				const char* name = nullptr);
 
-			// Modifiers, return a UUID for the created resource. If the name already exist,
+	public: // Modifiers, return a UUID for the created resource. If the name already exist,
 			// the former resource would be replaced by the new one, the ID would be reused.
 			// Names can be identical across different types of resources, while the ID would
 			// be universally unique.
@@ -139,6 +143,8 @@ namespace Luxko {
 				DXGI_FORMAT backBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM,
 				const char* name = nullptr);
 
+
+
 			inline auto RemoveBuffer(UINT64 id) { return _buffers.erase(id); }
 			inline auto RemoveBuffer(const std::string& name) { return RemoveBuffer(_bufferIDTable.at(name)); }
 
@@ -181,7 +187,7 @@ namespace Luxko {
 			inline auto IncrementMainFenceCount()noexcept { return ++_mainFenceCount; }
 
 
-			// Queries
+		public: // Queries
 			inline auto& FindBuffer(UINT64 id) { return _buffers.at(id); }
 			inline auto& FindBuffer(const std::string& name) { return FindBuffer(_bufferIDTable.at(name)); }
 			inline bool HaveBuffer(const std::string& name)const noexcept { return _bufferIDTable.find(name) != _bufferIDTable.end(); }
@@ -240,7 +246,7 @@ namespace Luxko {
 			inline auto GetCmdQueue()const noexcept { return _cmdQueue.Get(); }
 			inline auto GetMainCmdAllocator()const noexcept { return _mainCmdAllocator.Get(); }
 			inline auto GetMainCmdList()const noexcept { return _mainCmdList.Get(); }
-			//inline auto& GetSwapChainResource()const noexcept { return _swapChainResource; }
+			inline auto& GetMainWindowResource() noexcept { return _mainWindowResource; }
 			inline auto GetRTVDescriptorSize()const noexcept { return _rtvDescriptorSize; }
 			inline auto GetSamplerDescriptorSize()const noexcept { return _samplerDescriptorSize; }
 			inline auto GetDSVDescriptorSize()const noexcept { return _dsvDescriptorSize; }
@@ -248,7 +254,7 @@ namespace Luxko {
 			inline auto GetMainFenceCount()const noexcept { return _mainFenceCount; }
 
 
-			// Utilities			
+		public: // Utilities			
 			void FlushCommandQueue();
 
 			void CreateCBVOnHeap(const D3D12Helper::CBVDescriptor* desc, ID3D12DescriptorHeap* pHeap, UINT viewsCountFromHeapStart);
@@ -258,20 +264,19 @@ namespace Luxko {
 			void CreateDSVOnHeap(ID3D12Resource* src, const D3D12Helper::DSVDescriptor* desc, ID3D12DescriptorHeap* pHeap, UINT viewsCountFromHeapStart);
 			void CreateSamplerOnHeap(const D3D12Helper::SamplerDescriptor* desc, ID3D12DescriptorHeap* pHeap, UINT samplersCountFromHeapStart);
 
-		private:
-			// Helper functions
+		private: // Helper functions
+
 			UINT64 GenerateIDByName(const char* name, HashTable<std::string, UINT64>& container) noexcept;
 
-		private:
+		private: // Data members
 
-			// Data members
 			ComPtr<IDXGIFactory4>				_dxgiFactory;
 			ComPtr<ID3D12Device>				_d3d12Device;
 			ComPtr<ID3D12Fence>					_mainFence;
 			ComPtr<ID3D12CommandQueue>			_cmdQueue;
 			ComPtr<ID3D12CommandAllocator>		_mainCmdAllocator;
 			ComPtr<ID3D12GraphicsCommandList>	_mainCmdList;
-			//D3D12WindowResource					_swapChainResource;
+			D3D12WindowResource					_mainWindowResource;
 			//D3D12_VIEWPORT						_mainViewport;
 			//D3D12_RECT							_mainScissor;
 

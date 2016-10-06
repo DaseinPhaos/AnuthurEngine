@@ -52,8 +52,10 @@ namespace Luxko {
 		public:
 
 			// Ctors
-			D3D12App(UINT width, UINT height, const std::wstring& name) :
-				BaseApp(width, height, name) {}
+			D3D12App(UINT width, UINT height, const std::wstring& name, BOOL windowed = TRUE) :
+				BaseApp(width, height, name) {
+				_windowed = windowed;
+			}
 			D3D12App(const D3D12App&) = delete;
 			D3D12App& operator=(const D3D12App&) = delete;
 			// Dtors
@@ -61,34 +63,26 @@ namespace Luxko {
 
 		protected:
 			// overridden methods
-			virtual void OnInit() override;
+			virtual void OnInit() override; // Any subclass overriding this method should ensure that the base implementation here get called at the very first of the derived method.
 
 			virtual void OnDestroy() override;
 
 			virtual bool OnEvent(MSG msg) override;
 
-			// This method is called when OnEvent receives a WM_SIZE message.
+			// This method is called when OnEvent receives a WM_SIZE message, which is NEVER, hahaha...
 			virtual void OnResize();
 
 			virtual void CreateMainDsvDescriptorHeaps();
 
 			void LogFPSToTitle(); // Called every OnRender() to display fps on windows title.
 
-
 			// Data members
 			Anuthur::D3D12Manager				_d3d12Manager;
 			Luxko::Timer						_mainTimer;
 			BOOL								_appPaused = FALSE;
-			UINT64								_wndResourceID;
-
+			BOOL								_windowed;
 			std::unique_ptr<DirectX::Keyboard>	_keyboard;
 			std::unique_ptr<DirectX::Mouse>		_mouse;
-
-			// mouse control
-			DirectX::Mouse::ButtonStateTracker _mouseStateTracker;
-
-			// key control
-			DirectX::Keyboard::KeyboardStateTracker _keyboardStateTracker;
 		};
 	}
 }

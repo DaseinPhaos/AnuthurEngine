@@ -122,22 +122,22 @@ void CrateApp::OnRender()
 	//_mainCmdList->SetDescriptorHeaps(_countof(dhs), dhs);
 	//_mainCmdList->SetGraphicsRootDescriptorTable(0u, cfr._CBVheap->GetGPUDescriptorHandleForHeapStart());
 	//_mainCmdList->SetGraphicsRootDescriptorTable(1u, _mainSRVUAVheap->GetGPUDescriptorHandleForHeapStart());
-	_mainCmdList->RSSetScissorRects(1u, &_d3d12Manager.FindWindowResource(_wndResourceID).GetMainScissor());
-	_mainCmdList->RSSetViewports(1u, &_d3d12Manager.FindWindowResource(_wndResourceID).GetMainViewport());
+	_mainCmdList->RSSetScissorRects(1u, &_d3d12Manager.GetMainWindowResource().GetMainScissor());
+	_mainCmdList->RSSetViewports(1u, &_d3d12Manager.GetMainWindowResource().GetMainViewport());
 	_mainCmdList->SetGraphicsRootConstantBufferView(1u, cfr._cameraData.Get()->GetGPUVirtualAddress());
 	_mainCmdList->SetGraphicsRootConstantBufferView(2u, cfr._lightPack.Get()->GetGPUVirtualAddress());
 
 
 	_mainCmdList->ResourceBarrier(1u, &D3D12Helper::ResourceBarrier::TransitionBarrier(
-		_d3d12Manager.FindWindowResource(_wndResourceID).GetCurrentBackBufferResource(),
+		_d3d12Manager.GetMainWindowResource().GetCurrentBackBufferResource(),
 		D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-	_mainCmdList->ClearDepthStencilView(_d3d12Manager.FindWindowResource(_wndResourceID).GetCPUDSV(),
+	_mainCmdList->ClearDepthStencilView(_d3d12Manager.GetMainWindowResource().GetCPUDSV(),
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0u, nullptr);
 	static FLOAT bgColor[] = { 0.8f, 0.8f, 0.8f, 1.f };
-	_mainCmdList->ClearRenderTargetView(_d3d12Manager.FindWindowResource(_wndResourceID).GetCurrentCPURTV(),
+	_mainCmdList->ClearRenderTargetView(_d3d12Manager.GetMainWindowResource().GetCurrentCPURTV(),
 		bgColor, 0u, nullptr);
-	_mainCmdList->OMSetRenderTargets(1u, &_d3d12Manager.FindWindowResource(_wndResourceID).GetCurrentCPURTV(),
-		TRUE, &_d3d12Manager.FindWindowResource(_wndResourceID).GetCPUDSV());
+	_mainCmdList->OMSetRenderTargets(1u, &_d3d12Manager.GetMainWindowResource().GetCurrentCPURTV(),
+		TRUE, &_d3d12Manager.GetMainWindowResource().GetCPUDSV());
 
 	_mainCmdList->IASetIndexBuffer(&_crateIBV);
 	_mainCmdList->IASetVertexBuffers(0u, 1u, &_crateVBV);
@@ -158,7 +158,7 @@ void CrateApp::OnRender()
 	_mainCmdList->DrawIndexedInstanced(_gridMesh.GetTotoalIndexCount(), 1u, 0u, 0u, 0u);
 
 	_mainCmdList->ResourceBarrier(1u, &D3D12Helper::ResourceBarrier::TransitionBarrier(
-		_d3d12Manager.FindWindowResource(_wndResourceID).GetCurrentBackBufferResource(),
+		_d3d12Manager.GetMainWindowResource().GetCurrentBackBufferResource(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 	_mainCmdList->Close();
 	
@@ -167,8 +167,8 @@ void CrateApp::OnRender()
 	cfr._fenceCount = _d3d12Manager.IncrementMainFenceCount();
 	_d3d12Manager.GetCmdQueue()->Signal(_d3d12Manager.GetMainFence(), 
 		_d3d12Manager.GetMainFenceCount());
-	_d3d12Manager.FindWindowResource(_wndResourceID).GetSwapChain()->Present(0u, 0u);
-	_d3d12Manager.FindWindowResource(_wndResourceID).AdvanceBackBufferIndex();
+	_d3d12Manager.GetMainWindowResource().GetSwapChain()->Present(0u, 0u);
+	_d3d12Manager.GetMainWindowResource().AdvanceBackBufferIndex();
 	_currentFRindex = (_currentFRindex + 1) % FrameResourceCount;
 
 }
@@ -401,8 +401,8 @@ void CrateApp::InitializePSOs()
 	gpsd.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	gpsd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	gpsd.NumRenderTargets = 1u;
-	gpsd.RTVFormats[0] = _d3d12Manager.FindWindowResource(_wndResourceID).GetBackBufferFormat();
-	gpsd.DSVFormat = _d3d12Manager.FindWindowResource(_wndResourceID).GetDepthStencilFormat();
+	gpsd.RTVFormats[0] = _d3d12Manager.GetMainWindowResource().GetBackBufferFormat();
+	gpsd.DSVFormat = _d3d12Manager.GetMainWindowResource().GetDepthStencilFormat();
 	gpsd.SampleDesc.Count = 1;
 	gpsd.SampleDesc.Quality = 0;
 	_d3d12Manager.AddPSO(gpsd, "normal");

@@ -14,6 +14,7 @@
 #include "CommonHeader.h"
 #include "Vector3f.h"
 namespace Luxko {
+	// Row-major matrix.
 	class ANUTHURMATH_API Matrix3x3f {
 	public:
 

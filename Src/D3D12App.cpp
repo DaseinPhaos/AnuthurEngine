@@ -15,7 +15,7 @@ void Luxko::Anuthur::D3D12App::OnInit()
 	_mouse->SetWindow(_hWindow);
 
 	_d3d12Manager.Initialize();
-	_wndResourceID = _d3d12Manager.AddWindowResource((*this), TRUE);
+	_d3d12Manager.ConfigureMainWndResource(*(static_cast<Luxko::Application::BaseApp*>(this)), _windowed);
 }
 
 
@@ -36,10 +36,6 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 	case Luxko::Application::Message::UsefulWindowMessage::ApplicationActiveDeactive:
 		DirectX::Keyboard::ProcessMessage(msg.message, msg.wParam, msg.lParam);
 		DirectX::Mouse::ProcessMessage(msg.message, msg.wParam, msg.lParam);
-		//_mouseStateTracker.Update(_mouse->GetState());
-		//_keyboardStateTracker.Update(_keyboard->GetState());
-		break;
-	case Luxko::Application::Message::UsefulWindowMessage::WindowActiveDeactive:
 		if (LOWORD(msg.wParam) == WA_INACTIVE) {
 			_appPaused = true;
 			_mainTimer.Pause();
@@ -48,6 +44,10 @@ bool Luxko::Anuthur::D3D12App::OnEvent(MSG msg)
 			_appPaused = FALSE;
 			_mainTimer.Start();
 		}
+		//_mouseStateTracker.Update(_mouse->GetState());
+		//_keyboardStateTracker.Update(_keyboard->GetState());
+		break;
+	case Luxko::Application::Message::UsefulWindowMessage::WindowActiveDeactive:
 		break;
 	case Luxko::Application::Message::UsefulWindowMessage::Close:
 		break;

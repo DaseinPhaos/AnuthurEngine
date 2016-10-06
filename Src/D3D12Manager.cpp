@@ -195,7 +195,12 @@ void Luxko::Anuthur::D3D12Manager::Initialize()
 
 		ThrowIfFailed(_mainCmdList->Close());
 	}
+}
 
+void Luxko::Anuthur::D3D12Manager::ConfigureMainWndResource(const Application::BaseApp& targetApp, BOOL windowed, UINT sampleCount /*= 1*/, UINT sampleQuality /*= 0*/, size_t backBufferCount /*= 2*/, DXGI_FORMAT backBufferFormat /*= DXGI_FORMAT_R8G8B8A8_UNORM*/, const char* name /*= nullptr*/)
+{
+	_mainWindowResource._manager = this;
+	_mainWindowResource.ReconfigureAndReset(backBufferCount, backBufferFormat, targetApp, windowed, sampleCount, sampleQuality);
 }
 
 UINT64 Luxko::Anuthur::D3D12Manager::AddBuffer(const D3D12Helper::ResourceHeapProperties& heapProperties, D3D12_HEAP_FLAGS heapFlags, const D3D12Helper::ResourceDescriptor& resourceDescription, D3D12_RESOURCE_STATES initialState /*= D3D12_RESOURCE_STATE_COMMON*/, const D3D12_CLEAR_VALUE* pOptimizedClearValue /*= nullptr*/, const char* name /*= nullptr*/)

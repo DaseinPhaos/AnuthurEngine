@@ -153,6 +153,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Src\ApplicationBase.h" />
+    <ClInclude Include="..\Src\ApplicationHelper.h" />
     <ClInclude Include="..\Src\BasicGeometry.h" />
     <ClInclude Include="..\Src\D3D12App.h" />
     <ClInclude Include="..\Src\D3D12Manager.h" />
@@ -164,9 +166,6 @@
     <ClInclude Include="..\Src\RendererPCH.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AnuthurApplication\AnuthurApplication.vcxproj">
-      <Project>{ce3e9058-bfa0-4e30-b277-1f5104dedc56}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
       <Project>{95b6fe37-84de-486d-a9fb-9d8782718e1e}</Project>
     </ProjectReference>
@@ -178,6 +177,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Src\ApplicationBase.cpp" />
+    <ClCompile Include="..\Src\ApplicationHelper.cpp" />
     <ClCompile Include="..\Src\BasicGeometry.cpp" />
     <ClCompile Include="..\Src\D3D12App.cpp" />
     <ClCompile Include="..\Src\D3D12Manager.cpp" />
