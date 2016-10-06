@@ -211,5 +211,11 @@ GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
 
-AnuthurEngine.VC.db
+*.VC.db
+Bin
+/DirectXTK12/Src/Shaders/Compiled/XboxOne*.inc
+/DirectXTK12/Src/Shaders/Compiled/XboxOne*.pdb
+/DirectXTK12/ipch
+/DirectXTK12/Tests
+/DirectXTK12/wiki
 /AnuthurEngine.VC.VC.opendb
