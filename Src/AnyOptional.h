@@ -458,9 +458,6 @@ namespace Luxko {
 			virtual void* get()const {
 				return reinterpret_cast<void*>(const_cast<VT*>(&_data));
 			}
-			//virtual std::unique_ptr<any_content> move() override {
-			//	return std::unique_ptr<any_content>(new any_typed_content<value_type>(std::move(_data)));
-			//}
 
 		public:
 			VT _data;

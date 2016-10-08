@@ -259,7 +259,7 @@ void OptionalTest() {
 		std::cout << "ob == " << (*ob)._result << std::endl;
 
 		Luxko::Optional<Base> anotherOb;
-		std::cout << "1 == " << anotherOb.value_or(1)._result << std::endl;
+		std::cout << "1 == " << anotherOb.value_or(static_cast<float>(1))._result << std::endl;
 		try
 		{
 			auto r = anotherOb.value()._result;
@@ -294,7 +294,7 @@ void OptionalTest() {
 void AnyTest() {
 	auto a = Luxko::Any();
 	std::cout << "typeid(void) == " << a.type().name() << std::endl;
-	a.emplace<Base>(3);
+	a.emplace<Base>(3.f);
 	std::cout << "typeid(Base) == " << a.type().name() << std::endl;
 	std::cout << "3 == " << Luxko::any_cast<Base&>(a)._result << std::endl;
 	try {
