@@ -24,6 +24,7 @@
 #include <windows.h>
 #include <wrl.h>
 #include <list>
+#include <forward_list>
 #include <cstring>
 #include <cassert>
 #include <vector>

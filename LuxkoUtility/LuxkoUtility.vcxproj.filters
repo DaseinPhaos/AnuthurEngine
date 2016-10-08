@@ -43,6 +43,9 @@
     <ClInclude Include="..\Src\AnyOptional.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\ObserverPattern.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\FileSystem.cpp">

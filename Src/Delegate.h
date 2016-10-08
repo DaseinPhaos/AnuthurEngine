@@ -38,6 +38,12 @@ namespace Luxko {
 
 	public:
 		Delegate() :_stub(nullptr, nullptr) {}
+
+		Delegate(const Delegate&) = default;
+		Delegate(Delegate&&) = default;
+		Delegate& operator=(const Delegate&) = default;
+		Delegate& operator=(Delegate&&) = default;
+
 		~Delegate() = default;
 
 		template<class FuncObjType>
@@ -71,6 +77,7 @@ namespace Luxko {
 		inline bool operator!=(const Delegate<RT, PTs...>& d) {
 			return !(this->operator ==(d));
 		}
+
 	private:
 		Stub _stub;
 		
@@ -81,7 +88,8 @@ namespace Luxko {
 	public:
 		using delegate_type = Delegate<RT, PTs...>;
 	private:
-		using EventSink = std::list<delegate_type>;
+		// using EventSink = std::list<delegate_type>;
+		using EventSink = std::forward_list<delegate_type>;
 	public:
 		DEvent() = default;
 		~DEvent() = default;
@@ -105,7 +113,8 @@ namespace Luxko {
 		}
 
 		inline void Add(Delegate<RT, PTs...> d) {
-			_events.push_back(std::move(d));
+			// _events.push_back(std::move(d));
+			_events.push_front(std::move(d));
 		}
 
 		inline void Remove(Delegate<RT, PTs...> d) {

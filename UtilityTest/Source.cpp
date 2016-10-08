@@ -5,7 +5,7 @@
 #include <cassert>
 #include <thread>
 #include "Allocator.h"
-//#include "ApplicationHelper.h"
+#include "ObserverPattern.h"
 #include "AnyOptional.h"
 
 int FileSystemTest() {
@@ -313,8 +313,49 @@ void AnyTest() {
 	
 }
 
+namespace OBTest {
+	class Object {
+	public:
+		using observer_type = Luxko::Observer<char>;
+		void Run() {
+			char c;
+			std::cout << "Waiting orders..." << std::endl;
+			while (std::cin >> c && c != 'q') {
+				obs.Notify(c);
+				std::cout << "Done!\nWaiting orders..." << std::endl;
+			}
+			std::cout << "Quit!" << std::endl;
+		}
+		void AddOB(observer_type* ot) {
+			obs.Add(ot);
+		}
+	private:
+		observer_type obs = observer_type::CreateHead();
+	};
+
+	void Test() {
+		Object object;
+		Object::observer_type obs[3];
+		//auto obi0 = ;
+		obs[0].toBeInvoked.Bind(&([](char c) {std::cout << c << ": ob#0 invoked." << std::endl; }));
+		obs[1].toBeInvoked.Bind(&([](char c) {std::cout << c << ": ob#1 invoked." << std::endl; }));
+		obs[2].toBeInvoked.Bind(&([](char c) {std::cout << c << ": ob#2 invoked." << std::endl; }));
+		object.AddOB(&obs[0]);
+		// object.AddOB(&obs[0]); Deadly!
+		object.AddOB(&obs[1]);
+		object.AddOB(&obs[2]);
+
+		object.Run();
+
+		obs[1].Remove();
+		object.Run();
+		
+	}
+
+}
+
 int main() {
-	AnyTest();
+	OBTest::Test();
 	getchar();
 	return 0;
 }
