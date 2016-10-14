@@ -58,7 +58,7 @@ void CrateApp::OnUpdate()
 				_mouse->SetMode(DirectX::Mouse::Mode::MODE_ABSOLUTE);
 			}
 
-			static float f_pi = static_cast<float>(M_PI) * .2f * 360.f;
+			static float f_pi = static_cast<float>(M_PI)*360.f;
 			if (mouseState.positionMode == DirectX::Mouse::MODE_RELATIVE) {
 				// FPS-like transform
 				auto deltaH = 2.f*static_cast<float>(M_PI) - (mouseState.x) / f_pi;
@@ -100,10 +100,7 @@ void CrateApp::OnUpdate()
 					_currentPSO = _d3d12Manager.FindPSO("normal").Get();
 				else _currentPSO = _d3d12Manager.FindPSO("wireframe").Get();
 			}
-			if (_keyboardStateTracker.IsKeyPressed(DirectX::Keyboard::R)) {
-				_mainCamera._orientation.LookAt(Point3DH(2.5f, 2.5f, 2.5f));
-				_frDirtyCounts.Camera = FrameResourceCount;
-			}
+
 		}
 
 	}

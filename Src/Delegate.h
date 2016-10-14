@@ -8,7 +8,6 @@
 #pragma once
 #include "CommonHeader.h"
 
-#define __luxfinline __forceinline
 namespace Luxko {
 
 	// Note that if used improperly there might be a chance
@@ -18,38 +17,26 @@ namespace Luxko {
 		using InsPtr = void*;
 		using FuncType = RT(*)(PTs ...);
 		template<class C> using ClassMethodType = RT(C::*)(PTs ...);
-		using InternalFuncType = RT(*)(InsPtr, PTs&& ...);
+		using InternalFuncType = RT(*)(InsPtr, PTs ...);
 		using Stub = std::pair<InsPtr, InternalFuncType>;
 
 		template<FuncType func>
-		static __luxfinline RT FreeFuncStub(InsPtr, PTs&&... args) {
-			return func(std::forward<PTs>(args)...);
+		static inline RT FreeFuncStub(InsPtr, PTs... args) {
+			return func(args...);
 		}
 
 		template<class C, ClassMethodType<C> func>
-		static __luxfinline RT ClassMethodStub(InsPtr insPtr, PTs&&... args) {
-			return (static_cast<C*>(insPtr)->*func)(std::forward<PTs>(args)...);
+		static inline RT ClassMethodStub(InsPtr insPtr, PTs... args) {
+			return (static_cast<C*>(insPtr)->*func)(args...);
 		}
 
 		
 		template<class FuncObjType>
-		static __luxfinline RT FunctionObjectStub(InsPtr insPtr, PTs&&... args) {
-			return (*static_cast<FuncObjType*>(insPtr))(std::forward<PTs>(args)...);
+		static inline RT FunctionObjectStub(InsPtr insPtr, PTs... args) {
+			return (*static_cast<FuncObjType*>(insPtr))(args...);
 		}
-
 
 	public:
-
-
-		static Delegate FromDefault() {
-			Delegate result;
-			static auto defaultCtor = [](PTs...args) {
-				return RT(args...);
-			};
-			result.Bind(&defaultCtor);
-			return result;
-		}
-
 		Delegate() :_stub(nullptr, nullptr) {}
 
 		Delegate(const Delegate&) = default;
@@ -62,25 +49,26 @@ namespace Luxko {
 		template<class FuncObjType>
 		void Bind(FuncObjType* lambda) {
 			_stub.first = static_cast<InsPtr>(lambda);
-			_stub.second = FunctionObjectStub<FuncObjType>;
+			_stub.second = &FunctionObjectStub<FuncObjType>;
 		}
 
 		template<FuncType ft>
 		void Bind() {
 			_stub.first = nullptr;
-			_stub.second = FreeFuncStub<ft>;
+			_stub.second = &FreeFuncStub<ft>;
 		}
 
 
 		template<class C, ClassMethodType<C> cmt>
 		void Bind(C* instance) {
 			_stub.first = static_cast<InsPtr>(instance);
-			_stub.second = ClassMethodStub<C, cmt>;
+			_stub.second = &ClassMethodStub<C, cmt>;
 		}
 
-		__luxfinline RT Invoke(PTs...args)const {
-			return _stub.second(_stub.first, std::forward<PTs>(args)...);
+		inline RT Invoke(PTs... args)const {
+			return _stub.second(_stub.first, args...);
 		}
+
 
 		inline bool operator==(const Delegate<RT, PTs...>& d) {
 			return _stub == d._stub;
@@ -136,4 +124,3 @@ namespace Luxko {
 		EventSink _events;
 	};
 }
-

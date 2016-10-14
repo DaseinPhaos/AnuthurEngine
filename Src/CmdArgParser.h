@@ -8,25 +8,26 @@
 #pragma once
 #include "CommonHeader.h"
 #include "Delegate.h"
-#include "AnyOptional.h"
 
 namespace Luxko {
 	class CmdArgParser {
-		enum CmdArgType {
+		enum class CmdArgType
+		{
 			Bool,
-			String,
 			Int,
-			Double
+			Float,
+			String
 		};
-		using arguments_t = std::unordered_map<std::string, Luxko::Any>;
-		using namelookup_t = std::unordered_map<std::string, std::string>;
-
 	public:
+		CmdArgParser() = default;
 
+		// @TODO: Finish this shit..
+		template<class T>
+		void addArgument(T& target, std::string argName, CmdArgType argType = CmdArgType::String) {
+			assert(argName.size() != 0u);
 
+		}
 	private:
-		arguments_t _positional_args;
-		arguments_t _optional_args;
-		namelookup_t _namelookup;
+
 	};
 }
