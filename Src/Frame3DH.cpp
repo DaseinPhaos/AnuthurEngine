@@ -37,6 +37,20 @@ Luxko::Frame3DH Luxko::Frame3DH::LookTowards(const Vector3DH& lookTowards, const
 	return Frame3DH(lookTowards, up, pos);
 }
 
+void Luxko::Frame3DH::LookAt(const Point3DH & lookAt)
+{
+	auto lookTowards = lookAt - _Pos;
+	LookTowards(lookTowards);
+}
+
+void Luxko::Frame3DH::LookTowards(const Vector3DH & lookTowards)
+{
+	assert(lookTowards != _up);
+	_look = lookTowards.Normalize();
+	_right = _look.Cross(_up)/*.Normalize()*/;
+	_up = _right.Cross(_look);
+}
+
 Luxko::Frame3DH& Luxko::Frame3DH::operator=(const Frame3DH& f)
 {
 	_data = f._data;

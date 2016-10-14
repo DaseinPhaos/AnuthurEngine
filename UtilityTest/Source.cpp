@@ -165,6 +165,44 @@ void Function(int a) {
 	std::cout << "Function invoked, a == " << a << std::endl;
 }
 
+class StringC {
+public:
+	explicit StringC(const std::string& s) :ptr(s.c_str()) {
+		std::cout << "StringC ctor called from " << s << std::endl;
+	}
+private:
+	const char* ptr;
+};
+
+class CopyTalk {
+public:
+	explicit CopyTalk(float t) {
+		value = t;
+	}
+	CopyTalk(const CopyTalk& ct) {
+		std::cout << "CopyTalk lv-copy ctor talked! Value : " << ct.value << std::endl;
+		value = ct.value;
+	}
+
+	CopyTalk(CopyTalk&& ct) {
+		std::cout << "CopyTalk rv-copy ctor talked! Value : " << ct.value << std::endl;
+		value = ct.value;
+	}
+
+	CopyTalk& operator=(const CopyTalk& ct) {
+		std::cout << "CopyTalk lv-copy operator= talked! Value : " << ct.value << std::endl;
+		value = ct.value;
+		return *this;
+	}
+
+	CopyTalk& operator=(CopyTalk&& ct) {
+		std::cout << "CopyTalk rv-copy operator= talked! Value : " << ct.value << std::endl;
+		value = ct.value;
+		return *this;
+	}
+
+	float value;
+};
 
 int DelegateTest() {
 	auto MethodSig = &Base::Method;
@@ -185,9 +223,11 @@ int DelegateTest() {
 	{
 		auto another_free_func = [test](int x, int y) {test.Invoke(x + y); return x + y; };
 		t2.Bind(&another_free_func);
+		std::cout << "1 + 2 == " << t2.Invoke(1, 2) << std::endl;
 	}
 	
-	std::cout << "1 + 2 == " << t2.Invoke(1, 2) << std::endl;
+	// Fucking unsafe here
+	// std::cout << "1 + 2 == " << t2.Invoke(1, 2) << std::endl;
 	
 	using TestDelC = Luxko::Delegate<float, float>;
 	TestDelC t3;
@@ -199,9 +239,37 @@ int DelegateTest() {
 		b1._result = 2.f;
 		std::cout << "2 - 20 == " << t3.Invoke(20.f) << std::endl;
 	}
+	
+	using DStringC = Luxko::Delegate<StringC, const std::string&>;
+	using BStringC = Luxko::Delegate<Base, const std::string&>;
+	DStringC ds = DStringC::FromDefault();
+	ds.Invoke("fuck");
+	// BStringC bs = BStringC::FromDefault();
+	// bs.Invoke("fuck bs");
+	//ds.Bind<StringC::StringC>();
+	
+	using CTBD = Luxko::Delegate<Base, CopyTalk>;
+	CTBD ctbd;
+	auto lamb1 = [](CopyTalk ct) {return Base(ct.value); };
+	ctbd.Bind(&lamb1);
+	CopyTalk&& ct = CopyTalk(1.f);
+	ct.value = 3.f;
+	ctbd.Invoke(ct);
+	ctbd.Invoke(CopyTalk(2.f));
+
+	using RCTBD = Luxko::Delegate<Base, CopyTalk&&>;
+	RCTBD rctbd;
+	auto rfunc = [](CopyTalk&& ct) {return Base(ct.value); };
+	rfunc(std::move(ct));
+	rctbd.Bind(&rfunc);
+	rctbd.Invoke(std::move(CopyTalk(4.f)));
+	ct.value = 5.f;
+	rctbd.Invoke(std::move(ct));
 	// UNSAFE :
 	// std::cout << "2 - 1 == " << t3.Invoke(1.f);
 	getchar();
+
+
 	return 0;
 
 }
@@ -355,7 +423,7 @@ namespace OBTest {
 }
 
 int main() {
-	OBTest::Test();
+	DelegateTest();
 	getchar();
 	return 0;
 }
