@@ -35,6 +35,8 @@ namespace Luxko {
 
 
 		const Vector3DH& Look()const { return _look; }
+		void LookAt(const Point3DH& lookAt);
+		void LookTowards(const Vector3DH& lookTowards);
 		const Vector3DH& Up()const { return _up; }
 		const Vector3DH& Right()const { return _right; }
 		const Point3DH& Position()const { return _Pos; }

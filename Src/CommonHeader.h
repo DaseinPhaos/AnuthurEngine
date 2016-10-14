@@ -41,6 +41,7 @@
 #include <exception>
 #include <type_traits>
 #include <typeinfo>
+#include <memory>
 
 
 #pragma warning ( disable: 4229)
