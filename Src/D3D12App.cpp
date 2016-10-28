@@ -170,11 +170,6 @@ void Luxko::Anuthur::D3D12App::OnDestroy()
 }
 
 
-void Luxko::Anuthur::D3D12App::CreateMainDsvDescriptorHeaps()
-{
-	
-}
-
 void Luxko::Anuthur::D3D12App::LogFPSToTitle()
 {
 	static LONGLONG lastSecTick = 0;

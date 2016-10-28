@@ -48,7 +48,7 @@ namespace Luxko {
 
 		void ApplyTransformOnOrientation(const Transform3DH& transform);
 		void ApplyTransformOnPosition(const Transform3DH& transform);
-
+		void ApplyTransform(const Transform3DH& transform);
 
 
 	private:

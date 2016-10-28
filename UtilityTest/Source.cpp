@@ -270,8 +270,18 @@ int DelegateTest() {
 	getchar();
 
 
-	return 0;
+	using LCTBD = Luxko::Delegate<Base, CopyTalk&>;
+	LCTBD lctbd;
+	auto lfunc = [](CopyTalk& ct) { return Base(ct.value); ct.value = 0.f; };
+	ct = CopyTalk(8.f);
+	lctbd.Bind(&lfunc);
+	auto base = lctbd.Invoke(ct);
+	std::cout << "b.value == " << base._result << std::endl;
+	ct.value = 9.f;
+	lctbd.Invoke(std::move(ct));
 
+
+	return 0;
 }
 
 

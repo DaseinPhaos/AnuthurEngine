@@ -108,3 +108,8 @@ void Luxko::Frame3DH::ApplyTransformOnPosition(const Transform3DH& transform)
 {
 	_Pos = transform*_Pos;
 }
+
+void Luxko::Frame3DH::ApplyTransform(const Transform3DH& transform)
+{
+	(*this) = transform.ApplyOnFrame(*this);
+}

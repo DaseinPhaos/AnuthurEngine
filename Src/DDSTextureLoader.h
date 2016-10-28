@@ -254,7 +254,7 @@ namespace DirectX
 #pragma warning(push)
 #pragma warning(disable : 4005)
 #include <stdint.h>
-
+#include "DirectXTKInc/DDSTextureLoader.h"
 #pragma warning(pop)
 
 #if defined(_MSC_VER) && (_MSC_VER<1610) && !defined(_In_reads_)
@@ -271,14 +271,14 @@ namespace DirectX
 
 namespace DirectX
 {
-	enum DDS_ALPHA_MODE
-	{
-		DDS_ALPHA_MODE_UNKNOWN = 0,
-		DDS_ALPHA_MODE_STRAIGHT = 1,
-		DDS_ALPHA_MODE_PREMULTIPLIED = 2,
-		DDS_ALPHA_MODE_OPAQUE = 3,
-		DDS_ALPHA_MODE_CUSTOM = 4,
-	};
+	//enum DDS_ALPHA_MODE
+	//{
+	//	DDS_ALPHA_MODE_UNKNOWN = 0,
+	//	DDS_ALPHA_MODE_STRAIGHT = 1,
+	//	DDS_ALPHA_MODE_PREMULTIPLIED = 2,
+	//	DDS_ALPHA_MODE_OPAQUE = 3,
+	//	DDS_ALPHA_MODE_CUSTOM = 4,
+	//};
 
 	// Standard version
 	HRESULT CreateDDSTextureFromMemory(_In_ ID3D11Device* d3dDevice,

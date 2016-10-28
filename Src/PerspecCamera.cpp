@@ -11,7 +11,7 @@ void Luxko::Anuthur::PerspecCamera::SetLens(float nearDistance, float farDistanc
 
 Luxko::Transform3DH Luxko::Anuthur::PerspecCamera::TransformWtoV() const
 {
-	 return _orientation.GetTransformLH(); 
+	 return _orientation.GetTransformLH();  
 }
 
 Luxko::Transform3DH Luxko::Anuthur::PerspecCamera::TransformVtoH() const

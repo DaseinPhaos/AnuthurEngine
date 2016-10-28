@@ -395,6 +395,9 @@ namespace Luxko {
 			inline auto GetMainFenceCount()const noexcept { 
 				return _mainFenceCount; }
 
+			inline auto GetAdvancedMainFenceCount() noexcept {
+				return ++_mainFenceCount;
+			}
 
 		public: // Utilities
 

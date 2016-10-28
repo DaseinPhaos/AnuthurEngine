@@ -41,7 +41,7 @@ namespace Luxko {
 		Transform3DH TransformWtoO()const { return _orientation.GetTransform(); }
 		Transform3DH TransformOtoW()const { return _orientation.GetTransform().Inverse(); }
 
-		virtual void ApplyTransform(const Transform3DH& t) { _orientation = t.ApplyOnFrame(_orientation); }
+		virtual void ApplyTransform(const Transform3DH& t) { _orientation.ApplyTransform(t); }
 
 		// Data members
 		Frame3DH _orientation;

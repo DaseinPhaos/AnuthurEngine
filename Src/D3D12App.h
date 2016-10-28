@@ -72,8 +72,6 @@ namespace Luxko {
 			// This method is called when OnEvent receives a WM_SIZE message, which is NEVER, hahaha...
 			virtual void OnResize();
 
-			virtual void CreateMainDsvDescriptorHeaps();
-
 			void LogFPSToTitle(); // Called every OnRender() to display fps on windows title.
 
 			// Data members
