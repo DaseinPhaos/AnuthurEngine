@@ -620,17 +620,17 @@ Luxko::Anuthur::D3D12Helper::DescriptorHandleCPU& Luxko::Anuthur::D3D12Helper::D
 	return *this;
 }
 
-Luxko::Anuthur::D3D12Helper::BlendDescriptor Luxko::Anuthur::D3D12Helper::BlendDescriptor::Default()
+Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor::Default()
 {
-	BlendDescriptor bd;
+	RenderTargetBlendDescriptor bd;
 	bd.BlendEnable = FALSE;
 	bd.LogicOpEnable = FALSE;
 	return bd;
 }
 
-Luxko::Anuthur::D3D12Helper::BlendDescriptor Luxko::Anuthur::D3D12Helper::BlendDescriptor::Blend(D3D12_BLEND srcBlend, D3D12_BLEND destBlend, D3D12_BLEND_OP blendOp, D3D12_BLEND srcAlphaBlend, D3D12_BLEND destAlphaBlend, D3D12_BLEND_OP alphaBlendOp, UINT8 renderTargetWriteMask /*= D3D12_COLOR_WRITE_ENABLE_ALL*/)
+Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor::Blend(D3D12_BLEND srcBlend, D3D12_BLEND destBlend, D3D12_BLEND_OP blendOp, D3D12_BLEND srcAlphaBlend, D3D12_BLEND destAlphaBlend, D3D12_BLEND_OP alphaBlendOp, UINT8 renderTargetWriteMask /*= D3D12_COLOR_WRITE_ENABLE_ALL*/)
 {
-	BlendDescriptor bd;
+	RenderTargetBlendDescriptor bd;
 	bd.BlendEnable = TRUE;
 	bd.LogicOpEnable = FALSE;
 	bd.SrcBlend = srcBlend;
@@ -643,9 +643,9 @@ Luxko::Anuthur::D3D12Helper::BlendDescriptor Luxko::Anuthur::D3D12Helper::BlendD
 	return bd;
 }
 
-Luxko::Anuthur::D3D12Helper::BlendDescriptor Luxko::Anuthur::D3D12Helper::BlendDescriptor::Logic(D3D12_LOGIC_OP logicOp, UINT8 renderTargetWriteMask /*= D3D12_COLOR_WRITE_ENABLE_ALL*/)
+Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor::Logic(D3D12_LOGIC_OP logicOp, UINT8 renderTargetWriteMask /*= D3D12_COLOR_WRITE_ENABLE_ALL*/)
 {
-	BlendDescriptor bd;
+	RenderTargetBlendDescriptor bd;
 	bd.BlendEnable = FALSE;
 	bd.LogicOpEnable = TRUE;
 	bd.LogicOp = logicOp;
@@ -832,4 +832,16 @@ Luxko::Anuthur::D3D12Helper::RTVDescriptor Luxko::Anuthur::D3D12Helper::RTVDescr
 	rtvd.Texture3D.MipSlice = mipSlice;
 	rtvd.Texture3D.WSize = wSize;
 	return rtvd;
+}
+
+Luxko::Anuthur::D3D12Helper::BlendDescriptor Luxko::Anuthur::D3D12Helper::BlendDescriptor::Default()
+{
+	BlendDescriptor bd;
+	bd.AlphaToCoverageEnable = FALSE;
+	bd.IndependentBlendEnable = FALSE;
+	const RenderTargetBlendDescriptor rtbd = RenderTargetBlendDescriptor::Default();
+	for (UINT i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
+		bd.RenderTarget[i] = rtbd;
+	}
+	return bd;
 }

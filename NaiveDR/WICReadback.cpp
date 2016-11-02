@@ -1,12 +1,18 @@
+//**********************************************************************
+// This file is part of the Anuthur Engine. It is distributed under
+// the MIT license(https://opensource.org/licenses/MIT).
+//
+// Copyright (c) Dasein Phaos aka. Luxko.
+//**********************************************************************
 #include "WICReadback.h"
 
-IWICImagingFactory* Luxko::WIC::Get()
+IWICImagingFactory* Luxko::Anuthur::WIC::Get()
 {
 	static WIC wic;
 	return wic._wicFactory.Get();
 }
 
-void Luxko::SaveTexture2DAsPNG(ID3D12Resource* readBackHeap, 
+void Luxko::Anuthur::SaveTexture2DAsPNG(ID3D12Resource* readBackHeap, 
 	unsigned int width, unsigned int height,const wchar_t* filename)
 {
 	// D3D12_RESOURCE_DESC desc = readBackHeap->GetDesc();

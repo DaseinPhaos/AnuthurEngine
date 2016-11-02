@@ -220,12 +220,14 @@ public:
 
 	bool Update(float timeDeltaMs) {
 		lastTimeMs += timeDeltaMs;
-		if (lastTimeMs > 3.f) {
+		if (lastTimeMs > 20.f) {
 			lastTimeMs = 0.f;
 			pMKTracker->update();
 			return DoUpdate();
+			//return DoUpdate(timeDeltaMs / 20.f);
 		}
 		return false;
+
 	}
 
 private:
@@ -274,6 +276,63 @@ private:
 		}
 
 		
+		// update mouse state
+		auto lb = pMKTracker->mouseStateTracker.leftButton;
+		if (lb == Mouse::ButtonStateTracker::PRESSED) {
+			pMKTracker->pMouse->SetMode(Mouse::MODE_RELATIVE);
+		}
+		else if (lb == Mouse::ButtonStateTracker::RELEASED) {
+			pMKTracker->pMouse->SetMode(Mouse::MODE_ABSOLUTE);
+		}
+
+		return cameraUpdated;
+	}
+
+	bool DoUpdate(float r) {
+		assert(pCamera != nullptr);
+		assert(pMKTracker);
+		using namespace DirectX;
+		bool cameraUpdated = false;
+
+		// update view direction
+		auto& mouseState = pMKTracker->mouseState;
+		if (mouseState.positionMode == DirectX::Mouse::MODE_RELATIVE) {
+			auto deltaH = -hSpeed * mouseState.x * r;
+			auto deltaV = -vSpeed * mouseState.y * r;
+
+			auto rotation = Transform3DH::RotationN(pCamera->GetRightDirection(), deltaV)
+				* Transform3DH::RotationN(pCamera->GetUpDirection(), deltaH);
+			pCamera->_orientation.ApplyTransformOnOrientation(rotation);
+			cameraUpdated = true;
+		}
+
+		// update camera position
+		auto& keyState = pMKTracker->keyboardState;
+		auto translationDelta = Vector3DH(0.f, 0.f, 0.f);
+		bool deltaChanged = false;
+		if (keyState.IsKeyDown(forwardKey)) {
+			translationDelta += pCamera->GetLookDirection()*(forwardSpeed*r);
+			deltaChanged = true;
+		}
+		if (keyState.IsKeyDown(backwardKey)) {
+			translationDelta -= pCamera->GetLookDirection()*(backwardSpeed*r);
+			deltaChanged = true;
+		}
+		if (keyState.IsKeyDown(leftKey)) {
+			translationDelta -= pCamera->GetRightDirection()*(leftSpeed*r);
+			deltaChanged = true;
+		}
+		if (keyState.IsKeyDown(rightKey)) {
+			translationDelta += pCamera->GetRightDirection()*(rightSpeed*r);
+			deltaChanged = true;
+		}
+
+		if (deltaChanged) {
+			pCamera->ApplyTransform(Transform3DH::Translation(translationDelta));
+			cameraUpdated = true;
+		}
+
+
 		// update mouse state
 		auto lb = pMKTracker->mouseStateTracker.leftButton;
 		if (lb == Mouse::ButtonStateTracker::PRESSED) {

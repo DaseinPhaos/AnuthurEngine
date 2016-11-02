@@ -158,6 +158,7 @@
     <ClInclude Include="..\Src\D3D12Manager.h" />
     <ClInclude Include="..\Src\DDSTextureLoader.h" />
     <ClInclude Include="..\Src\D3D12HelperMethods.h" />
+    <ClInclude Include="..\Src\DRPipeline.h" />
     <ClInclude Include="..\Src\LightandMaterial.h" />
     <ClInclude Include="..\Src\MeshResource.h" />
     <ClInclude Include="..\Src\PerspecCamera.h" />
@@ -184,8 +185,21 @@
     <ClCompile Include="..\Src\D3D12HelperMethods.cpp" />
     <ClCompile Include="..\Src\LightandMaterial.cpp" />
     <ClCompile Include="..\Src\PerspecCamera.cpp" />
+    <ClCompile Include="DRPipeline.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\Src\HLSLShaders\DRP\GBPass\NaiveBlinnPhong.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\Src\HLSLShaders\DRP\LightPass\NaiveLights.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="..\Src\HLSLShaders\LightandMaterial.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

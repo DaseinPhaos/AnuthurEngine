@@ -433,17 +433,24 @@ namespace Luxko {
 				DescriptorHandleCPU& Offset(SIZE_T offsetInBytes);
 			};
 
-			class ANUTHURRENDERER_API BlendDescriptor : public D3D12_RENDER_TARGET_BLEND_DESC {
+			class ANUTHURRENDERER_API RenderTargetBlendDescriptor : public D3D12_RENDER_TARGET_BLEND_DESC {
 			public:
-				BlendDescriptor() {}
+				RenderTargetBlendDescriptor() {}
 				
-				static BlendDescriptor Default();
-				static BlendDescriptor Blend(D3D12_BLEND srcBlend, D3D12_BLEND destBlend,
+				static RenderTargetBlendDescriptor Default();
+				static RenderTargetBlendDescriptor Blend(D3D12_BLEND srcBlend, D3D12_BLEND destBlend,
 					D3D12_BLEND_OP blendOp, D3D12_BLEND srcAlphaBlend, D3D12_BLEND destAlphaBlend,
 					D3D12_BLEND_OP alphaBlendOp, UINT8 renderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL);
-				static BlendDescriptor Logic(D3D12_LOGIC_OP logicOp,
+				static RenderTargetBlendDescriptor Logic(D3D12_LOGIC_OP logicOp,
 					UINT8 renderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL);
 
+			};
+
+			class ANUTHURRENDERER_API BlendDescriptor : public D3D12_BLEND_DESC {
+			public:
+				static BlendDescriptor Default();
+			private:
+				BlendDescriptor() = default;
 			};
 
 			class ANUTHURRENDERER_API StencilOperationDescriptor : public D3D12_DEPTH_STENCILOP_DESC {

@@ -13,7 +13,7 @@ void Luxko::Anuthur::D3D12App::OnInit()
 	_keyboard = std::make_unique<DirectX::Keyboard>();
 	_mouse = std::make_unique<DirectX::Mouse>();
 	_mouse->SetWindow(_hWindow);
-
+	_mainTimer.Start();
 	_d3d12Manager.Initialize();
 	_d3d12Manager.ConfigureMainWndResource(*(static_cast<Luxko::Application::BaseApp*>(this)), _windowed);
 }

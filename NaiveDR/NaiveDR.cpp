@@ -10,6 +10,7 @@
 // #include "DirectXTKInc/DDSTextureLoader.h"
 #include "DDSTextureLoader.h"
 #include "WICReadback.h"
+#include <iostream>
 void DeferredRenderingRuntime::initialize(Anuthur::D3D12Manager& manager, DXGI_FORMAT targetRTF)
 {
 	using namespace D3D12Helper;
@@ -250,14 +251,27 @@ void NaiveApp::OnInit()
 	_camControl.pCamera = &_mainCam;
 	_camControl.pMKTracker = &_mkTracker;
 
+	auto A = Vector3f(-1.f, -1.f, .5f);
+	auto B = Vector3f(-1.f, 1.f, .5f);
+	auto C = Vector3f(1.f, 1.f, .5f);
+	auto D = Vector3f(1.f, -1.f, .5f);
+	_lpmVB.poses[0] = A;
+	_lpmVB.poses[1] = B;
+	_lpmVB.poses[2] = C;
+	_lpmVB.poses[3] = A;
+	_lpmVB.poses[4] = C;
+	_lpmVB.poses[5] = D;
+	_lpmVB_gpu.Update(_lpmVB);
+
 	_drr.initialize(_d3d12Manager,
 		_d3d12Manager.GetMainWindowResource().GetBackBufferFormat());
 
 	// Initialize scene components
-	auto terranMesh = BasicGeometry::Terran(10, 10, 10, 10);
+	//auto terranMesh = BasicGeometry::Terran(10, 10, 10, 10);
 	//auto terranMesh = BasicGeometry::Cylinder(5.f, 2.f, 3.f, 16, 16);
 	//auto terranMesh = BasicGeometry::Box(1.f, 2.f, 3.f);
 	//auto terranMesh = BasicGeometry::Sphere(5.f);
+	auto terranMesh = BasicGeometry::Grid(10, 10, 10, 10);
 	std::vector<GBInput> terranVertices;
 	for (auto& v : terranMesh.Vertices)
 	{
@@ -458,8 +472,10 @@ bool NaiveApp::OnEvent(MSG msg)
 
 void NaiveApp::OnUpdate()
 {
-	_mainTimer.Elapse();
-	auto deltaMs = _mainTimer.DeltaInMs();
+	static auto lastTick = _mainTimer.PeekCurrentTick();
+	auto cTick = _mainTimer.PeekCurrentTick();
+	auto deltaMs = _mainTimer.TicksToMs(cTick - lastTick);
+	lastTick = cTick;
 	_camControl.Update(deltaMs);
 	_d3d12Manager.FlushCommandQueue();
 	_kbdst.Update(_keyboard->GetState());
@@ -477,18 +493,6 @@ void NaiveApp::OnUpdate()
 	_cameraCB.pos = _mainCam.GetPosition().AsVector4f().xyz();
 	_cameraCB_gpu.Update(_cameraCB);
 
-	auto A = Vector3f(-2.f, -1.f, .5f);
-	auto B = Vector3f(-2.f, 1.f, .5f);
-	auto C = Vector3f(2.f, 1.f, .5f);
-	auto D = Vector3f(2.f, -1.f, .5f);
-	_lpmVB.poses[0] = A;
-	_lpmVB.poses[1] = B;
-	_lpmVB.poses[2] = C;
-	_lpmVB.poses[3] = A;
-	_lpmVB.poses[4] = C;
-	_lpmVB.poses[5] = D;
-	_lpmVB_gpu.Update(_lpmVB);
-	_mainTimer.Reset(true);
 }
 
 void NaiveApp::OnRender()
@@ -590,8 +594,7 @@ void NaiveApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist, ID3D12CommandAllo
 	rtvHandles[3] = rtvHandle;
 	pCmdlist->OMSetRenderTargets(4u, rtvHandles, TRUE,
 		&dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	pCmdlist->RSSetScissorRects(1u, sRect);
-	pCmdlist->RSSetViewports(1u, &windowResrc.GetMainViewport());
+
 	pCmdlist->SetGraphicsRootConstantBufferView(0u,
 		_transformCB_gpu.Get()->GetGPUVirtualAddress());
 	for (auto i = 0u; i < _meshes_gpu.size(); ++i) {
@@ -756,5 +759,5 @@ void NaiveApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename)
 
 	_d3d12Manager.FlushCommandQueue();
 
-	Luxko::SaveTexture2DAsPNG(readbackHeap.Get(), srcDesc.Width, srcDesc.Height, filename);
+	Luxko::Anuthur::SaveTexture2DAsPNG(readbackHeap.Get(), srcDesc.Width, srcDesc.Height, filename);
 }

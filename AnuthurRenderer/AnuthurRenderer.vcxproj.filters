@@ -25,6 +25,15 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{6228c740-5115-4be1-ad22-186341d50d33}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\DRP">
+      <UniqueIdentifier>{fd20c494-da48-4bc3-ba67-3fb540ea201a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\DRP\GBPass">
+      <UniqueIdentifier>{bd2f57ba-136a-487e-b29d-b07f2573da5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\DRP\LightPass">
+      <UniqueIdentifier>{75a10f4b-665b-4207-a96f-c02c02fe43ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Src\BasicGeometry.h">
@@ -60,6 +69,9 @@
     <ClInclude Include="..\Src\ApplicationHelper.h">
       <Filter>Headers\Application</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\DRPipeline.h">
+      <Filter>Headers\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\BasicGeometry.cpp">
@@ -89,10 +101,19 @@
     <ClCompile Include="..\Src\ApplicationHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DRPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Src\HLSLShaders\LightandMaterial.hlsl">
       <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Src\HLSLShaders\DRP\GBPass\NaiveBlinnPhong.hlsl">
+      <Filter>Shaders\DRP\GBPass</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Src\HLSLShaders\DRP\LightPass\NaiveLights.hlsl">
+      <Filter>Shaders\DRP\LightPass</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

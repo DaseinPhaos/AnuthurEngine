@@ -10,6 +10,7 @@
 Luxko::Timer::Timer()
 {
 	QueryPerformanceFrequency(&m_TicksPerSecond);
+	// m_TicksPerSecond.QuadPart *= 1000ll;
 	Reset();
 }
 
