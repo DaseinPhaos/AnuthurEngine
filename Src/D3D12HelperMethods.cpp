@@ -665,6 +665,16 @@ Luxko::Anuthur::D3D12Helper::DepthStencilStateDescriptor Luxko::Anuthur::D3D12He
 	dsd.StencilEnable = FALSE;
 	dsd.StencilReadMask = 0xff;
 	dsd.StencilWriteMask = 0xff;
+
+	D3D12_DEPTH_STENCILOP_DESC dsod;
+	dsod.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	dsod.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	dsod.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	dsod.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+
+	dsd.BackFace = dsod;
+	dsd.FrontFace = dsod;
+
 	return dsd;
 }
 

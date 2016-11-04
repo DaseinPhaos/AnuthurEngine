@@ -9,19 +9,6 @@ Texture2D NP: register(t0);
 Texture2D DA: register(t1);
 Texture2D SA: register(t2);
 
-struct CameraAttr {
-	float4x4 mWtoV;
-	float4x4 mVtoW;
-	float4x4 mWtoH;
-	float3 posW;
-	float farClipD;
-};
-
-cbuffer CameraCB: register(b0)
-{
-	CameraAttr camera;
-};
-
 struct LightParams
 {
 	float4x4 mOtoW;
@@ -32,10 +19,25 @@ struct LightParams
 	float2 angle;
 };
 
-cbuffer LightCB: register(b1)
+cbuffer LightCB: register(b0)
 {
 	LightParams light;
 }
+
+struct CameraAttr {
+	float4x4 mWtoV;
+	float4x4 mVtoW;
+	float4x4 mWtoH;
+	float3 posW;
+	float farClipD;
+};
+
+cbuffer CameraCB: register(b1)
+{
+	CameraAttr camera;
+};
+
+
 
 
 // Sphere map transform, Mittring 2009
@@ -59,7 +61,7 @@ void GetGB(in float2 posH, in float3 posV,
 	float4 npp = NP.Load(indices);
 	normW = SpheremapDecode(npp.xy);
 	float3 viewRay = GetViewRay(posV);
-	float4 pos = float4(viewRay * npp.z, 1.f);
+	float4 pos = float4(viewRay * npp.z, 1.f );
 	posW = mul(pos, camera.mVtoW).xyz;
 	sp = npp.w;
 	da = DA.Load(indices).rgb;
@@ -96,7 +98,7 @@ float3 lighting(in float3 norm, in float3 pos, in float3 da, in float3 sa, in fl
 }
 
 struct VSI {
-	float3 pos: POSITION;
+	float3 posO: POSITION;
 };
 
 struct VSO {
@@ -107,7 +109,7 @@ struct VSO {
 VSO VSMain(in VSI vsi)
 {
 	VSO vso;
-	float4 pW = mul(float4(vsi.pos, 1.f), light.mOtoW);
+	float4 pW = mul(float4(vsi.posO, 1.f), light.mOtoW);
 	vso.posH = mul(pW, camera.mWtoH);
 	vso.posV = mul(pW, camera.mWtoV).xyz;
 	return vso;

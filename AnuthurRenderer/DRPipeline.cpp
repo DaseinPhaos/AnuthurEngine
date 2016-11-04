@@ -7,7 +7,7 @@
 #include "DRPipeline.h"
 
 void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::initialize(ID3D12Device* pDevice, 
-	DXGI_FORMAT dsFormat /*= DXGI_FORMAT_D24_UNORM_S8_UINT*/)
+	DXGI_FORMAT dsvFormat /*= DXGI_FORMAT_D24_UNORM_S8_UINT*/)
 {
 	using namespace D3D12Helper;
 
@@ -46,12 +46,15 @@ void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::initialize(ID3D12Device* pDevi
 		psd.SampleMask = UINT_MAX;
 		psd.RasterizerState = RasterizerDescriptor();
 		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
+		psd.DepthStencilState.StencilEnable = TRUE;
+		psd.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
+		
 		psd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		psd.NumRenderTargets = static_cast<UINT>(3);
 		psd.RTVFormats[0] = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		psd.RTVFormats[1] = DXGI_FORMAT_R10G10B10A2_UNORM;
 		psd.RTVFormats[2] = DXGI_FORMAT_R10G10B10A2_UNORM;
-		psd.DSVFormat = dsFormat;
+		psd.DSVFormat = dsvFormat;
 		psd.SampleDesc.Count = 1;
 		psd.SampleDesc.Quality = 0;
 		ThrowIfFailed(pDevice->CreateGraphicsPipelineState(&psd,
@@ -106,8 +109,10 @@ void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::recordRp2Textures(
 }
 
 void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::recordStateSettings(
-	ID3D12GraphicsCommandList* cmdlist, D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
+	ID3D12GraphicsCommandList* cmdlist, UINT stencilRef, 
+	D3D_PRIMITIVE_TOPOLOGY primitiveTopology)
 {
+	cmdlist->OMSetStencilRef(stencilRef);
 	cmdlist->IASetPrimitiveTopology(primitiveTopology);
 	cmdlist->SetPipelineState(_normalState.Get());
 	cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
@@ -133,7 +138,7 @@ void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::recordGBTransitionFrom(
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
 			gBuffers + 2, from, D3D12_RESOURCE_STATE_RENDER_TARGET),
 	};
-	cmdlist->ResourceBarrier(4u, barriers);
+	cmdlist->ResourceBarrier(3u, barriers);
 }
 
 void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::recordGBTransitionTo(
@@ -175,4 +180,262 @@ D3D12_INPUT_LAYOUT_DESC Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::getInputLay
 		D3D12Helper::InputElementDescriptor("TEXCOORD", DXGI_FORMAT_R32G32_FLOAT, 40u),
 	};
 	return D3D12_INPUT_LAYOUT_DESC{ ieds, static_cast<UINT>(4) };
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordRp1CameraAndGBuffer(
+	ID3D12GraphicsCommandList* cmdlist, D3D12_GPU_DESCRIPTOR_HANDLE cameraGpuHandleAddress)
+{
+	cmdlist->SetGraphicsRootDescriptorTable(static_cast<UINT>(1), cameraGpuHandleAddress);
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordRp0Light(
+	ID3D12GraphicsCommandList* cmdlist, D3D12_GPU_VIRTUAL_ADDRESS lightCBGpuAddress)
+{
+	cmdlist->SetGraphicsRootConstantBufferView(static_cast<UINT>(0), lightCBGpuAddress);
+}
+
+ID3D12RootSignature* Luxko::Anuthur::DRP::LightPass::NaiveLights::getRootSignature(ID3D12Device* creationDevice /*= nullptr /* Used first time*/)
+{
+
+	static ComPtr<ID3D12RootSignature> naiveRootSig = nullptr;
+	if (naiveRootSig.Get() == nullptr) {
+		assert(creationDevice);
+		using namespace D3D12Helper;
+		RootSignatureDescriptor rsd;
+		rsd.PushRPCBV(0u);
+		RootDescriptorTable rdt;
+		rdt.Push(RootDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1u, 1u));
+		rdt.Push(RootDescriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 3u));
+		rsd.PushRPDescriptorTable(rdt.Get());
+		ComPtr<ID3DBlob> rootSigBlob;
+		ThrowIfFailed(rsd.SerializeRootSignature(rootSigBlob.GetAddressOf(),
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT));
+		ThrowIfFailed(creationDevice->CreateRootSignature(0u,
+			rootSigBlob->GetBufferPointer(), rootSigBlob->GetBufferSize(),
+			IID_PPV_ARGS(naiveRootSig.ReleaseAndGetAddressOf())));
+	}
+}
+
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordSettings(
+	ID3D12GraphicsCommandList* cmdlist, ID3D12Device* creationDevice /*= nullptr /* Used first time*/)
+{
+
+	assert(cmdlist);
+	cmdlist->SetGraphicsRootSignature(getRootSignature(creationDevice));
+	cmdlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordGBTransitionFrom(
+	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource* gBuffers,
+	D3D12_RESOURCE_STATES from /*= D3D12_RESOURCE_STATE_RENDER_TARGET*/)
+{
+	D3D12Helper::ResourceBarrier barriers[] = {
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			gBuffers, from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			gBuffers + 1, from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			gBuffers + 2, from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+	};
+	cmdlist->ResourceBarrier(3u, barriers);
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordGBTransitionTo(
+	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource* gBuffers,
+	D3D12_RESOURCE_STATES to /*= D3D12_RESOURCE_STATE_RENDER_TARGET*/)
+{
+	D3D12Helper::ResourceBarrier barriers[] = {
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			gBuffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			gBuffers + 1, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			gBuffers + 2, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+	};
+	cmdlist->ResourceBarrier(3u, barriers);
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordClearAndSetRtvDsv(
+	ID3D12GraphicsCommandList* cmdlist, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle,
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle, UINT numRects, D3D12_RECT* pRects)
+{
+	static FLOAT bbg[] = { 0.f, 0.f, 0.f, 0.f };
+	cmdlist->ClearRenderTargetView(rtvHandle, bbg, numRects, pRects);
+	cmdlist->OMSetRenderTargets(static_cast<UINT>(1), &rtvHandle, TRUE, &dsvHandle);
+}
+
+D3D12_INPUT_LAYOUT_DESC Luxko::Anuthur::DRP::LightPass::NaiveLights::getInputLayout()
+{
+	static D3D12_INPUT_ELEMENT_DESC ieds[] = {
+		D3D12Helper::InputElementDescriptor("POSITION", DXGI_FORMAT_R32G32B32_FLOAT, 0u),
+	};
+	return D3D12_INPUT_LAYOUT_DESC{ ieds, static_cast<UINT>(1) };
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::initialize(
+	ID3D12Device* pDevice, UINT stencilReadMask, UINT stencilWriteMask,
+	DXGI_FORMAT rtvFormat /*= DXGI_FORMAT_R8G8B8A8_UNORM*/,
+	DXGI_FORMAT dsvFormat /*= DXGI_FORMAT_D24_UNORM_S8_UINT*/)
+{
+	using namespace D3D12Helper;
+	// initialize stencilRef
+	{
+		_stencilRef = stencilReadMask ^ stencilWriteMask;
+	}
+
+	// initialize shader bytecode
+	{
+		D3D_SHADER_MACRO macro[] = {
+			"POINTLIGHT", "1", nullptr, nullptr
+		};
+		_vertexShader.CompileFromFile(vsPath, "VSMain", "vs_5_0", macro);
+		_pixelShader.CompileFromFile(psPath, "PSMain", "ps_5_0", macro);
+	}
+
+	// initialize PSOs
+	{
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC psd = {};
+		psd.InputLayout = getInputLayout();
+		psd.pRootSignature = getRootSignature(pDevice);
+		psd.VS = _vertexShader.Get();
+		psd.PS = _pixelShader.Get();
+		psd.BlendState = BlendDescriptor::Default();
+		psd.SampleMask = UINT_MAX;
+		psd.RasterizerState = RasterizerDescriptor(D3D12_FILL_MODE_SOLID, 
+			D3D12_CULL_MODE_NONE);
+		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
+		psd.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		psd.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		psd.DepthStencilState.StencilEnable = TRUE;
+		psd.DepthStencilState.StencilReadMask = stencilReadMask;
+		psd.DepthStencilState.StencilWriteMask = stencilWriteMask;
+		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_INVERT;
+		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_EQUAL;
+		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_INVERT;
+
+		psd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		psd.NumRenderTargets = static_cast<UINT>(1);
+		psd.RTVFormats[0] = rtvFormat;
+		psd.DSVFormat = dsvFormat;
+		psd.SampleDesc.Count = 1;
+		psd.SampleDesc.Quality = 0;
+		ThrowIfFailed(pDevice->CreateGraphicsPipelineState(&psd,
+			IID_PPV_ARGS(_normalState.ReleaseAndGetAddressOf())));
+	}
+}
+
+D3D12_SHADER_BYTECODE Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::getVS() const
+{
+	return _vertexShader.Get();
+}
+
+D3D12_SHADER_BYTECODE Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::getPS() const
+{
+	return _pixelShader.Get();
+}
+
+ID3D12PipelineState* Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::getPSO() const
+{
+	return _normalState.Get();
+}
+
+const Luxko::Anuthur::MeshGeometry& Luxko::Anuthur::DRP::LightPass::NaiveLights
+	::PointLight::getInputBuffer(ID3D12Device* pDevice /*= nullptr*/, 
+		ID3D12GraphicsCommandList* pCmdlist /*= nullptr*/)
+{
+	static MeshGeometry mesh;
+	static bool initialized = false;
+	if (!initialized) {
+		assert(pDevice);
+		assert(pCmdlist);
+		std::vector<VSI> vertice;
+		std::vector<UINT> indice;
+		vertice.reserve(2 * 9 * 9);
+		auto dAlpha = static_cast<float>(M_PI) * 2 / 8;
+		auto dBeta = static_cast<float>(M_PI) / 8;
+
+		// Center circle first, then advance into up and down stacks.
+		for (auto i = 0u; i <= 8u; ++i) {
+			auto cosAlpha = std::cos(dAlpha*i);
+			auto sinAlpha = std::sin(dAlpha*i);
+			for (auto j = 0u; j <= 8u; ++j) {
+				auto cosBeta = std::cos(dBeta*j);
+				auto sinBeta = std::sin(dBeta*j);
+				auto z = sinBeta;
+				auto r = cosBeta;
+
+				VSI vsi;
+				vsi.pos = Vector3f(r*cosAlpha, z, r*sinAlpha);
+				vertice.push_back(vsi);
+			}
+		}
+
+		for (auto i = 0u; i <= 8u; ++i) {
+			auto cosAlpha = std::cos(dAlpha*i);
+			auto sinAlpha = std::sin(dAlpha*i);
+			for (auto j = 0u; j <= 8u; ++j) {
+				auto cosBeta = std::cos(dBeta*j);
+				auto sinBeta = std::sin(dBeta*j);
+				auto z = sinBeta;
+				auto r = cosBeta;
+				VSI vsi;
+				vsi.pos = Vector3f(r*cosAlpha, -z, r*sinAlpha);
+				vertice.push_back(vsi);
+			}
+		}
+
+		indice.reserve(12u * 8u * 8u);
+
+		auto half = 9u * 9u;
+
+		for (auto i = 0u; i < 8u; ++i) {
+			for (auto j = 0u; j < 8u; ++j) {
+				indice.push_back(i*(8u + 1) + j);
+				indice.push_back(i*(8u + 1) + j + 1);
+				indice.push_back((i + 1)*(8u + 1) + j + 1);
+				indice.push_back(i*(8u + 1) + j);
+				indice.push_back((i + 1)*(8u + 1) + j + 1);
+				indice.push_back((i + 1)*(8u + 1) + j);
+
+
+				indice.push_back(i*(8u + 1) + j + half);
+
+				indice.push_back((i + 1)*(8u + 1) + j + 1 + half);
+				indice.push_back(i*(8u + 1) + j + 1 + half);
+				indice.push_back(i*(8u + 1) + j + half);
+
+				indice.push_back((i + 1)*(8u + 1) + j + half);
+				indice.push_back((i + 1)*(8u + 1) + j + 1 + half);
+			}
+		}
+
+		mesh.InitializeCPUResource(DXGI_FORMAT_R32_UINT,
+			static_cast<UINT>(indice.size()), indice.data(),
+			static_cast<UINT>(sizeof(VSI)), static_cast<UINT>(vertice.size()),
+			vertice.data());
+		mesh.RecordUpdateFromCPUtoGPU(pDevice, pCmdlist);
+		initialized = true;
+	}
+
+	return mesh;
+}
+
+
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::recordSettings(
+	ID3D12GraphicsCommandList* cmdList)
+{
+	cmdList->SetPipelineState(_normalState.Get());
+	cmdList->OMSetStencilRef(_stencilRef);
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::generateOtoWMatrix(
+	LightParams& params)
+{
+	auto m = Matrix4x4f::Translation(params.posW._x, params.posW._y, params.posW._z) 
+		* Matrix4x4f::ScaleN(params.range._x);
+	params.mOtoW = m;
 }

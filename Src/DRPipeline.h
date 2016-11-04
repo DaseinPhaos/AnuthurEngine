@@ -10,6 +10,7 @@
 #include "Vector4f.h"
 #include "Vector3f.h"
 #include "D3D12HelperMethods.h"
+#include "MeshResource.h"
 
 namespace Luxko {
 	namespace Anuthur {
@@ -51,7 +52,7 @@ namespace Luxko {
 
 				public:
 					void initialize(ID3D12Device* pDevice, 
-						DXGI_FORMAT dsFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
+						DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
 					
 				public:
 					inline D3D12_SHADER_BYTECODE getVS()const;
@@ -69,7 +70,8 @@ namespace Luxko {
 						D3D12_GPU_DESCRIPTOR_HANDLE texsSrvGpuHandle);
 
 					inline void recordStateSettings(ID3D12GraphicsCommandList* cmdlist,
-						D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
+						UINT stencilRef = 1,
+						D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 					inline void recordStateSettingsWireframe(
 						ID3D12GraphicsCommandList* cmdlist,
 						D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
@@ -107,7 +109,7 @@ namespace Luxko {
 			}
 
 			namespace LightPass {
-				namespace Naive {
+				namespace NaiveLights {
 					struct LightParams {
 						Matrix4x4f mOtoW;
 						Vector4f posW;
@@ -122,8 +124,148 @@ namespace Luxko {
 						Vector3f pos;
 					};
 
-					class PointLight {
+					inline void recordRp1CameraAndGBuffer(ID3D12GraphicsCommandList* cmdlist,
+						D3D12_GPU_DESCRIPTOR_HANDLE cameraGpuHandleAddress);
+					inline void recordRp0Light(ID3D12GraphicsCommandList* cmdlist,
+						D3D12_GPU_VIRTUAL_ADDRESS lightCBGpuAddress);
 
+					inline ID3D12RootSignature* getRootSignature(
+						ID3D12Device* creationDevice = nullptr /* Used first time*/);
+
+					inline void recordSettings(ID3D12GraphicsCommandList* cmdlist,
+						ID3D12Device* creationDevice = nullptr /* Used first time*/);
+
+					inline void recordGBTransitionFrom(ID3D12GraphicsCommandList* cmdlist,
+						ID3D12Resource* gBuffers, D3D12_RESOURCE_STATES from
+						= D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+					inline void recordGBTransitionTo(ID3D12GraphicsCommandList* cmdlist,
+						ID3D12Resource* gBuffers, D3D12_RESOURCE_STATES to
+						= D3D12_RESOURCE_STATE_RENDER_TARGET);
+
+					inline void recordClearAndSetRtvDsv(
+						ID3D12GraphicsCommandList* cmdlist,
+						D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle,
+						D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
+						UINT numRects, D3D12_RECT* pRects);
+
+					D3D12_INPUT_LAYOUT_DESC getInputLayout();
+
+					class PointLight {
+					public:
+						PointLight() = default;
+						PointLight(const PointLight&) = default;
+						PointLight(PointLight&&) = default;
+						PointLight& operator=(const PointLight&) = default;
+						PointLight& operator=(PointLight&&) = default;
+						~PointLight() = default;
+
+					public:
+						void initialize(ID3D12Device* pDevice,
+							UINT stencilReadMask = 0x3u, UINT stencilWriteMask = 0x2u,
+							DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM,
+							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+					public:
+						inline D3D12_SHADER_BYTECODE getVS()const;
+						inline D3D12_SHADER_BYTECODE getPS()const;
+						inline ID3D12PipelineState* getPSO()const;
+
+						static const MeshGeometry& getInputBuffer(
+							ID3D12Device* pDevice = nullptr,
+							ID3D12GraphicsCommandList* pCmdlist = nullptr);
+
+						inline void recordSettings(ID3D12GraphicsCommandList* cmdList);
+
+						static void generateOtoWMatrix(LightParams& params);
+
+					private:
+						static auto constexpr vsPath = LR"(../Src/HLSLShaders/DRP/LightPass/NaiveLights.hlsl)";
+						static auto constexpr psPath = LR"(../Src/HLSLShaders/DRP/LightPass/NaiveLights.hlsl)";
+						
+						
+						D3D12Helper::ShaderByteCode _vertexShader;
+						D3D12Helper::ShaderByteCode _pixelShader;
+						ComPtr<ID3D12PipelineState> _normalState;
+						UINT _stencilRef;
+					};
+
+					class SpotLight {
+					public:
+						SpotLight() = default;
+						SpotLight(const SpotLight&) = default;
+						SpotLight(SpotLight&&) = default;
+						SpotLight& operator=(const SpotLight&) = default;
+						SpotLight& operator=(SpotLight&&) = default;
+						~SpotLight() = default;
+
+					public:
+						void initialize(ID3D12Device* pDevice,
+							UINT stencilReadMask = 0x3u, UINT stencilWriteMask = 0x2u,
+							DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM,
+							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+					public:
+						inline D3D12_SHADER_BYTECODE getVS()const;
+						inline D3D12_SHADER_BYTECODE getPS()const;
+						inline ID3D12PipelineState* getPSO()const;
+
+						static const MeshGeometry& getInputBuffer(
+							ID3D12Device* pDevice = nullptr,
+							ID3D12GraphicsCommandList* pCmdlist = nullptr);
+
+						inline void recordSettings(ID3D12GraphicsCommandList* cmdList);
+
+						static void generateOtoWMatrix(LightParams& params);
+
+					private:
+						static auto constexpr vsPath = LR"(../Src/HLSLShaders/DRP/LightPass/NaiveLights.hlsl)";
+						static auto constexpr psPath = LR"(../Src/HLSLShaders/DRP/LightPass/NaiveLights.hlsl)";
+
+
+						D3D12Helper::ShaderByteCode _vertexShader;
+						D3D12Helper::ShaderByteCode _pixelShader;
+						ComPtr<ID3D12PipelineState> _normalState;
+						UINT _stencilRef;
+					};
+
+					class DirectionalLight {
+					public:
+						DirectionalLight() = default;
+						DirectionalLight(const DirectionalLight&) = default;
+						DirectionalLight(DirectionalLight&&) = default;
+						DirectionalLight& operator=(const DirectionalLight&) = default;
+						DirectionalLight& operator=(DirectionalLight&&) = default;
+						~DirectionalLight() = default;
+
+					public:
+						void initialize(ID3D12Device* pDevice,
+							UINT stencilReadMask = 0x3u, UINT stencilWriteMask = 0x2u,
+							DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM,
+							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
+
+					public:
+						inline D3D12_SHADER_BYTECODE getVS()const;
+						inline D3D12_SHADER_BYTECODE getPS()const;
+						inline ID3D12PipelineState* getPSO()const;
+
+						static const MeshGeometry& getInputBuffer(
+							ID3D12Device* pDevice = nullptr,
+							ID3D12GraphicsCommandList* pCmdlist = nullptr);
+
+						inline void recordSettings(ID3D12GraphicsCommandList* cmdList);
+
+						static void generateOtoWMatrix(LightParams& params);
+
+					private:
+						static auto constexpr vsPath = LR"(../Src/HLSLShaders/DRP/LightPass/NaiveLights.hlsl)";
+						static auto constexpr psPath = LR"(../Src/HLSLShaders/DRP/LightPass/NaiveLights.hlsl)";
+
+
+						D3D12Helper::ShaderByteCode _vertexShader;
+						D3D12Helper::ShaderByteCode _pixelShader;
+						ComPtr<ID3D12PipelineState> _normalState;
+						UINT _stencilRef;
 					};
 				}
 			}
