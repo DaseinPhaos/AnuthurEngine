@@ -70,7 +70,6 @@ namespace Luxko {
 						D3D12_GPU_DESCRIPTOR_HANDLE texsSrvGpuHandle);
 
 					inline void recordStateSettings(ID3D12GraphicsCommandList* cmdlist,
-						UINT stencilRef = 1,
 						D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 					inline void recordStateSettingsWireframe(
 						ID3D12GraphicsCommandList* cmdlist,
@@ -135,6 +134,13 @@ namespace Luxko {
 					inline void recordSettings(ID3D12GraphicsCommandList* cmdlist,
 						ID3D12Device* creationDevice = nullptr /* Used first time*/);
 
+					inline void recordNextLight(ID3D12GraphicsCommandList* cmdlist,
+						UINT& stencilRef);
+
+					inline void resetLightingRecords(ID3D12GraphicsCommandList* cmdlist,
+						UINT& stencilRef, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
+						UINT numRects, D3D12_RECT* pRects);
+
 					inline void recordGBTransitionFrom(ID3D12GraphicsCommandList* cmdlist,
 						ID3D12Resource* gBuffers, D3D12_RESOURCE_STATES from
 						= D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -162,7 +168,6 @@ namespace Luxko {
 
 					public:
 						void initialize(ID3D12Device* pDevice,
-							UINT stencilReadMask = 0x3u, UINT stencilWriteMask = 0x2u,
 							DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM,
 							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
 
@@ -187,7 +192,6 @@ namespace Luxko {
 						D3D12Helper::ShaderByteCode _vertexShader;
 						D3D12Helper::ShaderByteCode _pixelShader;
 						ComPtr<ID3D12PipelineState> _normalState;
-						UINT _stencilRef;
 					};
 
 					class SpotLight {
@@ -201,7 +205,6 @@ namespace Luxko {
 
 					public:
 						void initialize(ID3D12Device* pDevice,
-							UINT stencilReadMask = 0x3u, UINT stencilWriteMask = 0x2u,
 							DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM,
 							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
 
@@ -226,7 +229,6 @@ namespace Luxko {
 						D3D12Helper::ShaderByteCode _vertexShader;
 						D3D12Helper::ShaderByteCode _pixelShader;
 						ComPtr<ID3D12PipelineState> _normalState;
-						UINT _stencilRef;
 					};
 
 					class DirectionalLight {
@@ -240,7 +242,6 @@ namespace Luxko {
 
 					public:
 						void initialize(ID3D12Device* pDevice,
-							UINT stencilReadMask = 0x3u, UINT stencilWriteMask = 0x2u,
 							DXGI_FORMAT rtvFormat = DXGI_FORMAT_R8G8B8A8_UNORM,
 							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
 
@@ -265,7 +266,6 @@ namespace Luxko {
 						D3D12Helper::ShaderByteCode _vertexShader;
 						D3D12Helper::ShaderByteCode _pixelShader;
 						ComPtr<ID3D12PipelineState> _normalState;
-						UINT _stencilRef;
 					};
 				}
 			}
