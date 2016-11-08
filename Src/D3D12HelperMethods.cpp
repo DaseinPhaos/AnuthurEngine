@@ -625,6 +625,14 @@ Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor Luxko::Anuthur::D3D12He
 	RenderTargetBlendDescriptor bd;
 	bd.BlendEnable = FALSE;
 	bd.LogicOpEnable = FALSE;
+	bd.SrcBlend = D3D12_BLEND_ONE;
+	bd.DestBlend = D3D12_BLEND_ZERO;
+	bd.BlendOp = D3D12_BLEND_OP_ADD;
+	bd.SrcBlendAlpha = D3D12_BLEND_ONE;
+	bd.DestBlendAlpha = D3D12_BLEND_ZERO;
+	bd.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	bd.LogicOp = D3D12_LOGIC_OP_NOOP;
+	bd.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	return bd;
 }
 

@@ -61,12 +61,13 @@ struct PSO
 // Sphere map transform, Mittring 2009
 float2 SpheremapEncode(float3 norm) {
 	return normalize(norm.xy) * (sqrt(-norm.z * 0.5f + 0.5f));
+	//return float2(atan2(norm.y, norm.x), norm.z);
 }
 
 
 VSO VSMain(in VSI vsi) {
 	VSO vso;
-	float3 posW = mul(vsi.pos, material.mOtoW).xyz;
+	float4 posW = mul(vsi.pos, material.mOtoW);
 	vso.pos = mul(posW, camera.mWtoH);
 	vso.normW = normalize(mul(vsi.norm, (float3x3)material.mOtoW));
 	vso.tangentW = normalize(mul(vsi.tangent, (float3x3)material.mOtoW));
@@ -87,6 +88,7 @@ PSO PSMain(in VSO psi) {
 	float3 normW = mul(normalT, tFrameW);
 
 	PSO pso;
+	//pso.npp = float4(1.f, 0.5f, 0.3f, 1.f);
 	pso.npp = float4(SpheremapEncode(normW), psi.pos.z / camera.farClipD, material.sPower);
 
 	pso.da = DiffuseMap.Sample(Sampler, psi.tex);

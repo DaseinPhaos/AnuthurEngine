@@ -759,5 +759,7 @@ void NaiveApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename)
 
 	_d3d12Manager.FlushCommandQueue();
 
-	Luxko::Anuthur::SaveTexture2DAsPNG(readbackHeap.Get(), srcDesc.Width, srcDesc.Height, filename);
+	Luxko::Anuthur::SaveTexture2DAsPNG(readbackHeap.Get(), 
+		static_cast<unsigned int>(srcDesc.Width), 
+		static_cast<unsigned int>(srcDesc.Height), filename);
 }

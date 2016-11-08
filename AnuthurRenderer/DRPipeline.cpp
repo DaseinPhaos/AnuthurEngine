@@ -127,38 +127,38 @@ void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::recordStateSettingsWireframe(
 }
 
 void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::recordGBTransitionFrom(
-	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource* gBuffers,
+	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource** gBuffers,
 	D3D12_RESOURCE_STATES from /*= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE*/)
 {
 	D3D12Helper::ResourceBarrier barriers[] = {
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers, from, D3D12_RESOURCE_STATE_RENDER_TARGET),
+			gBuffers[0], from, D3D12_RESOURCE_STATE_RENDER_TARGET),
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers + 1, from, D3D12_RESOURCE_STATE_RENDER_TARGET),
+			gBuffers[1], from, D3D12_RESOURCE_STATE_RENDER_TARGET),
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers + 2, from, D3D12_RESOURCE_STATE_RENDER_TARGET),
+			gBuffers[2], from, D3D12_RESOURCE_STATE_RENDER_TARGET),
 	};
 	cmdlist->ResourceBarrier(3u, barriers);
 }
 
 void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::recordGBTransitionTo(
-	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource* gBuffers,
+	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource** gBuffers,
 	D3D12_RESOURCE_STATES to /*= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE*/)
 {
 	D3D12Helper::ResourceBarrier barriers[] = {
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers, D3D12_RESOURCE_STATE_RENDER_TARGET, to),
+			gBuffers[0], D3D12_RESOURCE_STATE_RENDER_TARGET, to),
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers + 1, D3D12_RESOURCE_STATE_RENDER_TARGET, to),
+			gBuffers[1], D3D12_RESOURCE_STATE_RENDER_TARGET, to),
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers + 2, D3D12_RESOURCE_STATE_RENDER_TARGET, to),
+			gBuffers[2], D3D12_RESOURCE_STATE_RENDER_TARGET, to),
 	};
 	cmdlist->ResourceBarrier(3u, barriers);
 }
 
 void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::recordClearAndSetRtvDsv(
 	ID3D12GraphicsCommandList* cmdlist, D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles,
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle, UINT numRects, D3D12_RECT* pRects)
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle, UINT numRects,const D3D12_RECT* pRects)
 {
 	cmdlist->ClearDepthStencilView(dsvHandle,
 		D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f,
@@ -189,8 +189,12 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordRp1CameraAndGBuffer(
 }
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordRp0Light(
-	ID3D12GraphicsCommandList* cmdlist, D3D12_GPU_VIRTUAL_ADDRESS lightCBGpuAddress)
+	ID3D12GraphicsCommandList* cmdlist, D3D12_GPU_VIRTUAL_ADDRESS lightCBGpuAddress, UINT8& stencilRef)
 {
+	assert(cmdlist);
+	++stencilRef;
+	assert(stencilRef < 0xff);
+	cmdlist->OMSetStencilRef(stencilRef);
 	cmdlist->SetGraphicsRootConstantBufferView(static_cast<UINT>(0), lightCBGpuAddress);
 }
 
@@ -227,14 +231,6 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordSettings(
 	cmdlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordNextLight(
-	ID3D12GraphicsCommandList* cmdlist, UINT& stencilRef)
-{
-	assert(cmdlist);
-	++stencilRef;
-	assert(stencilRef < 254);
-	cmdlist->OMSetStencilRef(stencilRef);
-}
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::resetLightingRecords(
 	ID3D12GraphicsCommandList* cmdlist, UINT& stencilRef,
@@ -248,31 +244,31 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::resetLightingRecords(
 }
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordGBTransitionFrom(
-	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource* gBuffers,
+	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource** gBuffers,
 	D3D12_RESOURCE_STATES from /*= D3D12_RESOURCE_STATE_RENDER_TARGET*/)
 {
 	D3D12Helper::ResourceBarrier barriers[] = {
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers, from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+			gBuffers[0], from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers + 1, from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+			gBuffers[1], from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers + 2, from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+			gBuffers[2], from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
 	};
 	cmdlist->ResourceBarrier(3u, barriers);
 }
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordGBTransitionTo(
-	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource* gBuffers,
+	ID3D12GraphicsCommandList* cmdlist, ID3D12Resource** gBuffers,
 	D3D12_RESOURCE_STATES to /*= D3D12_RESOURCE_STATE_RENDER_TARGET*/)
 {
 	D3D12Helper::ResourceBarrier barriers[] = {
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+			gBuffers[0], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers + 1, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+			gBuffers[1], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
-			gBuffers + 2, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+			gBuffers[2], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
 	};
 	cmdlist->ResourceBarrier(3u, barriers);
 }
@@ -318,16 +314,22 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::initialize(
 		psd.VS = _vertexShader.Get();
 		psd.PS = _pixelShader.Get();
 		psd.BlendState = BlendDescriptor::Default();
+		psd.BlendState.RenderTarget[0].BlendEnable = TRUE;
+		psd.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+		psd.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+		psd.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 		psd.SampleMask = UINT_MAX;
 		psd.RasterizerState = RasterizerDescriptor(D3D12_FILL_MODE_SOLID, 
-			D3D12_CULL_MODE_NONE);
+			D3D12_CULL_MODE_FRONT);
 		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
-		psd.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		psd.DepthStencilState.DepthEnable = FALSE;
 		psd.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		psd.DepthStencilState.StencilEnable = TRUE;
-		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		// psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		//psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 
 		psd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -367,15 +369,15 @@ const Luxko::Anuthur::MeshGeometry& Luxko::Anuthur::DRP::LightPass::NaiveLights
 		assert(pCmdlist);
 		std::vector<VSI> vertice;
 		std::vector<UINT> indice;
-		vertice.reserve(2 * 9 * 9);
-		auto dAlpha = static_cast<float>(M_PI) * 2 / 8;
-		auto dBeta = static_cast<float>(M_PI) / 8;
+		vertice.reserve(2 * 17 * 17);
+		auto dAlpha = static_cast<float>(M_PI) * 2 / 16;
+		auto dBeta = static_cast<float>(M_PI) / 16;
 
 		// Center circle first, then advance into up and down stacks.
-		for (auto i = 0u; i <= 8u; ++i) {
+		for (auto i = 0u; i <= 16u; ++i) {
 			auto cosAlpha = std::cos(dAlpha*i);
 			auto sinAlpha = std::sin(dAlpha*i);
-			for (auto j = 0u; j <= 8u; ++j) {
+			for (auto j = 0u; j <= 16u; ++j) {
 				auto cosBeta = std::cos(dBeta*j);
 				auto sinBeta = std::sin(dBeta*j);
 				auto z = sinBeta;
@@ -387,10 +389,10 @@ const Luxko::Anuthur::MeshGeometry& Luxko::Anuthur::DRP::LightPass::NaiveLights
 			}
 		}
 
-		for (auto i = 0u; i <= 8u; ++i) {
+		for (auto i = 0u; i <= 16u; ++i) {
 			auto cosAlpha = std::cos(dAlpha*i);
 			auto sinAlpha = std::sin(dAlpha*i);
-			for (auto j = 0u; j <= 8u; ++j) {
+			for (auto j = 0u; j <= 16u; ++j) {
 				auto cosBeta = std::cos(dBeta*j);
 				auto sinBeta = std::sin(dBeta*j);
 				auto z = sinBeta;
@@ -401,28 +403,28 @@ const Luxko::Anuthur::MeshGeometry& Luxko::Anuthur::DRP::LightPass::NaiveLights
 			}
 		}
 
-		indice.reserve(12u * 8u * 8u);
+		indice.reserve(12u * 16u * 16u);
 
 		auto half = 9u * 9u;
 
-		for (auto i = 0u; i < 8u; ++i) {
-			for (auto j = 0u; j < 8u; ++j) {
-				indice.push_back(i*(8u + 1) + j);
-				indice.push_back(i*(8u + 1) + j + 1);
-				indice.push_back((i + 1)*(8u + 1) + j + 1);
-				indice.push_back(i*(8u + 1) + j);
-				indice.push_back((i + 1)*(8u + 1) + j + 1);
-				indice.push_back((i + 1)*(8u + 1) + j);
+		for (auto i = 0u; i <= 16u; ++i) {
+			for (auto j = 0u; j <= 16u; ++j) {
+				indice.push_back(i*(16u + 1) + j);
+				indice.push_back(i*(16u + 1) + j + 1);
+				indice.push_back((i + 1)*(16u + 1) + j + 1);
+				indice.push_back(i*(16u + 1) + j);
+				indice.push_back((i + 1)*(16u + 1) + j + 1);
+				indice.push_back((i + 1)*(16u + 1) + j);
 
 
-				indice.push_back(i*(8u + 1) + j + half);
+				indice.push_back(i*(16u + 1) + j + half);
 
-				indice.push_back((i + 1)*(8u + 1) + j + 1 + half);
-				indice.push_back(i*(8u + 1) + j + 1 + half);
-				indice.push_back(i*(8u + 1) + j + half);
+				indice.push_back((i + 1)*(16u + 1) + j + 1 + half);
+				indice.push_back(i*(16u + 1) + j + 1 + half);
+				indice.push_back(i*(16u + 1) + j + half);
 
-				indice.push_back((i + 1)*(8u + 1) + j + half);
-				indice.push_back((i + 1)*(8u + 1) + j + 1 + half);
+				indice.push_back((i + 1)*(16u + 1) + j + half);
+				indice.push_back((i + 1)*(16u + 1) + j + 1 + half);
 			}
 		}
 
@@ -442,7 +444,19 @@ const Luxko::Anuthur::MeshGeometry& Luxko::Anuthur::DRP::LightPass::NaiveLights
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::recordSettings(
 	ID3D12GraphicsCommandList* cmdList)
 {
+	assert(cmdList);
 	cmdList->SetPipelineState(_normalState.Get());
+	auto& mesh = getInputBuffer();
+	cmdList->IASetVertexBuffers(0u, 1u, &mesh.VertexBufferView());
+	cmdList->IASetIndexBuffer(&mesh.IndexBufferView());
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::recordDraw(
+	ID3D12GraphicsCommandList* pCmdlist)
+{
+	assert(pCmdlist);
+	pCmdlist->DrawIndexedInstanced(getInputBuffer().GetTotoalIndexCount(),
+		1u, 0u, 0u, 0u);
 }
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::generateOtoWMatrix(
@@ -477,16 +491,21 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::SpotLight::initialize(
 		psd.VS = _vertexShader.Get();
 		psd.PS = _pixelShader.Get();
 		psd.BlendState = BlendDescriptor::Default();
+		psd.BlendState.RenderTarget[0].BlendEnable = TRUE;
+		psd.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+		psd.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+		psd.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 		psd.SampleMask = UINT_MAX;
 		psd.RasterizerState = RasterizerDescriptor(D3D12_FILL_MODE_SOLID,
-			D3D12_CULL_MODE_NONE);
+			D3D12_CULL_MODE_FRONT);
 		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
-		psd.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		psd.DepthStencilState.DepthEnable = FALSE;
 		psd.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		psd.DepthStencilState.StencilEnable = TRUE;
-		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		//psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 
 		psd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -537,7 +556,7 @@ const Luxko::Anuthur::MeshGeometry&
 		auto dAlpha = static_cast<float>(M_PI) * 2 / 16;
 
 		// Center circle first, then advance into up and down stacks.
-		for (auto i = 0u; i < 16u; ++i) {
+		for (auto i = 0u; i <= 16u; ++i) {
 			auto cosAlpha = std::cos(dAlpha*i);
 			auto sinAlpha = std::sin(dAlpha*i);
 			VSI vsi;
@@ -547,7 +566,7 @@ const Luxko::Anuthur::MeshGeometry&
 
 		indice.reserve(16 * 6);
 
-		for (auto i = 0u; i < 16u; ++i) {
+		for (auto i = 0u; i <= 16u; ++i) {
 			indice.push_back(i + 2);
 			indice.push_back(0);
 			indice.push_back(i + 3);
@@ -571,7 +590,19 @@ const Luxko::Anuthur::MeshGeometry&
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::SpotLight::recordSettings(
 	ID3D12GraphicsCommandList* cmdList)
 {
+	assert(cmdList);
 	cmdList->SetPipelineState(_normalState.Get());
+	auto& mesh = getInputBuffer();
+	cmdList->IASetVertexBuffers(0u, 1u, &mesh.VertexBufferView());
+	cmdList->IASetIndexBuffer(&mesh.IndexBufferView());
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::SpotLight::recordDraw(
+	ID3D12GraphicsCommandList* pCmdlist)
+{
+	assert(pCmdlist);
+	pCmdlist->DrawIndexedInstanced(getInputBuffer().GetTotoalIndexCount(),
+		1u, 0u, 0u, 0u);
 }
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::SpotLight::generateOtoWMatrix(
@@ -610,16 +641,21 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::DirectionalLight::initialize(
 		psd.VS = _vertexShader.Get();
 		psd.PS = _pixelShader.Get();
 		psd.BlendState = BlendDescriptor::Default();
+		psd.BlendState.RenderTarget[0].BlendEnable = TRUE;
+		psd.BlendState.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+		psd.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+		psd.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 		psd.SampleMask = UINT_MAX;
 		psd.RasterizerState = RasterizerDescriptor(D3D12_FILL_MODE_SOLID,
-			D3D12_CULL_MODE_NONE);
+			D3D12_CULL_MODE_FRONT);
 		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
-		psd.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+		psd.DepthStencilState.DepthEnable = FALSE;
 		psd.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		psd.DepthStencilState.StencilEnable = TRUE;
-		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		//psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
+		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 
 		psd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -726,7 +762,19 @@ Luxko::Anuthur::DRP::LightPass::NaiveLights::DirectionalLight::getInputBuffer(
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::DirectionalLight::recordSettings(
 	ID3D12GraphicsCommandList* cmdList)
 {
+	assert(cmdList);
 	cmdList->SetPipelineState(_normalState.Get());
+	auto& mesh = getInputBuffer();
+	cmdList->IASetVertexBuffers(0u, 1u, &mesh.VertexBufferView());
+	cmdList->IASetIndexBuffer(&mesh.IndexBufferView());
+}
+
+void Luxko::Anuthur::DRP::LightPass::NaiveLights::DirectionalLight::recordDraw(
+	ID3D12GraphicsCommandList* pCmdlist)
+{
+	assert(pCmdlist);
+	pCmdlist->DrawIndexedInstanced(getInputBuffer().GetTotoalIndexCount(),
+		1u, 0u, 0u, 0u);
 }
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::DirectionalLight::generateOtoWMatrix(

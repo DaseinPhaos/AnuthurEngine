@@ -47,6 +47,18 @@ float3 SpheremapDecode(float2 sm) {
 	nn.z = l;
 	nn.xy *= sqrt(l);
 	return nn.xyz * 2.f + float3(0.f, 0.f, -1.f);
+	
+	//float y = sqrt(1.f - sm.x*sm.x - sm.y*sm.y);
+	//return float3(sm.x, y, sm.y);
+
+	//float st;
+	//float ct;
+	//sincos(sm.x, st, ct);
+	//float sp;
+	//float cp;
+	//sp = sqrt(1.f - sm.y*sm.y);
+	//cp = sm.y;
+	//return float3(ct*sp, st*sp, cp);
 }
 
 float3 GetViewRay(float3 posV) {
@@ -110,6 +122,7 @@ VSO VSMain(in VSI vsi)
 {
 	VSO vso;
 	float4 pW = mul(float4(vsi.posO, 1.f), light.mOtoW);
+	//float4 pW = float4(vsi.posO, 1.f);
 	vso.posH = mul(pW, camera.mWtoH);
 	vso.posV = mul(pW, camera.mWtoV).xyz;
 	return vso;
@@ -123,6 +136,13 @@ float4 PSMain(in VSO psi) : SV_Target0
 	float3 sa;
 	float sp;
 	GetGB(psi.posH.xy, psi.posV, norm, pos, da, sa, sp);
-	 float3 lout = lighting(norm, pos, da, sa, sp);
+	float3 lout = lighting(norm, pos, da, sa, sp);
 	return float4(lout, 1.f);
+//#if POINTLIGHT
+//	return float4(0.5f, 0.f, 0.f, 1.f);
+//#elif SPOTLIGHT
+//	return float4(0.f, 0.5f, 0.f, 1.f);
+//#elif DIRCTIONALLIGHT
+//	return float4(0.f, 0.f, 0.5f, 1.f);
+//#endif
 }
