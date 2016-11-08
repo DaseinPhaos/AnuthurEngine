@@ -259,7 +259,7 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(fl
 			result.Vertices.emplace_back(
 				x, 0.f, z,
 				0.f, 1.f, 0.f,
-				1.f, 0.f, 0.f,
+				-1.f, 0.f, 0.f,
 				tx, ty
 			);
 

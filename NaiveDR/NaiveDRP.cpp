@@ -52,11 +52,11 @@ void NaiveDRPApp::OnInit()
 	_directionalLight.getInputBuffer(pDevice, pCmdList);
 
 	// Initialize scene components
-	auto terranMesh = BasicGeometry::Terran(10, 10, 10, 10);
+	//auto terranMesh = BasicGeometry::Terran(10, 10, 10, 10);
 	//auto terranMesh = BasicGeometry::Cylinder(5.f, 2.f, 3.f, 16, 16);
 	//auto terranMesh = BasicGeometry::Box(1.f, 2.f, 3.f);
 	//auto terranMesh = BasicGeometry::Sphere(5.f);
-	// auto terranMesh = BasicGeometry::Grid(10, 10, 10, 10);
+	auto terranMesh = BasicGeometry::Grid(10, 10, 10, 10);
 	std::vector<GBInput> terranVertices;
 	for (auto& v : terranMesh.Vertices)
 	{
@@ -66,7 +66,7 @@ void NaiveDRPApp::OnInit()
 		std::move(terranMesh.Indices),
 		MaterialsCB{
 			Matrix4x4f::Identity(),
-			Vector3f(0.3f, 0.13f, 0.63f), 80.8f
+			Vector3f(0.5f, 0.5f, 0.5f), 2.8f
 	});
 
 
@@ -82,9 +82,9 @@ void NaiveDRPApp::OnInit()
 	Microsoft::WRL::ComPtr<ID3D12Resource> normalmapU;
 
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\bricks2.dds)", diffusemap, diffusemapU));
+		LR"(..\Asset\Textures\tile.dds)", diffusemap, diffusemapU));
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\bricks2_nmap.dds)", normalmap, normalmapU));
+		LR"(..\Asset\Textures\tile_nmap.dds)", normalmap, normalmapU));
 
 	auto& tvCpu = std::get<0>(_meshes_cpu.back());
 	auto vb_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,
@@ -105,10 +105,10 @@ void NaiveDRPApp::OnInit()
 	auto& pb = _pointLights.back();
 	pb.first.mOtoW = Matrix4x4f::Identity();
 	// pb.first.color = Vector4f(0.f, 0.f, 4.f, 1.0f);
-	pb.first.color = Vector4f(1.7f, 1.7f, 1.7f, 1.0f);
+	pb.first.color = Vector4f(1.7f, 0.f, 0.f, 1.0f);
 	// pb.first.color = Vector4f(0.f, 0.f, 0.f, 1.0f);
 	pb.first.posW = Vector4f(-5.f, 5.f, 5.f, 1.f);
-	pb.first.range = Vector4f(20.f, 0.f, 0.f, 0.f);
+	pb.first.range = Vector4f(10.f, 0.f, 0.f, 0.f);
 	DRP::LightPass::NaiveLights::PointLight::generateOtoWMatrix(pb.first);
 	auto pl_gpu = D3D12Helper::CreateDefaultBuffer(
 		pDevice, pCmdList, &pb.first, D3D12Helper::GetCBSizeAligned(sizeof(pb.first)),
@@ -117,13 +117,13 @@ void NaiveDRPApp::OnInit()
 	auto& sb = _spotLights.back();
 	// sb.first.mOtoW = Matrix4x4f::Identity();
 	//sb.first.color = Vector4f(2.5f, 0.f, 0.f, 1.0f);
-	sb.first.color = Vector4f(1.7f, 1.7f, 1.7f, 1.0f);
+	sb.first.color = Vector4f(0.f, 1.7f, 0.f, 1.0f);
 	// sb.first.color = Vector4f(0.f, 0.f, 0.f, 1.0f);
 	sb.first.posW = Vector4f(5.f, 5.f, 5.f, 1.f);
 	sb.first.direction = Vector4f(-1.f, -1.f, -1.f, 0.f).Normalize();
-	sb.first.range = Vector4f(10.f, 0.f, 0.f, 0.f);
-	sb.first.angleX = 0.7f;
-	sb.first.angleY = 0.3f;
+	sb.first.range = Vector4f(8.f, 0.f, 0.f, 0.f);
+	sb.first.angleX = 0.9f;
+	sb.first.angleY = 0.7f;
 	DRP::LightPass::NaiveLights::SpotLight::generateOtoWMatrix(sb.first);
 	auto sl_gpu = D3D12Helper::CreateDefaultBuffer(
 		pDevice, pCmdList, &sb.first, D3D12Helper::GetCBSizeAligned(sizeof(sb.first)),
@@ -132,10 +132,10 @@ void NaiveDRPApp::OnInit()
 	_directionalLights.push_back({ {},{} });
 	auto& db = _directionalLights.back();
 	db.first.mOtoW = Matrix4x4f::Identity();
-	db.first.color = Vector4f(1.7f, 1.7f, 1.7f, 1.0f);
+	db.first.color = Vector4f(0.f, 0.f, 0.7f, 1.0f);
 	db.first.posW = Vector4f(5.f, 5.f, 5.f, 1.f);
 	db.first.range = Vector4f(1000.f, 5.f, 5.f, 1.f);
-	db.first.direction = Vector4f(-.8f, -1.f, -1.2f, 0.f).Normalize();
+	db.first.direction = Vector4f(5.f, -5.f, 5.f, 0.f).Normalize();
 	DRP::LightPass::NaiveLights::DirectionalLight::generateOtoWMatrix(db.first);
 	auto dl_gpu = D3D12Helper::CreateDefaultBuffer(
 		pDevice, pCmdList, &db.first, D3D12Helper::GetCBSizeAligned(sizeof(db.first)),
@@ -228,6 +228,7 @@ void NaiveDRPApp::OnDestroy()
 
 void NaiveDRPApp::OnUpdate()
 {
+	_d3d12Manager.FlushCommandQueue();
 	static auto lastTick = _mainTimer.PeekCurrentTick();
 	auto cTick = _mainTimer.PeekCurrentTick();
 	auto deltaMs = _mainTimer.TicksToMs(cTick - lastTick);
@@ -362,7 +363,7 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 	DRP::LightPass::NaiveLights::recordRp1CameraAndGBuffer(pCmdlist, 
 		dhs[0]->GetGPUDescriptorHandleForHeapStart());
 	// pCmdlist->SetGraphicsRootDescriptorTable(1u, dhs[0]->GetGPUDescriptorHandleForHeapStart());
-	UINT8 stencilRef = 0x80;
+	UINT stencilRef = 0x80;
 
 	_pointLight.recordSettings(pCmdlist);
 	// pCmdlist->SetPipelineState(_drr.getPointlightPSO());

@@ -45,7 +45,7 @@ struct VSI
 struct VSO
 {
 	float4 pos: SV_POSITION;
-	// float3 posW: POSITION_W;
+	float3 posV: POSITION_V;
 	float3 normW: NORM_W;
 	float3 tangentW: TANGENT_W;
 	float2 tex: TEXCOORD;
@@ -60,8 +60,10 @@ struct PSO
 
 // Sphere map transform, Mittring 2009
 float2 SpheremapEncode(float3 norm) {
-	return normalize(norm.xy) * (sqrt(-norm.z * 0.5f + 0.5f));
-	//return float2(atan2(norm.y, norm.x), norm.z);
+	//return normalize(norm.xy) * (sqrt(-norm.z * 0.5f + 0.5f));
+	//float t = sqrt(-norm.y * 0.5f + 0.5f);
+	//return normalize(float2(norm.x, norm.z)) * t;
+	return float2(atan2(norm.y, norm.x), norm.z);
 }
 
 
@@ -69,6 +71,7 @@ VSO VSMain(in VSI vsi) {
 	VSO vso;
 	float4 posW = mul(vsi.pos, material.mOtoW);
 	vso.pos = mul(posW, camera.mWtoH);
+	vso.posV = mul(posW, camera.mWtoV);
 	vso.normW = normalize(mul(vsi.norm, (float3x3)material.mOtoW));
 	vso.tangentW = normalize(mul(vsi.tangent, (float3x3)material.mOtoW));
 	vso.tex = vsi.tex;
@@ -80,6 +83,7 @@ VSO VSMain(in VSI vsi) {
 
 PSO PSMain(in VSO psi) {
 	float3 normalT = NormalMap.Sample(Sampler, psi.tex).xyz;
+	normalT = normalT * 2.f - 1.f;
 	float3 norm = normalize(psi.normW);
 	float3 tangent = normalize(psi.tangentW);
 	float3 bitangent = normalize(cross(norm, tangent));
@@ -89,7 +93,7 @@ PSO PSMain(in VSO psi) {
 
 	PSO pso;
 	//pso.npp = float4(1.f, 0.5f, 0.3f, 1.f);
-	pso.npp = float4(SpheremapEncode(normW), psi.pos.z / camera.farClipD, material.sPower);
+	pso.npp = float4(SpheremapEncode(normW), psi.posV.z / camera.farClipD, material.sPower);
 
 	pso.da = DiffuseMap.Sample(Sampler, psi.tex);
 	pso.sa = float4(material.sAlbedo, 1.f);

@@ -42,23 +42,30 @@ cbuffer CameraCB: register(b1)
 
 // Sphere map transform, Mittring 2009
 float3 SpheremapDecode(float2 sm) {
-	float4 nn = float4(sm, 1.f, -1.f);
-	float l = dot(nn.xyz, -nn.xyw);
-	nn.z = l;
-	nn.xy *= sqrt(l);
-	return nn.xyz * 2.f + float3(0.f, 0.f, -1.f);
+	//float4 nn = float4(sm, 1.f, -1.f);
+	//float l = dot(nn.xyz, -nn.xyw);
+	//nn.z = l;
+	//nn.xy *= sqrt(l);
+	//return nn.xyz * 2.f + float3(0.f, 0.f, -1.f);
+
+	//float4 nn = float4(sm, 1.f, -1.f);
+	//float l = dot(nn.xyz, -nn.xyw);
+	//nn.z = l;
+	//nn.xy *= sqrt(l);
+	//float3 temp = nn.xyz * 2.f + float3(0.f, 0.f, -1.f);
+	//return float3(temp.x, temp.z, temp.y);
 	
 	//float y = sqrt(1.f - sm.x*sm.x - sm.y*sm.y);
 	//return float3(sm.x, y, sm.y);
 
-	//float st;
-	//float ct;
-	//sincos(sm.x, st, ct);
-	//float sp;
-	//float cp;
-	//sp = sqrt(1.f - sm.y*sm.y);
-	//cp = sm.y;
-	//return float3(ct*sp, st*sp, cp);
+	float st;
+	float ct;
+	sincos(sm.x, st, ct);
+	float sp;
+	float cp;
+	sp = sqrt(1.f - sm.y*sm.y);
+	cp = sm.y;
+	return float3(ct*sp, st*sp, cp);
 }
 
 float3 GetViewRay(float3 posV) {
@@ -105,7 +112,6 @@ float3 lighting(in float3 norm, in float3 pos, in float3 da, in float3 sa, in fl
 	float3 view = normalize(camera.posW - pos);
 	float3 h = normalize(l + view);
 	float3 specular = pow(saturate(dot(norm, h)), sp) * light.color.rgb * sa * dotnl;
-
 	return (specular + diffuse) * attenuation;
 }
 
@@ -138,11 +144,12 @@ float4 PSMain(in VSO psi) : SV_Target0
 	GetGB(psi.posH.xy, psi.posV, norm, pos, da, sa, sp);
 	float3 lout = lighting(norm, pos, da, sa, sp);
 	return float4(lout, 1.f);
+//	float4 result = float4(lout, 0.f);
 //#if POINTLIGHT
-//	return float4(0.5f, 0.f, 0.f, 1.f);
+//	return float4(0.2f, 0.f, 0.f, 1.f) + result;
 //#elif SPOTLIGHT
-//	return float4(0.f, 0.5f, 0.f, 1.f);
+//	return float4(0.f, 0.2f, 0.f, 1.f) + result;
 //#elif DIRCTIONALLIGHT
-//	return float4(0.f, 0.f, 0.5f, 1.f);
+//	return float4(0.f, 0.f, 0.2f, 1.f) + result;
 //#endif
 }

@@ -183,13 +183,15 @@ D3D12_INPUT_LAYOUT_DESC Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::getInputLay
 }
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordRp1CameraAndGBuffer(
-	ID3D12GraphicsCommandList* cmdlist, D3D12_GPU_DESCRIPTOR_HANDLE cameraGpuHandleAddress)
+	ID3D12GraphicsCommandList* cmdlist,
+	D3D12_GPU_DESCRIPTOR_HANDLE cameraGpuHandleAddress)
 {
 	cmdlist->SetGraphicsRootDescriptorTable(static_cast<UINT>(1), cameraGpuHandleAddress);
 }
 
 void Luxko::Anuthur::DRP::LightPass::NaiveLights::recordRp0Light(
-	ID3D12GraphicsCommandList* cmdlist, D3D12_GPU_VIRTUAL_ADDRESS lightCBGpuAddress, UINT8& stencilRef)
+	ID3D12GraphicsCommandList* cmdlist, D3D12_GPU_VIRTUAL_ADDRESS lightCBGpuAddress,
+	UINT& stencilRef)
 {
 	assert(cmdlist);
 	++stencilRef;
@@ -319,16 +321,13 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::PointLight::initialize(
 		psd.BlendState.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
 		psd.BlendState.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
 		psd.SampleMask = UINT_MAX;
-		psd.RasterizerState = RasterizerDescriptor(D3D12_FILL_MODE_SOLID, 
+		psd.RasterizerState = RasterizerDescriptor(D3D12_FILL_MODE_SOLID,
 			D3D12_CULL_MODE_FRONT);
 		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
 		psd.DepthStencilState.DepthEnable = FALSE;
-		psd.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		psd.DepthStencilState.StencilEnable = TRUE;
-		// psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
 		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-		//psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
 		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 
@@ -405,10 +404,10 @@ const Luxko::Anuthur::MeshGeometry& Luxko::Anuthur::DRP::LightPass::NaiveLights
 
 		indice.reserve(12u * 16u * 16u);
 
-		auto half = 9u * 9u;
+		auto half = 17u * 17u;
 
-		for (auto i = 0u; i <= 16u; ++i) {
-			for (auto j = 0u; j <= 16u; ++j) {
+		for (auto i = 0u; i < 16u; ++i) {
+			for (auto j = 0u; j < 16u; ++j) {
 				indice.push_back(i*(16u + 1) + j);
 				indice.push_back(i*(16u + 1) + j + 1);
 				indice.push_back((i + 1)*(16u + 1) + j + 1);
@@ -500,11 +499,9 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::SpotLight::initialize(
 			D3D12_CULL_MODE_FRONT);
 		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
 		psd.DepthStencilState.DepthEnable = FALSE;
-		psd.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		psd.DepthStencilState.StencilEnable = TRUE;
 		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-		//psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
 		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 
@@ -566,7 +563,7 @@ const Luxko::Anuthur::MeshGeometry&
 
 		indice.reserve(16 * 6);
 
-		for (auto i = 0u; i <= 16u; ++i) {
+		for (auto i = 0u; i < 16u; ++i) {
 			indice.push_back(i + 2);
 			indice.push_back(0);
 			indice.push_back(i + 3);
@@ -650,11 +647,9 @@ void Luxko::Anuthur::DRP::LightPass::NaiveLights::DirectionalLight::initialize(
 			D3D12_CULL_MODE_FRONT);
 		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
 		psd.DepthStencilState.DepthEnable = FALSE;
-		psd.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 		psd.DepthStencilState.StencilEnable = TRUE;
 		psd.DepthStencilState.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
-		//psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_LESS;
 		psd.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_GREATER;
 		psd.DepthStencilState.BackFace.StencilPassOp = D3D12_STENCIL_OP_REPLACE;
 

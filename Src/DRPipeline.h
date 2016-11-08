@@ -125,9 +125,10 @@ namespace Luxko {
 
 					luxfuckinline void recordRp1CameraAndGBuffer(ID3D12GraphicsCommandList* cmdlist,
 						D3D12_GPU_DESCRIPTOR_HANDLE cameraGpuHandleAddress);
-					luxfuckinline void recordRp0Light(ID3D12GraphicsCommandList* cmdlist,
+					luxfuckinline void recordRp0Light(
+						ID3D12GraphicsCommandList* cmdlist,
 						D3D12_GPU_VIRTUAL_ADDRESS lightCBGpuAddress,
-						UINT8& stencilRef);
+						UINT& stencilRef);
 
 					luxfuckinline ID3D12RootSignature* getRootSignature(
 						ID3D12Device* creationDevice = nullptr /* Used first time*/);
