@@ -42,11 +42,11 @@ cbuffer CameraCB: register(b1)
 
 // Sphere map transform, Mittring 2009
 float3 SpheremapDecode(float2 sm) {
-	//float4 nn = float4(sm, 1.f, -1.f);
-	//float l = dot(nn.xyz, -nn.xyw);
-	//nn.z = l;
-	//nn.xy *= sqrt(l);
-	//return nn.xyz * 2.f + float3(0.f, 0.f, -1.f);
+	float4 nn = float4(sm, 1.f, -1.f);
+	float l = dot(nn.xyz, -nn.xyw);
+	nn.z = l;
+	nn.xy *= sqrt(l);
+	return nn.xyz * 2.f + float3(0.f, 0.f, -1.f);
 
 	//float4 nn = float4(sm, 1.f, -1.f);
 	//float l = dot(nn.xyz, -nn.xyw);
@@ -58,14 +58,14 @@ float3 SpheremapDecode(float2 sm) {
 	//float y = sqrt(1.f - sm.x*sm.x - sm.y*sm.y);
 	//return float3(sm.x, y, sm.y);
 
-	float st;
-	float ct;
-	sincos(sm.x, st, ct);
-	float sp;
-	float cp;
-	sp = sqrt(1.f - sm.y*sm.y);
-	cp = sm.y;
-	return float3(ct*sp, st*sp, cp);
+	//float st;
+	//float ct;
+	//sincos(sm.x, st, ct);
+	//float sp;
+	//float cp;
+	//sp = sqrt(1.f - sm.y*sm.y);
+	//cp = sm.y;
+	//return float3(ct*sp, st*sp, cp);
 }
 
 float3 GetViewRay(float3 posV) {

@@ -163,6 +163,7 @@
     <ClInclude Include="..\Src\DRPipeline.h" />
     <ClInclude Include="..\Src\LightandMaterial.h" />
     <ClInclude Include="..\Src\MeshResource.h" />
+    <ClInclude Include="..\Src\MouseKeyControl.h" />
     <ClInclude Include="..\Src\PerspecCamera.h" />
     <ClInclude Include="..\Src\RendererPCH.h" />
   </ItemGroup>

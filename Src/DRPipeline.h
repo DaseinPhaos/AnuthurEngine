@@ -11,12 +11,12 @@
 #include "Vector3f.h"
 #include "D3D12HelperMethods.h"
 #include "MeshResource.h"
-#define luxfuckinline
+
 namespace Luxko {
 	namespace Anuthur {
 		namespace DRP {
 			using Microsoft::WRL::ComPtr;
-			luxfuckinline namespace Common {
+			inline namespace Common {
 				struct CameraAttr {
 					Matrix4x4f mWtoV;
 					Matrix4x4f mVtoW;
@@ -55,39 +55,97 @@ namespace Luxko {
 						DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
 					
 				public:
-					luxfuckinline D3D12_SHADER_BYTECODE getVS()const;
-					luxfuckinline D3D12_SHADER_BYTECODE getPS()const;
-					luxfuckinline ID3D12PipelineState* getPSO()const;
-					luxfuckinline ID3D12PipelineState* getPSOWireframe()const;
-					luxfuckinline ID3D12RootSignature* getRootSignature()const;
+					inline D3D12_SHADER_BYTECODE getVS()const {
+						return _vertexShader.Get();
+					}
+					inline D3D12_SHADER_BYTECODE getPS()const {
+						return _pixelShader.Get();
+					}
+					inline ID3D12PipelineState* getPSO()const {
+						return _normalState.Get();
+					}
+
+					inline ID3D12PipelineState* getPSOWireframe()const {
+						return _wireframeState.Get();
+					}
+					inline ID3D12RootSignature* getRootSignature()const {
+						return _rootSignature.Get();
+					}
 
 				public:
-					static luxfuckinline void recordRp0Camera(ID3D12GraphicsCommandList* cmdlist,
-						D3D12_GPU_VIRTUAL_ADDRESS cameraGpuAddress);
-					static luxfuckinline void recordRp1Material(ID3D12GraphicsCommandList* cmdlist,
-						D3D12_GPU_VIRTUAL_ADDRESS materialGpuAddress);
-					static luxfuckinline void recordRp2Textures(ID3D12GraphicsCommandList* cmdlist,
-						D3D12_GPU_DESCRIPTOR_HANDLE texsSrvGpuHandle);
+					static inline void recordRp0Camera(ID3D12GraphicsCommandList* cmdlist,
+						D3D12_GPU_VIRTUAL_ADDRESS cameraGpuAddress) {
+						cmdlist->SetGraphicsRootConstantBufferView(static_cast<UINT>(0), cameraGpuAddress);
+					}
+					static inline void recordRp1Material(ID3D12GraphicsCommandList* cmdlist,
+						D3D12_GPU_VIRTUAL_ADDRESS materialGpuAddress) {
+						cmdlist->SetGraphicsRootConstantBufferView(static_cast<UINT>(1), materialGpuAddress);
+					}
+					static inline void recordRp2Textures(ID3D12GraphicsCommandList* cmdlist,
+						D3D12_GPU_DESCRIPTOR_HANDLE texsSrvGpuHandle) {
+						cmdlist->SetGraphicsRootDescriptorTable(static_cast<UINT>(2), texsSrvGpuHandle);
+					}
 
-					luxfuckinline void recordStateSettings(ID3D12GraphicsCommandList* cmdlist,
-						D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-					luxfuckinline void recordStateSettingsWireframe(
+					inline void recordStateSettings(ID3D12GraphicsCommandList* cmdlist,
+						D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
+						cmdlist->OMSetStencilRef(0x80);
+						cmdlist->IASetPrimitiveTopology(primitiveTopology);
+						cmdlist->SetPipelineState(_normalState.Get());
+						cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
+					}
+					inline void recordStateSettingsWireframe(
 						ID3D12GraphicsCommandList* cmdlist,
-						D3D_PRIMITIVE_TOPOLOGY primitiveTopology);
+						D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
+						cmdlist->OMSetStencilRef(0x80);
+						cmdlist->IASetPrimitiveTopology(primitiveTopology);
+						cmdlist->SetPipelineState(_normalState.Get());
+						cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
+					}
 
-					static luxfuckinline void recordGBTransitionFrom(ID3D12GraphicsCommandList* cmdlist,
+
+					static inline void recordGBTransitionFrom(ID3D12GraphicsCommandList* cmdlist,
 						ID3D12Resource** gBuffers, D3D12_RESOURCE_STATES from
-						= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+						= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
+						D3D12Helper::ResourceBarrier barriers[] = {
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[0], from, D3D12_RESOURCE_STATE_RENDER_TARGET),
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[1], from, D3D12_RESOURCE_STATE_RENDER_TARGET),
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[2], from, D3D12_RESOURCE_STATE_RENDER_TARGET),
+						};
+						cmdlist->ResourceBarrier(3u, barriers);
+					}
 
-					static luxfuckinline void recordGBTransitionTo(ID3D12GraphicsCommandList* cmdlist,
+					static inline void recordGBTransitionTo(ID3D12GraphicsCommandList* cmdlist,
 						ID3D12Resource** gBuffers, D3D12_RESOURCE_STATES to
-						= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+						= D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
+						D3D12Helper::ResourceBarrier barriers[] = {
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[0], D3D12_RESOURCE_STATE_RENDER_TARGET, to),
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[1], D3D12_RESOURCE_STATE_RENDER_TARGET, to),
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[2], D3D12_RESOURCE_STATE_RENDER_TARGET, to),
+						};
+						cmdlist->ResourceBarrier(3u, barriers);
+					}
 
-					static luxfuckinline void recordClearAndSetRtvDsv(
+					static inline void recordClearAndSetRtvDsv(
 						ID3D12GraphicsCommandList* cmdlist,
 						D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles,
 						D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
-						UINT numRects, const D3D12_RECT* pRects);
+						UINT numRects, const D3D12_RECT* pRects) {
+						cmdlist->ClearDepthStencilView(dsvHandle,
+							D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f,
+							static_cast<UINT8>(0), numRects, pRects);
+						static FLOAT bbg[] = { 0.f, 0.f, 0.f, 0.f };
+						cmdlist->ClearRenderTargetView(rtvHandles[0], bbg, numRects, pRects);
+						cmdlist->ClearRenderTargetView(rtvHandles[1], bbg, numRects, pRects);
+						cmdlist->ClearRenderTargetView(rtvHandles[2], bbg, numRects, pRects);
+						cmdlist->OMSetRenderTargets(static_cast<UINT>(3), rtvHandles, TRUE, &dsvHandle);
+
+					}
 
 
 
@@ -123,37 +181,79 @@ namespace Luxko {
 						Vector3f pos;
 					};
 
-					luxfuckinline void recordRp1CameraAndGBuffer(ID3D12GraphicsCommandList* cmdlist,
-						D3D12_GPU_DESCRIPTOR_HANDLE cameraGpuHandleAddress);
-					luxfuckinline void recordRp0Light(
+					inline void recordRp1CameraAndGBuffer(ID3D12GraphicsCommandList* cmdlist,
+						D3D12_GPU_DESCRIPTOR_HANDLE cameraGpuHandleAddress) {
+						cmdlist->SetGraphicsRootDescriptorTable(
+							static_cast<UINT>(1), cameraGpuHandleAddress);
+					}
+
+					inline void recordRp0Light(
 						ID3D12GraphicsCommandList* cmdlist,
 						D3D12_GPU_VIRTUAL_ADDRESS lightCBGpuAddress,
-						UINT& stencilRef);
+						UINT& stencilRef) {
+						++stencilRef;
+						assert(stencilRef < 0xff);
+						cmdlist->OMSetStencilRef(stencilRef);
+						cmdlist->SetGraphicsRootConstantBufferView(static_cast<UINT>(0), lightCBGpuAddress);
+					}
 
-					luxfuckinline ID3D12RootSignature* getRootSignature(
+
+					ID3D12RootSignature* getRootSignature(
 						ID3D12Device* creationDevice = nullptr /* Used first time*/);
 
-					luxfuckinline void recordSettings(ID3D12GraphicsCommandList* cmdlist,
-						ID3D12Device* creationDevice = nullptr /* Used first time*/);
+					inline void recordSettings(ID3D12GraphicsCommandList* cmdlist,
+						ID3D12Device* creationDevice = nullptr /* Used first time*/) {
+						cmdlist->SetGraphicsRootSignature(getRootSignature(creationDevice));
+						cmdlist->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+					}
 
 
-					luxfuckinline void resetLightingRecords(ID3D12GraphicsCommandList* cmdlist,
+					inline void resetLightingRecords(ID3D12GraphicsCommandList* cmdlist,
 						UINT& stencilRef, D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
-						UINT numRects, D3D12_RECT* pRects);
+						UINT numRects, D3D12_RECT* pRects) {
+						stencilRef = 0x80u;
+						cmdlist->ClearDepthStencilView(dsvHandle,
+							D3D12_CLEAR_FLAG_STENCIL, 0.f, static_cast<UINT8>(stencilRef),
+							numRects, pRects);
+					}
 
-					luxfuckinline void recordGBTransitionFrom(ID3D12GraphicsCommandList* cmdlist,
+					inline void recordGBTransitionFrom(ID3D12GraphicsCommandList* cmdlist,
 						ID3D12Resource** gBuffers, D3D12_RESOURCE_STATES from
-						= D3D12_RESOURCE_STATE_RENDER_TARGET);
+						= D3D12_RESOURCE_STATE_RENDER_TARGET) {
+						D3D12Helper::ResourceBarrier barriers[] = {
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[0], from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[1], from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[2], from, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+						};
+						cmdlist->ResourceBarrier(3u, barriers);
+					}
 
-					luxfuckinline void recordGBTransitionTo(ID3D12GraphicsCommandList* cmdlist,
+					inline void recordGBTransitionTo(ID3D12GraphicsCommandList* cmdlist,
 						ID3D12Resource** gBuffers, D3D12_RESOURCE_STATES to
-						= D3D12_RESOURCE_STATE_RENDER_TARGET);
+						= D3D12_RESOURCE_STATE_RENDER_TARGET) {
+						D3D12Helper::ResourceBarrier barriers[] = {
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[0], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[1], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+							D3D12Helper::ResourceBarrier::TransitionBarrier(
+								gBuffers[2], D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, to),
+						};
+						cmdlist->ResourceBarrier(3u, barriers);
+					}
 
-					luxfuckinline void recordClearAndSetRtvDsv(
+					inline void recordClearAndSetRtvDsv(
 						ID3D12GraphicsCommandList* cmdlist,
 						D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle,
 						D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
-						UINT numRects, D3D12_RECT* pRects);
+						UINT numRects, D3D12_RECT* pRects) {
+						static FLOAT bbg[] = { 0.f, 0.f, 0.f, 0.f };
+						cmdlist->ClearRenderTargetView(rtvHandle, bbg, numRects, pRects);
+						cmdlist->OMSetRenderTargets(static_cast<UINT>(1), &rtvHandle, TRUE, &dsvHandle);
+					}
 
 					D3D12_INPUT_LAYOUT_DESC getInputLayout();
 
@@ -172,17 +272,34 @@ namespace Luxko {
 							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 					public:
-						luxfuckinline D3D12_SHADER_BYTECODE getVS()const;
-						luxfuckinline D3D12_SHADER_BYTECODE getPS()const;
-						luxfuckinline ID3D12PipelineState* getPSO()const;
+						inline D3D12_SHADER_BYTECODE getVS()const {
+							return _vertexShader.Get();
+						}
+						inline D3D12_SHADER_BYTECODE getPS()const {
+							return _pixelShader.Get();
+						}
+						inline ID3D12PipelineState* getPSO()const {
+							return _normalState.Get();
+						}
 
 						static const MeshGeometry& getInputBuffer(
 							ID3D12Device* pDevice = nullptr,
 							ID3D12GraphicsCommandList* pCmdlist = nullptr);
 
-						luxfuckinline void recordSettings(ID3D12GraphicsCommandList* cmdList);
+						inline void recordSettings(
+							ID3D12GraphicsCommandList* cmdList) {
+							cmdList->SetPipelineState(_normalState.Get());
+							auto& mesh = getInputBuffer();
+							cmdList->IASetVertexBuffers(0u, 1u, &mesh.VertexBufferView());
+							cmdList->IASetIndexBuffer(&mesh.IndexBufferView());
+						}
 
-						static luxfuckinline void recordDraw(ID3D12GraphicsCommandList* pCmdlist);
+						static inline void recordDraw(
+							ID3D12GraphicsCommandList* pCmdlist) {
+							pCmdlist->DrawIndexedInstanced(
+								getInputBuffer().GetTotoalIndexCount(),
+								1u, 0u, 0u, 0u);
+						}
 
 						static void generateOtoWMatrix(LightParams& params);
 
@@ -211,17 +328,34 @@ namespace Luxko {
 							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 					public:
-						luxfuckinline D3D12_SHADER_BYTECODE getVS()const;
-						luxfuckinline D3D12_SHADER_BYTECODE getPS()const;
-						luxfuckinline ID3D12PipelineState* getPSO()const;
+						inline D3D12_SHADER_BYTECODE getVS()const {
+							return _vertexShader.Get();
+						}
+						inline D3D12_SHADER_BYTECODE getPS()const {
+							return _pixelShader.Get();
+						}
+						inline ID3D12PipelineState* getPSO()const {
+							return _normalState.Get();
+						}
 
 						static const MeshGeometry& getInputBuffer(
 							ID3D12Device* pDevice = nullptr,
 							ID3D12GraphicsCommandList* pCmdlist = nullptr);
 
-						luxfuckinline void recordSettings(ID3D12GraphicsCommandList* cmdList);
+						inline void recordSettings(
+							ID3D12GraphicsCommandList* cmdList) {
+							cmdList->SetPipelineState(_normalState.Get());
+							auto& mesh = getInputBuffer();
+							cmdList->IASetVertexBuffers(0u, 1u, &mesh.VertexBufferView());
+							cmdList->IASetIndexBuffer(&mesh.IndexBufferView());
+						}
 
-						static luxfuckinline void recordDraw(ID3D12GraphicsCommandList* pCmdlist);
+						static inline void recordDraw(
+							ID3D12GraphicsCommandList* pCmdlist) {
+							pCmdlist->DrawIndexedInstanced(
+								getInputBuffer().GetTotoalIndexCount(),
+								1u, 0u, 0u, 0u);
+						}
 
 						static void generateOtoWMatrix(LightParams& params);
 
@@ -250,17 +384,34 @@ namespace Luxko {
 							DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
 
 					public:
-						luxfuckinline D3D12_SHADER_BYTECODE getVS()const;
-						luxfuckinline D3D12_SHADER_BYTECODE getPS()const;
-						luxfuckinline ID3D12PipelineState* getPSO()const;
+						inline D3D12_SHADER_BYTECODE getVS()const {
+							return _vertexShader.Get();
+						}
+						inline D3D12_SHADER_BYTECODE getPS()const {
+							return _pixelShader.Get();
+						}
+						inline ID3D12PipelineState* getPSO()const {
+							return _normalState.Get();
+						}
 
 						static const MeshGeometry& getInputBuffer(
 							ID3D12Device* pDevice = nullptr,
 							ID3D12GraphicsCommandList* pCmdlist = nullptr);
 
-						luxfuckinline void recordSettings(ID3D12GraphicsCommandList* cmdList);
+						inline void recordSettings(
+							ID3D12GraphicsCommandList* cmdList) {
+							cmdList->SetPipelineState(_normalState.Get());
+							auto& mesh = getInputBuffer();
+							cmdList->IASetVertexBuffers(0u, 1u, &mesh.VertexBufferView());
+							cmdList->IASetIndexBuffer(&mesh.IndexBufferView());
+						}
 
-						static luxfuckinline void recordDraw(ID3D12GraphicsCommandList* pCmdlist);
+						static inline void recordDraw(
+							ID3D12GraphicsCommandList* pCmdlist) {
+							pCmdlist->DrawIndexedInstanced(
+								getInputBuffer().GetTotoalIndexCount(),
+								1u, 0u, 0u, 0u);
+						}
 
 						static void generateOtoWMatrix(LightParams& params);
 

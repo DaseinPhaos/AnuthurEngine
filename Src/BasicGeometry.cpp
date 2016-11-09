@@ -257,9 +257,9 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(fl
 		for (auto j = 0u; j <= n; ++j) {
 			auto ty = static_cast<float>(j) / n;
 			result.Vertices.emplace_back(
-				x, 0.f, z,
-				0.f, 1.f, 0.f,
-				-1.f, 0.f, 0.f,
+			Point3DH{ x, 0.f, z },
+			Vector3DH{ 0.f, 1.f, 0.f },
+			Vector3DH{ 1.f, 0.f, 0.f },
 				tx, ty
 			);
 

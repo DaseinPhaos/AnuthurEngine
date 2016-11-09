@@ -60,10 +60,10 @@ struct PSO
 
 // Sphere map transform, Mittring 2009
 float2 SpheremapEncode(float3 norm) {
-	//return normalize(norm.xy) * (sqrt(-norm.z * 0.5f + 0.5f));
+	return normalize(norm.xy) * (sqrt(-norm.z * 0.5f + 0.5f));
 	//float t = sqrt(-norm.y * 0.5f + 0.5f);
 	//return normalize(float2(norm.x, norm.z)) * t;
-	return float2(atan2(norm.y, norm.x), norm.z);
+	//return float2(atan2(norm.y, norm.x), norm.z);
 }
 
 
@@ -86,6 +86,7 @@ PSO PSMain(in VSO psi) {
 	normalT = normalT * 2.f - 1.f;
 	float3 norm = normalize(psi.normW);
 	float3 tangent = normalize(psi.tangentW);
+	//float3 tangent = normalize(psi.tangentW - dot(psi.tangentW, norm) * norm);
 	float3 bitangent = normalize(cross(norm, tangent));
 	float3x3 tFrameW = float3x3 (tangent, bitangent, norm);
 

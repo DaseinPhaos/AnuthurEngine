@@ -208,6 +208,109 @@ public:
 	float lastTimeMs;
 };
 
+class LightControl {
+public:
+	using LightParams = DRP::LightPass::NaiveLights::LightParams;
+	LightControl()noexcept {
+		pMKTracker = nullptr;
+		pLight = nullptr;
+		hSpeed = 0.01f;
+		vSpeed = 0.01f;
+		forwardSpeed = 1.f;
+		backwardSpeed = 1.f;
+		leftSpeed = 1.f;
+		rightSpeed = 1.f;
+		upSpeed = 1.f;
+		downSpeed = 1.f;
+
+		using namespace DirectX;
+		forwardKey = Keyboard::Up;
+		backwardKey = Keyboard::Down;
+		leftKey = Keyboard::Left;
+		rightKey = Keyboard::Right;
+		upKey = Keyboard::LeftControl;
+		downKey = Keyboard::LeftShift;
+
+		lastTimeMs = 0.f;
+	}
+
+	bool Update(float timeDeltaMs) {
+		lastTimeMs += timeDeltaMs;
+		if (lastTimeMs > 20.f) {
+			lastTimeMs = 0.f;
+			pMKTracker->update();
+			return DoUpdate();
+			//return DoUpdate(timeDeltaMs / 20.f);
+		}
+		return false;
+
+	}
+
+private:
+	bool DoUpdate() {
+		assert(pLight != nullptr);
+		assert(pMKTracker);
+		using namespace DirectX;
+		bool updated = false;
+		// update camera position
+		auto& keyState = pMKTracker->keyboardState;
+		auto translationDelta = Vector3DH(0.f, 0.f, 0.f);
+		bool deltaChanged = false;
+		if (keyState.IsKeyDown(forwardKey)) {
+			translationDelta[0] += forwardSpeed;
+			deltaChanged = true;
+		}
+		if (keyState.IsKeyDown(backwardKey)) {
+			translationDelta[0] -= backwardSpeed;
+			deltaChanged = true;
+		}
+		if (keyState.IsKeyDown(leftKey)) {
+			translationDelta[2] += leftSpeed;
+			deltaChanged = true;
+		}
+		if (keyState.IsKeyDown(rightKey)) {
+			translationDelta[2] -= rightSpeed;
+			deltaChanged = true;
+		}
+		if (keyState.IsKeyDown(upKey)) {
+			translationDelta[1] += upSpeed;
+			deltaChanged = true;
+		}
+		if (keyState.IsKeyDown(downKey)) {
+			translationDelta[1] -= downSpeed;
+			deltaChanged = true;
+		}
+
+		if (deltaChanged) {
+			pLight->posW += translationDelta.AsVector4f();
+			updated = true;
+		}
+
+		return updated;
+	}
+
+
+public:
+	float hSpeed;
+	float vSpeed;
+	float forwardSpeed;
+	float backwardSpeed;
+	float leftSpeed;
+	float rightSpeed;
+	float upSpeed;
+	float downSpeed;
+	LightParams* pLight;
+	MouseKeyTracker* pMKTracker;
+
+	DirectX::Keyboard::Keys forwardKey;
+	DirectX::Keyboard::Keys backwardKey;
+	DirectX::Keyboard::Keys leftKey;
+	DirectX::Keyboard::Keys rightKey;
+	DirectX::Keyboard::Keys upKey;
+	DirectX::Keyboard::Keys downKey;
+	float lastTimeMs;
+};
+
 class NaiveDRPApp : public D3D12App {
 public:
 	NaiveDRPApp(UINT width, UINT height, const std::wstring& name, BOOL windowed = TRUE)
@@ -270,6 +373,9 @@ private:
 
 	std::vector<std::pair<ID3D12GraphicsCommandList*, ID3D12CommandAllocator*>> _cmdObjs;
 
+	LightControl _movingLight_control;
+	LightParamsCB _movingLight_cpu;
+	D3D12Helper::UpdateBuffer<LightParamsCB> _movingLight_gpu;
 private:
 	void RecordCmds(ID3D12GraphicsCommandList* pCmdlist, ID3D12CommandAllocator* pCmdAlloc);
 	void ReadBackTo(ID3D12Resource* src, const wchar_t* filename);

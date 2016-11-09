@@ -608,15 +608,16 @@ void NaiveApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist, ID3D12CommandAllo
 			2u, dhs[0]->GetGPUDescriptorHandleForHeapStart());
 		D3D12_VERTEX_BUFFER_VIEW vbv;
 		vbv.BufferLocation = std::get<0>(mesh)->GetGPUVirtualAddress();
-		vbv.SizeInBytes = std::get<0>(mesh_cpu).size() * sizeof(GBInput);
+		vbv.SizeInBytes = static_cast<UINT>(std::get<0>(mesh_cpu).size() * sizeof(GBInput));
 		vbv.StrideInBytes = sizeof(GBInput);
 		pCmdlist->IASetVertexBuffers(0u, 1u, &vbv);
 		D3D12_INDEX_BUFFER_VIEW ibv;
 		ibv.BufferLocation = std::get<1>(mesh)->GetGPUVirtualAddress();
-		ibv.SizeInBytes = std::get<1>(mesh_cpu).size() * sizeof(UINT);
+		ibv.SizeInBytes = static_cast<UINT>(std::get<1>(mesh_cpu).size() * sizeof(UINT));
 		ibv.Format = DXGI_FORMAT_R32_UINT;
 		pCmdlist->IASetIndexBuffer(&ibv);
-		pCmdlist->DrawIndexedInstanced(std::get<1>(mesh_cpu).size(), 1u, 0u, 0u, 0u);
+		pCmdlist->DrawIndexedInstanced(
+			static_cast<UINT>(std::get<1>(mesh_cpu).size()), 1u, 0u, 0u, 0u);
 	}
 #pragma endregion recordGBPass
 

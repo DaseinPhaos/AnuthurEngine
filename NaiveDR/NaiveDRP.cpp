@@ -40,6 +40,15 @@ void NaiveDRPApp::OnInit()
 	_camControl.pCamera = &_mainCam;
 	_camControl.pMKTracker = &_mkTracker;
 
+	_movingLight_control.pMKTracker = &_mkTracker;
+	_movingLight_control.pLight = &_movingLight_cpu;
+	_movingLight_cpu.posW = Vector4f(0.f, 5.f, 0.f, 1.f);
+	_movingLight_cpu.color = Vector4f(1.f, 1.f, 0.f, 1.f);
+	_movingLight_cpu.range = Vector4f(6.6f, 0.f, 0.f, 0.f);
+
+	_movingLight_gpu = decltype(_movingLight_gpu)(pDevice);
+	//auto tptr = _movingLight_gpu.Get();
+
 	_blinnPhong.initialize(pDevice);
 	auto rtvFormat = _d3d12Manager.GetMainWindowResource().GetBackBufferFormat();
 	auto dsvFormat = _d3d12Manager.GetMainWindowResource().GetDepthStencilFormat();
@@ -66,7 +75,7 @@ void NaiveDRPApp::OnInit()
 		std::move(terranMesh.Indices),
 		MaterialsCB{
 			Matrix4x4f::Identity(),
-			Vector3f(0.5f, 0.5f, 0.5f), 2.8f
+			Vector3f(0.f, 0.f, 1.5f), 288.8f
 	});
 
 
@@ -82,9 +91,9 @@ void NaiveDRPApp::OnInit()
 	Microsoft::WRL::ComPtr<ID3D12Resource> normalmapU;
 
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\tile.dds)", diffusemap, diffusemapU));
+		LR"(..\Asset\Textures\bricks.dds)", diffusemap, diffusemapU));
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\tile_nmap.dds)", normalmap, normalmapU));
+		LR"(..\Asset\Textures\bricks_nmap.dds)", normalmap, normalmapU));
 
 	auto& tvCpu = std::get<0>(_meshes_cpu.back());
 	auto vb_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,
@@ -101,11 +110,14 @@ void NaiveDRPApp::OnInit()
 	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer3;
 	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer4;
 	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer5;
+
+	_pointLights.push_back({ _movingLight_cpu,
+		_movingLight_gpu.Get() });
 	_pointLights.push_back({ {},{} });
 	auto& pb = _pointLights.back();
 	pb.first.mOtoW = Matrix4x4f::Identity();
 	// pb.first.color = Vector4f(0.f, 0.f, 4.f, 1.0f);
-	pb.first.color = Vector4f(1.7f, 0.f, 0.f, 1.0f);
+	pb.first.color = Vector4f(1.2f, 0.f, 0.f, 1.0f);
 	// pb.first.color = Vector4f(0.f, 0.f, 0.f, 1.0f);
 	pb.first.posW = Vector4f(-5.f, 5.f, 5.f, 1.f);
 	pb.first.range = Vector4f(10.f, 0.f, 0.f, 0.f);
@@ -113,11 +125,12 @@ void NaiveDRPApp::OnInit()
 	auto pl_gpu = D3D12Helper::CreateDefaultBuffer(
 		pDevice, pCmdList, &pb.first, D3D12Helper::GetCBSizeAligned(sizeof(pb.first)),
 		uploadBuffer3);
+
 	_spotLights.push_back({ {},{} });
 	auto& sb = _spotLights.back();
 	// sb.first.mOtoW = Matrix4x4f::Identity();
 	//sb.first.color = Vector4f(2.5f, 0.f, 0.f, 1.0f);
-	sb.first.color = Vector4f(0.f, 1.7f, 0.f, 1.0f);
+	sb.first.color = Vector4f(0.f, 1.2f, 0.f, 1.0f);
 	// sb.first.color = Vector4f(0.f, 0.f, 0.f, 1.0f);
 	sb.first.posW = Vector4f(5.f, 5.f, 5.f, 1.f);
 	sb.first.direction = Vector4f(-1.f, -1.f, -1.f, 0.f).Normalize();
@@ -132,7 +145,7 @@ void NaiveDRPApp::OnInit()
 	_directionalLights.push_back({ {},{} });
 	auto& db = _directionalLights.back();
 	db.first.mOtoW = Matrix4x4f::Identity();
-	db.first.color = Vector4f(0.f, 0.f, 0.7f, 1.0f);
+	db.first.color = Vector4f(0.2f, 0.2f, 0.2f, 1.0f);
 	db.first.posW = Vector4f(5.f, 5.f, 5.f, 1.f);
 	db.first.range = Vector4f(1000.f, 5.f, 5.f, 1.f);
 	db.first.direction = Vector4f(5.f, -5.f, 5.f, 0.f).Normalize();
@@ -217,6 +230,15 @@ void NaiveDRPApp::OnInit()
 		_d3d12Manager.CreateSRVOnHeap(resrc, nullptr, pLpDH, i + 1u);
 		_d3d12Manager.CreateRTVOnHeap(resrc, nullptr, rtvHandle, i);
 	}
+
+	_cameraAttr_cpu.farClipD = _mainCam.FarPlaneDistance();
+	_cameraAttr_cpu.mVtoW = _mainCam.TransformWtoV().Inverse().AsMatrix4x4();
+	_cameraAttr_cpu.mWtoH = _mainCam.TransformWtoH().AsMatrix4x4();
+	_cameraAttr_cpu.mWtoV = _mainCam.TransformWtoV().AsMatrix4x4();
+	_cameraAttr_cpu.posW = _mainCam.GetPosition().AsVector4f().xyz();
+	_cameraAttr_gpu.Update(_cameraAttr_cpu);
+	DRP::LightPass::NaiveLights::PointLight::generateOtoWMatrix(_movingLight_cpu);
+	_movingLight_gpu.Update(_movingLight_cpu);
 }
 
 void NaiveDRPApp::OnDestroy()
@@ -233,7 +255,9 @@ void NaiveDRPApp::OnUpdate()
 	auto cTick = _mainTimer.PeekCurrentTick();
 	auto deltaMs = _mainTimer.TicksToMs(cTick - lastTick);
 	lastTick = cTick;
-	_camControl.Update(deltaMs);
+	auto camUpdated = _camControl.Update(deltaMs);
+	auto lightUpdated = _movingLight_control.Update(deltaMs);
+	
 	_d3d12Manager.FlushCommandQueue();
 	_kbdst.Update(_keyboard->GetState());
 	if (_kbdst.IsKeyReleased(DirectX::Keyboard::Enter)) {
@@ -241,13 +265,23 @@ void NaiveDRPApp::OnUpdate()
 		//ReadBackTo(_d3d12Manager.FindTexture2D(_gBuffers[1]).Get(), L"./gb1 drp.png");
 		//ReadBackTo(_d3d12Manager.FindTexture2D(_gBuffers[2]).Get(), L"./gb2 drp.png");
 	}
-	// _transformCB_cpu.mWorld = _mainCam.TransformWtoO().AsMatrix4x4();
-	_cameraAttr_cpu.farClipD = _mainCam.FarPlaneDistance();
-	_cameraAttr_cpu.mVtoW = _mainCam.TransformWtoV().Inverse().AsMatrix4x4();
-	_cameraAttr_cpu.mWtoH = _mainCam.TransformWtoH().AsMatrix4x4();
-	_cameraAttr_cpu.mWtoV = _mainCam.TransformWtoV().AsMatrix4x4();
-	_cameraAttr_cpu.posW = _mainCam.GetPosition().AsVector4f().xyz();
-	_cameraAttr_gpu.Update(_cameraAttr_cpu);
+
+	if (camUpdated) {
+		_cameraAttr_cpu.farClipD = _mainCam.FarPlaneDistance();
+		_cameraAttr_cpu.mVtoW = _mainCam.TransformWtoV().Inverse().AsMatrix4x4();
+		_cameraAttr_cpu.mWtoH = _mainCam.TransformWtoH().AsMatrix4x4();
+		_cameraAttr_cpu.mWtoV = _mainCam.TransformWtoV().AsMatrix4x4();
+		_cameraAttr_cpu.posW = _mainCam.GetPosition().AsVector4f().xyz();
+		_cameraAttr_gpu.Update(_cameraAttr_cpu);
+	}
+
+	
+	if (lightUpdated) {
+		DRP::LightPass::NaiveLights::PointLight::generateOtoWMatrix(_movingLight_cpu);
+		_movingLight_gpu.Update(_movingLight_cpu);
+	}
+	
+
 }
 
 void NaiveDRPApp::OnRender()
@@ -327,15 +361,16 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 		DRP::GBPass::NaiveBinnPhong::recordRp2Textures(pCmdlist, dhs[0]->GetGPUDescriptorHandleForHeapStart());
 		D3D12_VERTEX_BUFFER_VIEW vbv;
 		vbv.BufferLocation = std::get<0>(mesh)->GetGPUVirtualAddress();
-		vbv.SizeInBytes = std::get<0>(mesh_cpu).size() * sizeof(GBInput);
+		vbv.SizeInBytes = static_cast<UINT>(std::get<0>(mesh_cpu).size() * sizeof(GBInput));
 		vbv.StrideInBytes = sizeof(GBInput);
 		pCmdlist->IASetVertexBuffers(0u, 1u, &vbv);
 		D3D12_INDEX_BUFFER_VIEW ibv;
 		ibv.BufferLocation = std::get<1>(mesh)->GetGPUVirtualAddress();
-		ibv.SizeInBytes = std::get<1>(mesh_cpu).size() * sizeof(UINT);
+		ibv.SizeInBytes = static_cast<UINT>(std::get<1>(mesh_cpu).size() * sizeof(UINT));
 		ibv.Format = DXGI_FORMAT_R32_UINT;
 		pCmdlist->IASetIndexBuffer(&ibv);
-		pCmdlist->DrawIndexedInstanced(std::get<1>(mesh_cpu).size(), 1u, 0u, 0u, 0u);
+		pCmdlist->DrawIndexedInstanced(
+			static_cast<UINT>(std::get<1>(mesh_cpu).size()), 1u, 0u, 0u, 0u);
 	}
 #pragma endregion recordGBPass
 
