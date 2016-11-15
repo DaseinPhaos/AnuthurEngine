@@ -244,41 +244,81 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(fl
 	Mesh result;
 	
 	// Set vertice
-	result.Vertices.reserve((m+1)*(n+1));
+	//result.Vertices.reserve((m+1)*(n+1));
+	//auto halfWidth = 0.5f * width;
+	//auto halfHeight = 0.5f * length;
+	//auto dx = width / m;
+	//auto dz = length / n;
+	//auto x = -halfWidth;
+	//
+	//for (auto i = 0u; i <= m; ++i) {
+	//	auto z = -halfHeight;
+	//	auto tx = static_cast<float>(i) / m;
+	//	for (auto j = 0u; j <= n; ++j) {
+	//		auto ty = static_cast<float>(j) / n;
+	//		result.Vertices.emplace_back(
+	//		Point3DH{ x, 0.f, z },
+	//		Vector3DH{ 0.f, 1.f, 0.f },
+	//		Vector3DH{ 1.f, 0.f, 0.f },
+	//			tx, ty
+	//		);
+
+	//		z += dz;
+	//	}
+	//	x += dx;
+	//}
+
+	//// Set indice
+	//result.Indices.reserve(6 * m*n);
+	//for (auto i = 0u; i < m; ++i) {
+	//	for (auto j = 0u; j < n; ++j) {
+	//		result.Indices.push_back(i*(n + 1) + j + 1);
+	//		result.Indices.push_back(i*(n + 1) + j);
+	//		result.Indices.push_back((i + 1)*(n + 1) + j);
+
+	//		result.Indices.push_back(i*(n + 1) + j + 1);
+	//		result.Indices.push_back((i + 1)*(n + 1) + j);
+	//		result.Indices.push_back((i + 1)*(n + 1) + j + 1);
+	//	}
+	//}
+
+	//return result;
+
+	result.Vertices.reserve((m + 1)*(n + 1));
 	auto halfWidth = 0.5f * width;
 	auto halfHeight = 0.5f * length;
 	auto dx = width / m;
 	auto dz = length / n;
-	auto x = -halfWidth;
-	
-	for (auto i = 0u; i <= m; ++i) {
-		auto z = -halfHeight;
-		auto tx = static_cast<float>(i) / m;
-		for (auto j = 0u; j <= n; ++j) {
-			auto ty = static_cast<float>(j) / n;
+	auto z = -halfHeight;
+
+	for (auto i = 0u; i <= n; ++i) {
+		auto x = -halfWidth;
+		auto tv = static_cast<float>(i) / n;
+		for (auto j = 0u; j <= m; ++j) {
+			auto tu = static_cast<float>(j) / m;
 			result.Vertices.emplace_back(
-			Point3DH{ x, 0.f, z },
-			Vector3DH{ 0.f, 1.f, 0.f },
-			Vector3DH{ 1.f, 0.f, 0.f },
-				tx, ty
+				Point3DH{ x, 0.f, z },
+				Vector3DH{ 0.f, 1.f, 0.f },
+				Vector3DH{ 1.f, 0.f, 0.f },
+				tu, tv
 			);
 
-			z += dz;
+			x += dx;
 		}
-		x += dx;
+		z += dz;
 	}
 
 	// Set indice
 	result.Indices.reserve(6 * m*n);
-	for (auto i = 0u; i < m; ++i) {
-		for (auto j = 0u; j < n; ++j) {
-			result.Indices.push_back(i*(n + 1) + j + 1);
-			result.Indices.push_back(i*(n + 1) + j);
-			result.Indices.push_back((i + 1)*(n + 1) + j);
+	for (auto i = 0u; i < n; ++i) {
+		for (auto j = 0u; j < m; ++j) {
+			result.Indices.push_back(j*(m + 1) + i);
+			result.Indices.push_back(j * (m + 1) + i + 1);
+			result.Indices.push_back((j + 1)*(m + 1) + i);
 
-			result.Indices.push_back(i*(n + 1) + j + 1);
-			result.Indices.push_back((i + 1)*(n + 1) + j);
-			result.Indices.push_back((i + 1)*(n + 1) + j + 1);
+			result.Indices.push_back((j + 1)*(m + 1) + i);
+			result.Indices.push_back(j*(m + 1) + i + 1);
+			result.Indices.push_back((j + 1)*(m + 1) + i + 1);
 		}
 	}
 

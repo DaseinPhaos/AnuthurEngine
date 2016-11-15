@@ -24,9 +24,15 @@
     <ClInclude Include="NaiveDRP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NaiveQuadtreeDisplacement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="dsl.hlsl">
+      <Filter>shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="dsquadtree.hlsl">
       <Filter>shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -108,6 +108,10 @@ float4 PS(in float4 screenPos: SV_Position) : SV_Target0
 	float3 sa;
 	float sp;
 	getGB(screenPos.xy, norm, pos, da, sa, sp);
-	 float3 lout = lighting(norm, pos, da, sa, sp);
+	float3 lout = lighting(norm, pos, da, sa, sp);
+	//if (screenPos.x < 1000.f && screenPos.y < 1000.f) {
+	//	lout += float3(0.5f, 0.f, 0.f);
+	//}
+	//lout += float3(0.5f, 0.f, 0.f);
 	return float4(lout, 1.f);
 }

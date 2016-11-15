@@ -43,7 +43,7 @@ void NaiveDRPApp::OnInit()
 	_movingLight_control.pMKTracker = &_mkTracker;
 	_movingLight_control.pLight = &_movingLight_cpu;
 	_movingLight_cpu.posW = Vector4f(0.f, 5.f, 0.f, 1.f);
-	_movingLight_cpu.color = Vector4f(1.f, 1.f, 0.f, 1.f);
+	_movingLight_cpu.color = Vector4f(1.f, 1.f, 1.f, 1.f);
 	_movingLight_cpu.range = Vector4f(6.6f, 0.f, 0.f, 0.f);
 
 	_movingLight_gpu = decltype(_movingLight_gpu)(pDevice);
@@ -75,7 +75,7 @@ void NaiveDRPApp::OnInit()
 		std::move(terranMesh.Indices),
 		MaterialsCB{
 			Matrix4x4f::Identity(),
-			Vector3f(0.f, 0.f, 1.5f), 288.8f
+			Vector3f(0.f, 0.f, 0.f), 288.8f
 	});
 
 
@@ -117,7 +117,7 @@ void NaiveDRPApp::OnInit()
 	auto& pb = _pointLights.back();
 	pb.first.mOtoW = Matrix4x4f::Identity();
 	// pb.first.color = Vector4f(0.f, 0.f, 4.f, 1.0f);
-	pb.first.color = Vector4f(1.2f, 0.f, 0.f, 1.0f);
+	pb.first.color = Vector4f(0.8f, 0.8f, 0.7f, 1.0f);
 	// pb.first.color = Vector4f(0.f, 0.f, 0.f, 1.0f);
 	pb.first.posW = Vector4f(-5.f, 5.f, 5.f, 1.f);
 	pb.first.range = Vector4f(10.f, 0.f, 0.f, 0.f);
@@ -130,7 +130,7 @@ void NaiveDRPApp::OnInit()
 	auto& sb = _spotLights.back();
 	// sb.first.mOtoW = Matrix4x4f::Identity();
 	//sb.first.color = Vector4f(2.5f, 0.f, 0.f, 1.0f);
-	sb.first.color = Vector4f(0.f, 1.2f, 0.f, 1.0f);
+	sb.first.color = Vector4f(0.7f, 0.7f, 0.9f, 1.0f);
 	// sb.first.color = Vector4f(0.f, 0.f, 0.f, 1.0f);
 	sb.first.posW = Vector4f(5.f, 5.f, 5.f, 1.f);
 	sb.first.direction = Vector4f(-1.f, -1.f, -1.f, 0.f).Normalize();
@@ -145,7 +145,7 @@ void NaiveDRPApp::OnInit()
 	_directionalLights.push_back({ {},{} });
 	auto& db = _directionalLights.back();
 	db.first.mOtoW = Matrix4x4f::Identity();
-	db.first.color = Vector4f(0.2f, 0.2f, 0.2f, 1.0f);
+	db.first.color = Vector4f(0.6f, 0.6f, 0.6f, 1.0f);
 	db.first.posW = Vector4f(5.f, 5.f, 5.f, 1.f);
 	db.first.range = Vector4f(1000.f, 5.f, 5.f, 1.f);
 	db.first.direction = Vector4f(5.f, -5.f, 5.f, 0.f).Normalize();
