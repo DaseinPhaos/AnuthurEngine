@@ -183,6 +183,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
+    <FxCompile Include="qdgenerator.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="dsn.hlsl">
@@ -195,6 +201,7 @@
   <ItemGroup>
     <ClCompile Include="NaiveDR.cpp" />
     <ClCompile Include="NaiveDRP.cpp" />
+    <ClCompile Include="NaiveQuadtreeDisplacement.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="WICReadback.cpp" />
   </ItemGroup>

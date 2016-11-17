@@ -333,7 +333,7 @@ private:
 	PerspecCamera _mainCam;
 	MouseKeyTracker _mkTracker;
 	CameraControl _camControl;
-	DRP::GBPass::NaiveBinnPhong _blinnPhong;
+	DRP::GBPass::NaiveBlinnPhong _blinnPhong;
 	DRP::LightPass::NaiveLights::PointLight _pointLight;
 	DRP::LightPass::NaiveLights::DirectionalLight _directionalLight;
 	DRP::LightPass::NaiveLights::SpotLight _spotLight;
@@ -349,8 +349,8 @@ private:
 	UINT64 _dsvDH;
 	UINT64 _rtvDH;
 
-	using GBInput = DRP::GBPass::NaiveBinnPhong::VSI;
-	using MaterialsCB = DRP::GBPass::NaiveBinnPhong::MaterialAttr;
+	using GBInput = DRP::GBPass::NaiveBlinnPhong::VSI;
+	using MaterialsCB = DRP::GBPass::NaiveBlinnPhong::MaterialAttr;
 
 	std::vector<std::tuple<
 		std::vector<GBInput>,

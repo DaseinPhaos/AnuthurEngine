@@ -6,7 +6,7 @@
 //**********************************************************************
 #include "DRPipeline.h"
 
-void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::initialize(ID3D12Device* pDevice, 
+void Luxko::Anuthur::DRP::GBPass::NaiveBlinnPhong::initialize(ID3D12Device* pDevice, 
 	DXGI_FORMAT dsvFormat /*= DXGI_FORMAT_D24_UNORM_S8_UINT*/)
 {
 	using namespace D3D12Helper;
@@ -172,7 +172,7 @@ void Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::initialize(ID3D12Device* pDevi
 //
 //}
 
-D3D12_INPUT_LAYOUT_DESC Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::getInputLayout()
+D3D12_INPUT_LAYOUT_DESC Luxko::Anuthur::DRP::GBPass::NaiveBlinnPhong::getInputLayout()
 {
 	static D3D12_INPUT_ELEMENT_DESC ieds[] = {
 		D3D12Helper::InputElementDescriptor("POSITION", DXGI_FORMAT_R32G32B32A32_FLOAT, 0u),

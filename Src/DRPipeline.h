@@ -26,7 +26,7 @@ namespace Luxko {
 				};
 			}
 			namespace GBPass {
-				class NaiveBinnPhong {
+				class NaiveBlinnPhong {
 				public:
 					struct MaterialAttr {
 						Matrix4x4f mOtoW;
@@ -43,12 +43,12 @@ namespace Luxko {
 					};
 
 				public:
-					NaiveBinnPhong() = default;
-					NaiveBinnPhong(const NaiveBinnPhong&) = default;
-					NaiveBinnPhong(NaiveBinnPhong&&) = default;
-					NaiveBinnPhong& operator=(const NaiveBinnPhong&) = default;
-					NaiveBinnPhong& operator=(NaiveBinnPhong&&) = default;
-					~NaiveBinnPhong() = default;
+					NaiveBlinnPhong() = default;
+					NaiveBlinnPhong(const NaiveBlinnPhong&) = default;
+					NaiveBlinnPhong(NaiveBlinnPhong&&) = default;
+					NaiveBlinnPhong& operator=(const NaiveBlinnPhong&) = default;
+					NaiveBlinnPhong& operator=(NaiveBlinnPhong&&) = default;
+					~NaiveBlinnPhong() = default;
 
 				public:
 					void initialize(ID3D12Device* pDevice, 

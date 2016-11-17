@@ -32,7 +32,7 @@ cbuffer MaterialCB: register(b1)
 
 Texture2D DiffuseMap: register(t0);
 Texture2D NormalMap: register(t1);
-Texture2D QuadDispMap: register(t2);
+Texture2D<float> QuadDispMap: register(t2);
 
 SamplerState Sampler: register(s0);
 
@@ -78,18 +78,18 @@ float3 QDMSearch(int MaxMipLevel, float3 viewRayT, float3 posT) {
 		uint tWidth;
 		uint tHeight;
 		uint numOfLvls;
-		QuadDispMap.GetDimensions(uint(currLevel), tWidth, wHeight, numOfLvls);
+		QuadDispMap.GetDimensions(uint(currLevel), tWidth, tHeight, numOfLvls);
 		int2 lastPosID = int2(lastPos.xy*float2(tWidth, tHeight));
 		currHeight = QuadDispMap.Load(int3(lastPosID, currLevel));
 		if (currHeight < lastPos.z) {
 			float3 currPos = posT + viewRayT * (1.f - currHeight);
-			int2 currPosID = int2(currPos*float2(tWidth, tHeight));
-			if (currPosID != lastPosID) {
+			int2 currPosID = int2(currPos.xy * float2(tWidth, tHeight));
+			if (currPosID.x != lastPosID.x || currPosID.y != lastPosID.y) {
 				float2 dlp = lastPos.xy - posT.xy;
 				float2 rayingPos = (lastPosID + dircSign) / float2(tWidth, tHeight);
 				float2 drp = rayingPos - posT.xy;
 				float2 dnc = abs((1.f - lastPos.z) * drp / dlp);
-				currHeight = max(currHeight, dnc.x, dnc.y);
+				currHeight = max(currHeight, max(dnc.x, dnc.y));
 				currLevel += 2;
 				currPos = posT + viewRayT * (1.f - currHeight);
 			}
@@ -104,7 +104,7 @@ VSO VSMain(in VSI vsi) {
 	VSO vso;
 	float4 posW = mul(vsi.pos, material.mOtoW);
 	vso.pos = mul(posW, camera.mWtoH);
-	vso.posV = mul(posW, camera.mWtoV);
+	vso.posV = mul(posW, camera.mWtoV).xyz;
 	vso.normW = normalize(mul(vsi.norm, (float3x3)material.mOtoW));
 	vso.tangentW = normalize(mul(vsi.tangent, (float3x3)material.mOtoW));
 	vso.tex = vsi.tex;
@@ -119,7 +119,7 @@ PSO PSMain(in VSO psi) {
 	float3 tangent = normalize(psi.tangentW);
 	float3 bitangent = normalize(cross(norm, tangent));
 	float3x3 tFrameW = float3x3(tangent, bitangent, norm);
-	float3 posW = mul(psi.posV, float3x3(camera.mVtoW));
+	float3 posW = mul(psi.posV, (float3x3)camera.mVtoW);
 	float3 viewRayW = normalize(posW - camera.posW);
 	float3 adjustedPosT = QDMSearch(
 		material.qdmMaxMipLvl,

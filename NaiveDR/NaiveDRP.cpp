@@ -9,7 +9,7 @@
 #include "DDSTextureLoader.h"
 #include "WICReadback.h"
 
-using GBVSI = Luxko::Anuthur::DRP::GBPass::NaiveBinnPhong::VSI;
+using GBVSI = Luxko::Anuthur::DRP::GBPass::NaiveBlinnPhong::VSI;
 static GBVSI convert(const BasicGeometry::Vertex& v) {
 	GBVSI r;
 	r.posO = v.Pos.AsVector4f();
@@ -338,7 +338,7 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 		_d3d12Manager.FindTexture2D(_gBuffers[1]).Get(),
 		_d3d12Manager.FindTexture2D(_gBuffers[2]).Get(),
 	};
-	DRP::GBPass::NaiveBinnPhong::recordGBTransitionFrom(pCmdlist, gbs);
+	DRP::GBPass::NaiveBlinnPhong::recordGBTransitionFrom(pCmdlist, gbs);
 
 
 	auto rtvHandle = D3D12Helper::DescriptorHandleCPU(
@@ -348,17 +348,17 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 	rtvHandles[0] = rtvHandle;
 	rtvHandles[1] = rtvHandle.Offset(_d3d12Manager.GetRTVDescriptorSize());
 	rtvHandles[2] = rtvHandle.Offset(_d3d12Manager.GetRTVDescriptorSize());
-	DRP::GBPass::NaiveBinnPhong::recordClearAndSetRtvDsv(pCmdlist, rtvHandles,
+	DRP::GBPass::NaiveBlinnPhong::recordClearAndSetRtvDsv(pCmdlist, rtvHandles,
 		dsvHeap->GetCPUDescriptorHandleForHeapStart(), 1u, sRect);
 
-	DRP::GBPass::NaiveBinnPhong::recordRp0Camera(pCmdlist, _cameraAttr_gpu.Get()->GetGPUVirtualAddress());
+	DRP::GBPass::NaiveBlinnPhong::recordRp0Camera(pCmdlist, _cameraAttr_gpu.Get()->GetGPUVirtualAddress());
 	for (auto i = 0u; i < _meshes_gpu.size(); ++i) {
 		auto& mesh = _meshes_gpu[i];
 		auto& mesh_cpu = _meshes_cpu[i];
-		DRP::GBPass::NaiveBinnPhong::recordRp1Material(pCmdlist, std::get<2>(mesh)->GetGPUVirtualAddress());
+		DRP::GBPass::NaiveBlinnPhong::recordRp1Material(pCmdlist, std::get<2>(mesh)->GetGPUVirtualAddress());
 		ID3D12DescriptorHeap* dhs[] = { std::get<5>(mesh).Get() };
 		pCmdlist->SetDescriptorHeaps(1u, dhs);
-		DRP::GBPass::NaiveBinnPhong::recordRp2Textures(pCmdlist, dhs[0]->GetGPUDescriptorHandleForHeapStart());
+		DRP::GBPass::NaiveBlinnPhong::recordRp2Textures(pCmdlist, dhs[0]->GetGPUDescriptorHandleForHeapStart());
 		D3D12_VERTEX_BUFFER_VIEW vbv;
 		vbv.BufferLocation = std::get<0>(mesh)->GetGPUVirtualAddress();
 		vbv.SizeInBytes = static_cast<UINT>(std::get<0>(mesh_cpu).size() * sizeof(GBInput));
@@ -375,7 +375,7 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 #pragma endregion recordGBPass
 
 #pragma region recordLightPass
-	DRP::GBPass::NaiveBinnPhong::recordGBTransitionTo(pCmdlist, gbs);
+	DRP::GBPass::NaiveBlinnPhong::recordGBTransitionTo(pCmdlist, gbs);
 	DRP::LightPass::NaiveLights::recordSettings(pCmdlist, _d3d12Manager.GetD3D12Device());
 	
 	D3D12_RESOURCE_BARRIER bbarrier[] = {

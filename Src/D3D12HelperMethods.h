@@ -430,7 +430,20 @@ namespace Luxko {
 			public:
 				DescriptorHandleCPU(D3D12_CPU_DESCRIPTOR_HANDLE dcdh)
 					:D3D12_CPU_DESCRIPTOR_HANDLE(dcdh) {}
+				DescriptorHandleCPU(ID3D12DescriptorHeap* heap,
+					SIZE_T offsetInBytesFromHeapStart);
 				DescriptorHandleCPU& Offset(SIZE_T offsetInBytes);
+				DescriptorHandleCPU OffsetNew(SIZE_T offsetInBytes);
+			};
+
+			class ANUTHURRENDERER_API DescriptorHandleGPU : public D3D12_GPU_DESCRIPTOR_HANDLE {
+			public:
+				DescriptorHandleGPU(D3D12_GPU_DESCRIPTOR_HANDLE dgdh)
+					:D3D12_GPU_DESCRIPTOR_HANDLE(dgdh) {}
+				DescriptorHandleGPU(ID3D12DescriptorHeap* heap,
+					UINT64 offsetInBytesFromHeapStart);
+				DescriptorHandleGPU& Offset(UINT64 offsetInBytes);
+				DescriptorHandleGPU OffsetNew(UINT64 offsetInBytes);
 			};
 
 			class ANUTHURRENDERER_API RenderTargetBlendDescriptor : public D3D12_RENDER_TARGET_BLEND_DESC {

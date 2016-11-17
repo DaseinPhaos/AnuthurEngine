@@ -614,10 +614,23 @@ D3D12_SHADER_BYTECODE Luxko::Anuthur::D3D12Helper::ShaderByteCode::Get() const
 	return result;
 }
 
+Luxko::Anuthur::D3D12Helper::DescriptorHandleCPU::DescriptorHandleCPU(ID3D12DescriptorHeap* heap, SIZE_T offsetInBytesFromHeapStart):
+	D3D12_CPU_DESCRIPTOR_HANDLE(heap->GetCPUDescriptorHandleForHeapStart())
+{
+	Offset(offsetInBytesFromHeapStart);
+}
+
 Luxko::Anuthur::D3D12Helper::DescriptorHandleCPU& Luxko::Anuthur::D3D12Helper::DescriptorHandleCPU::Offset(SIZE_T offsetInBytes)
 {
 	ptr += offsetInBytes;
 	return *this;
+}
+
+Luxko::Anuthur::D3D12Helper::DescriptorHandleCPU Luxko::Anuthur::D3D12Helper::DescriptorHandleCPU::OffsetNew(SIZE_T offsetInBytes)
+{
+	DescriptorHandleCPU result = *this;
+	result.Offset(offsetInBytes);
+	return result;
 }
 
 Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor Luxko::Anuthur::D3D12Helper::RenderTargetBlendDescriptor::Default()
@@ -862,4 +875,23 @@ Luxko::Anuthur::D3D12Helper::BlendDescriptor Luxko::Anuthur::D3D12Helper::BlendD
 		bd.RenderTarget[i] = rtbd;
 	}
 	return bd;
+}
+
+Luxko::Anuthur::D3D12Helper::DescriptorHandleGPU::DescriptorHandleGPU(ID3D12DescriptorHeap* heap, UINT64 offsetInBytesFromHeapStart):
+	D3D12_GPU_DESCRIPTOR_HANDLE(heap->GetGPUDescriptorHandleForHeapStart())
+{
+	Offset(offsetInBytesFromHeapStart);
+}
+
+Luxko::Anuthur::D3D12Helper::DescriptorHandleGPU& Luxko::Anuthur::D3D12Helper::DescriptorHandleGPU::Offset(UINT64 offsetInBytes)
+{
+	ptr += offsetInBytes;
+	return *this;
+}
+
+Luxko::Anuthur::D3D12Helper::DescriptorHandleGPU Luxko::Anuthur::D3D12Helper::DescriptorHandleGPU::OffsetNew(UINT64 offsetInBytes)
+{
+	auto result = *this;
+	result.Offset(offsetInBytes);
+	return result;
 }
