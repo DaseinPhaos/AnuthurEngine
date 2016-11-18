@@ -49,6 +49,10 @@ int main() {
 	//std::cout << "TI * T * P == " << ptt.AsVector4f() << std::endl;
 	//getchar();
 
-	PPTests();
+	Luxko::Vector3f normal(0.f, 1.f, 0.f);
+	auto tangent = Luxko::Vector3f(1.f, 0.f, 0.f);
+	auto bitangent = normal.Cross(tangent);
+	std::cout << bitangent << std::endl;
+	//PPTests();
 	getchar();
 }

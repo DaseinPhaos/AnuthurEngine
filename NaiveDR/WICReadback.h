@@ -23,11 +23,18 @@ namespace Luxko {
 					IID_PPV_ARGS(_wicFactory.GetAddressOf())));
 			}
 			ComPtr<IWICImagingFactory> _wicFactory;
-
 		};
 
+		GUID dxgiFormat2PixelFormat(DXGI_FORMAT format);
+		
 		void SaveTexture2DAsPNG(ID3D12Resource* readBackHeap,
 			unsigned int width, unsigned int height, const wchar_t* filename);
+
+
+		void SaveTexture2DAsPNG(ID3D12Resource* readBackHeap,
+			const wchar_t* filename,
+			unsigned int subResource, unsigned int width,
+			unsigned int height, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN);
 	}
 
 }

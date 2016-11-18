@@ -6,9 +6,7 @@
 //**********************************************************************
 #include "NaiveQuadtreeDisplacement.h"
 
-void WTF::NaiveBpqdmGenerator::initialize(
-	ID3D12Device* pDevice,
-	DXGI_FORMAT dsvFormat /*= DXGI_FORMAT_D24_UNORM_S8_UINT*/)
+void WTF::NaiveBpqdmGenerator::initialize(ID3D12Device* pDevice)
 {
 	using namespace D3D12Helper;
 
@@ -30,14 +28,15 @@ void WTF::NaiveBpqdmGenerator::initialize(
 
 	// initialize shader bytecode
 	{
-		_vertexShader.CompileFromFile(shaderPath, "VSMain", "vs_5_0");
 		D3D_SHADER_MACRO macro[] = {
 			"PS0", "1", nullptr, nullptr
 		};
+		ThrowIfFailed(_vertexShader.CompileFromFile(shaderPath, "VSMain", "vs_5_0"));
 
-		_pixelShader0.CompileFromFile(shaderPath, "PSMain0", "ps_5_0", macro);
+
+		ThrowIfFailed(_pixelShader0.CompileFromFile(shaderPath, "PSMain0", "ps_5_0", macro));
 		macro[0].Name = "PS1";
-		_pixelShader1.CompileFromFile(shaderPath, "PSMain1", "ps_5_0", macro);
+		ThrowIfFailed(_pixelShader1.CompileFromFile(shaderPath, "PSMain1", "ps_5_0", macro));
 	}
 
 	// initialize PSOs
@@ -51,10 +50,11 @@ void WTF::NaiveBpqdmGenerator::initialize(
 		psd.SampleMask = UINT_MAX;
 		psd.RasterizerState = RasterizerDescriptor();
 		psd.DepthStencilState = DepthStencilStateDescriptor::Default();
+		psd.DepthStencilState.DepthEnable = FALSE;
 		psd.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		psd.NumRenderTargets = static_cast<UINT>(3);
 		psd.RTVFormats[0] = DXGI_FORMAT_R32_FLOAT;
-		psd.DSVFormat = dsvFormat;
+		psd.DSVFormat =DXGI_FORMAT_D24_UNORM_S8_UINT;
 		psd.SampleDesc.Count = 1;
 		psd.SampleDesc.Quality = 0;
 		ThrowIfFailed(pDevice->CreateGraphicsPipelineState(&psd,
@@ -137,17 +137,17 @@ static UINT is2exp(UINT src) {
 	return 0;
 }
 
-std::pair<UINT, Luxko::Anuthur::ComPtr<ID3D12Resource>> WTF::NaiveBpqdmGenerator::generateQDM(
+std::pair<UINT, Luxko::Anuthur::ComPtr<ID3D12Resource>> 
+WTF::NaiveBpqdmGenerator::generateQDM(
 	ID3D12Resource* srcNormalTexture,
-	ID3D12Device* device, ID3D12GraphicsCommandList* cmdlist,
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle)
+	ID3D12Device* device, ID3D12GraphicsCommandList* cmdlist)
 {
 	auto srcTextureDesc = srcNormalTexture->GetDesc();
 	assert(srcTextureDesc.Width == srcTextureDesc.Height);
 	auto texAttr = static_cast<UINT>(srcTextureDesc.Width);
 
-	auto maxMipLvl = is2exp(texAttr);
-	assert(maxMipLvl != 0 && maxMipLvl <= 16);
+	auto mipLevelCount = is2exp(texAttr);
+	assert(mipLevelCount != 0 && mipLevelCount <= 16);
 
 	D3D12_RECT rect = {
 		0, 0, static_cast<LONG>(srcTextureDesc.Width),
@@ -164,7 +164,10 @@ std::pair<UINT, Luxko::Anuthur::ComPtr<ID3D12Resource>> WTF::NaiveBpqdmGenerator
 	auto& mesh = getInputBuffer();
 	cmdlist->IASetIndexBuffer(&mesh.IndexBufferView());
 	cmdlist->IASetVertexBuffers(0u, 1u, &mesh.VertexBufferView());
-
+	ID3D12DescriptorHeap* dhs[] = {
+		_srvHeap.Get()/*, _rtvHeap.Get()*/
+	};
+	cmdlist->SetDescriptorHeaps(1u, dhs);
 	recordStateSettings0(cmdlist);
 
 	recordRp0TexAttr(cmdlist, texAttr);
@@ -172,6 +175,8 @@ std::pair<UINT, Luxko::Anuthur::ComPtr<ID3D12Resource>> WTF::NaiveBpqdmGenerator
 	auto currSrvCpu = D3D12Helper::DescriptorHandleCPU(_srvHeap->GetCPUDescriptorHandleForHeapStart());
 	device->CreateShaderResourceView(srcNormalTexture, nullptr, currSrvCpu);
 	auto currSrvGpu = D3D12Helper::DescriptorHandleGPU(_srvHeap->GetGPUDescriptorHandleForHeapStart());
+	
+	
 	recordRp1BaseTex(cmdlist, currSrvGpu);
 	auto const srvDSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
@@ -183,10 +188,16 @@ std::pair<UINT, Luxko::Anuthur::ComPtr<ID3D12Resource>> WTF::NaiveBpqdmGenerator
 		D3D12_HEAP_FLAG_NONE, &D3D12Helper::ResourceDescriptor::Tex2D(
 			srcTextureDesc.Width, texAttr, DXGI_FORMAT_R32_FLOAT,
 			1u, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
-			0u, static_cast<UINT16>(maxMipLvl)),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_RENDER_TARGET,
+			0u, static_cast<UINT16>(mipLevelCount)),
+		D3D12_RESOURCE_STATE_COMMON,
 		nullptr, IID_PPV_ARGS(result.GetAddressOf())));
-
+	D3D12Helper::ResourceBarrier beginBarriers[] = {
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			result.Get(), D3D12_RESOURCE_STATE_COMMON,
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_BARRIER_FLAG_NONE, 0u)
+	};
+	cmdlist->ResourceBarrier(1u, beginBarriers);
 	auto currRtvCpu = D3D12Helper::DescriptorHandleCPU(_rtvHeap->GetCPUDescriptorHandleForHeapStart());
 	auto const rtvDSize = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	device->CreateRenderTargetView(result.Get(),
@@ -194,12 +205,18 @@ std::pair<UINT, Luxko::Anuthur::ComPtr<ID3D12Resource>> WTF::NaiveBpqdmGenerator
 		currRtvCpu);
 
 
-	recordClearAndSetRtvDsv(cmdlist, currRtvCpu, dsvHandle, 1u, &rect);
+	recordClearAndSetRtvDsv(cmdlist, currRtvCpu, 1u, &rect);
 	cmdlist->DrawIndexedInstanced(mesh.GetTotoalIndexCount(), 1u, 0u, 0u, 0u);
 
+	recordStateSettings1(cmdlist);
 	auto currentLevel = 1u;
-	while (currentLevel < maxMipLvl) {
+	while (currentLevel < mipLevelCount) {
+		
+		texAttr /= 2;
+		recordResourcesTransitionFrom(cmdlist, result.Get(), result.Get(),
+			currentLevel - 1, currentLevel);
 		currSrvCpu.Offset(srvDSize);
+		currSrvGpu.Offset(srvDSize);
 		device->CreateShaderResourceView(result.Get(),
 			&D3D12Helper::SRVDescriptor::Texture2DDesc(
 				DXGI_FORMAT_UNKNOWN, currentLevel - 1, 0u, 1u), currSrvCpu);
@@ -208,25 +225,30 @@ std::pair<UINT, Luxko::Anuthur::ComPtr<ID3D12Resource>> WTF::NaiveBpqdmGenerator
 			&D3D12Helper::RTVDescriptor::Texture2DDesc(
 				DXGI_FORMAT_UNKNOWN, currentLevel, 0u),
 			currRtvCpu);
-		currSrvGpu.Offset(srvDSize);
 
-		rect.bottom = static_cast<LONG>(texAttr / 2);
-		rect.right = static_cast<LONG>(texAttr / 2);
-		viewport.Height = texAttr / 2.f;
-		viewport.Width = texAttr / 2.f;
+
+		rect.bottom = static_cast<LONG>(texAttr);
+		rect.right = static_cast<LONG>(texAttr);
+		viewport.Height = static_cast<FLOAT>(texAttr);
+		viewport.Width = static_cast<FLOAT>(texAttr);
 		cmdlist->RSSetScissorRects(1u, &rect);
 		cmdlist->RSSetViewports(1u, &viewport);
 		recordRp0TexAttr(cmdlist, texAttr);
 		recordRp1BaseTex(cmdlist, currSrvGpu);
-		recordClearAndSetRtvDsv(cmdlist, currRtvCpu, dsvHandle, 1u, &rect);
+		recordClearAndSetRtvDsv(cmdlist, currRtvCpu, 1u, &rect);
 		cmdlist->DrawIndexedInstanced(mesh.GetTotoalIndexCount(), 1u, 0u, 0u, 0u);
-
 		currentLevel += 1;
-		texAttr /= 2;
+
 	}
 	//cmdlist->Close();
-
-	return std::make_pair(maxMipLvl, result);
+	D3D12Helper::ResourceBarrier lastBarriers[] = {
+		D3D12Helper::ResourceBarrier::TransitionBarrier(result.Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+		D3D12_RESOURCE_BARRIER_FLAG_NONE,
+		mipLevelCount - 1) };
+	cmdlist->ResourceBarrier(1u, lastBarriers);
+	return std::make_pair(mipLevelCount, result);
 }
 
 void WTF::NBPQDM::initialize(ID3D12Device* pDevice, DXGI_FORMAT dsvFormat /*= DXGI_FORMAT_D24_UNORM_S8_UINT*/)
@@ -243,7 +265,8 @@ void WTF::NBPQDM::initialize(ID3D12Device* pDevice, DXGI_FORMAT dsvFormat /*= DX
 			static_cast<UINT>(3))); // for diffuse and normal map
 		rsd.PushRPDescriptorTable(rdt.Get());
 		rsd.PushStaticSamplerDescriptor(0u);
-
+		rsd.PushStaticSamplerDescriptor(1u,
+			D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR);
 		ComPtr<ID3DBlob> rootSigBlob;
 		ThrowIfFailed(rsd.SerializeRootSignature(rootSigBlob.GetAddressOf(),
 			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT));
@@ -253,8 +276,8 @@ void WTF::NBPQDM::initialize(ID3D12Device* pDevice, DXGI_FORMAT dsvFormat /*= DX
 
 	// initialize shader bytecode
 	{
-		_vertexShader.CompileFromFile(shaderPath, "VSMain", "vs_5_0");
-		_pixelShader.CompileFromFile(shaderPath, "PSMain", "ps_5_0");
+		ThrowIfFailed(_vertexShader.CompileFromFile(shaderPath, "VSMain", "vs_5_0"));
+		ThrowIfFailed(_pixelShader.CompileFromFile(shaderPath, "PSMain", "ps_5_0"));
 	}
 
 	// initialize PSOs

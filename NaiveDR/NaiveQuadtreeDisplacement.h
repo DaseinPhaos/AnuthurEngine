@@ -34,8 +34,7 @@ namespace WTF {
 		~NaiveBpqdmGenerator() = default;
 
 	public:
-		void initialize(ID3D12Device* pDevice,
-			DXGI_FORMAT dsvFormat = DXGI_FORMAT_D24_UNORM_S8_UINT);
+		void initialize(ID3D12Device* pDevice);
 
 	public:
 		inline D3D12_SHADER_BYTECODE getVS()const {
@@ -86,15 +85,21 @@ namespace WTF {
 
 		static inline void recordResourcesTransitionFrom(
 			ID3D12GraphicsCommandList* cmdlist,
-			ID3D12Resource* texResource, ID3D12Resource* renderTargetResource,
+			ID3D12Resource* texResource,
+			ID3D12Resource* renderTargetResource,
+			UINT texSubResource, UINT rtSubResource,
 			D3D12_RESOURCE_STATES texFrom = D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATES renderTargetFrom
 			= D3D12_RESOURCE_STATE_COMMON) {
 			D3D12Helper::ResourceBarrier barriers[] = {
 				D3D12Helper::ResourceBarrier::TransitionBarrier(
-					texResource, texFrom, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+					texResource, texFrom, 
+					D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+					D3D12_RESOURCE_BARRIER_FLAG_NONE, texSubResource),
 				D3D12Helper::ResourceBarrier::TransitionBarrier(
-					renderTargetResource, renderTargetFrom, D3D12_RESOURCE_STATE_RENDER_TARGET),
+					renderTargetResource, renderTargetFrom, 
+					D3D12_RESOURCE_STATE_RENDER_TARGET,
+					D3D12_RESOURCE_BARRIER_FLAG_NONE, rtSubResource),
 			};
 			cmdlist->ResourceBarrier(2u, barriers);
 		}
@@ -102,14 +107,10 @@ namespace WTF {
 		static inline void recordClearAndSetRtvDsv(
 			ID3D12GraphicsCommandList* cmdlist,
 			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle,
-			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle,
 			UINT numRects, const D3D12_RECT* pRects) {
-			cmdlist->ClearDepthStencilView(dsvHandle,
-				D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f,
-				static_cast<UINT8>(0), numRects, pRects);
 			static FLOAT bbg[] = { 0.f, 0.f, 0.f, 0.f };
-			cmdlist->ClearRenderTargetView(rtvHandle, bbg, numRects, pRects);
-			cmdlist->OMSetRenderTargets(static_cast<UINT>(1), &rtvHandle, TRUE, &dsvHandle);
+			//cmdlist->ClearRenderTargetView(rtvHandle, bbg, numRects, pRects);
+			cmdlist->OMSetRenderTargets(static_cast<UINT>(1), &rtvHandle, TRUE, nullptr);
 		}
 
 
@@ -124,11 +125,10 @@ namespace WTF {
 		std::pair<UINT, ComPtr<ID3D12Resource>> generateQDM(
 			ID3D12Resource* srcNormalTexture,
 			ID3D12Device* device,
-			ID3D12GraphicsCommandList* cmdlist,
-			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle
+			ID3D12GraphicsCommandList* cmdlist
 		);
 	private:
-		static auto constexpr shaderPath = LR"(./dsquadtree.hlsl)";
+		static auto constexpr shaderPath = LR"(./qdgenerator.hlsl)";
 		D3D12Helper::ShaderByteCode _vertexShader;
 		D3D12Helper::ShaderByteCode _pixelShader0;
 		D3D12Helper::ShaderByteCode _pixelShader1;
@@ -146,7 +146,7 @@ namespace WTF {
 			Matrix4x4f mOtoW;
 			Vector3f sAlbedo;
 			float sPower;
-			float qdmMaxMipLvl;
+			UINT qdmMaxMipLvl;
 		};
 
 		struct VSI {

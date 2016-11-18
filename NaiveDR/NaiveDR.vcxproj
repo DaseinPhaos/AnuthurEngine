@@ -167,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="NaiveDR.h" />
     <ClInclude Include="NaiveDRP.h" />
+    <ClInclude Include="NaiveQDM.h" />
     <ClInclude Include="NaiveQuadtreeDisplacement.h" />
     <ClInclude Include="WICReadback.h" />
   </ItemGroup>
@@ -178,10 +179,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="dsquadtree.hlsl">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="qdgenerator.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -201,6 +214,7 @@
   <ItemGroup>
     <ClCompile Include="NaiveDR.cpp" />
     <ClCompile Include="NaiveDRP.cpp" />
+    <ClCompile Include="NaiveQDM.cpp" />
     <ClCompile Include="NaiveQuadtreeDisplacement.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="WICReadback.cpp" />

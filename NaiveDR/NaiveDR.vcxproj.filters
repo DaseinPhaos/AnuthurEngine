@@ -27,6 +27,9 @@
     <ClInclude Include="NaiveQuadtreeDisplacement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NaiveQDM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="dsl.hlsl">
@@ -58,6 +61,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NaiveQuadtreeDisplacement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NaiveQDM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

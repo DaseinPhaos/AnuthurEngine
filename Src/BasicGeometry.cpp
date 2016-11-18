@@ -19,18 +19,31 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Box(flo
 	auto z = length / 2.f;
 
 	static float defualtTextureCoordinates[] = {
+		//// Side A, clockwise
+		//0.f, 0.4f, 0.f, 0.f, 0.3f, 0.f, 0.3f, 0.4f,
+		//// Side B, clockwise
+		//0.35f, 0.4f, 0.35f, 0.f, 0.65f, 0.f, 0.65f, 0.4f,
+		//// Side C, clockwise
+		//0.7f, 0.4f, 0.7f, 0.f, 1.0f, 0.f, 1.0f, 0.4f,
+		//// Side D, clockwise
+		//0.f, 1.0f, 0.f, 0.6f, 0.3f, 0.6f, 0.3f, 1.0f,
+		//// Side E, clockwise
+		//0.35f, 1.0f, 0.35f, 0.6f, 0.65f, 0.6f, 0.65f, 1.0f,
+		//// Side F, clockwise
+		//0.7f, 1.0f, 0.7f, 0.6f, 1.0f, 0.6f, 1.0f, 1.0f,
+
 		// Side A, clockwise
-		0.f, 0.4f, 0.f, 0.f, 0.3f, 0.f, 0.3f, 0.4f,
+		0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f,
 		// Side B, clockwise
-		0.35f, 0.4f, 0.35f, 0.f, 0.65f, 0.f, 0.65f, 0.4f,
+		0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f,
 		// Side C, clockwise
-		0.7f, 0.4f, 0.7f, 0.f, 1.0f, 0.f, 1.0f, 0.4f,
+		0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f,
 		// Side D, clockwise
-		0.f, 1.0f, 0.f, 0.6f, 0.3f, 0.6f, 0.3f, 1.0f,
+		0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f,
 		// Side E, clockwise
-		0.35f, 1.0f, 0.35f, 0.6f, 0.65f, 0.6f, 0.65f, 1.0f,
+		0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f,
 		// Side F, clockwise
-		0.7f, 1.0f, 0.7f, 0.6f, 1.0f, 0.6f, 1.0f, 1.0f,
+		0.f, 0.f, 0.f, 1.f, 1.f, 1.f, 1.f, 0.f,
 	};
 	if (textureCoordinates == nullptr) {
 		textureCoordinates = defualtTextureCoordinates;
@@ -39,40 +52,40 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Box(flo
 	auto result = Mesh();
 	result.Vertices = {
 		// Side A, clockwise
-		Vertex(-x, -y, z, 0.f, 0.f, 1.f, -1.f, 0.f, 0.f, textureCoordinates[0], textureCoordinates[1]),
-		Vertex(-x, y, z, 0.f, 0.f, 1.f, -1.f, 0.f, 0.f, textureCoordinates[2], textureCoordinates[3]),
-		Vertex(x, y, z, 0.f, 0.f, 1.f, -1.f, 0.f, 0.f, textureCoordinates[4], textureCoordinates[5]),
-		Vertex(x, -y, z, 0.f, 0.f, 1.f, -1.f, 0.f, 0.f, textureCoordinates[6], textureCoordinates[7]),
+		Vertex(-x, -y, z, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, textureCoordinates[0], textureCoordinates[1]),
+		Vertex(-x, y, z, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, textureCoordinates[2], textureCoordinates[3]),
+		Vertex(x, y, z, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, textureCoordinates[4], textureCoordinates[5]),
+		Vertex(x, -y, z, 0.f, 0.f, 1.f, 1.f, 0.f, 0.f, textureCoordinates[6], textureCoordinates[7]),
 
 		// Side B, clockwise
-		Vertex(x, -y, z, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, textureCoordinates[8], textureCoordinates[9]),
-		Vertex(x, y, z, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, textureCoordinates[10], textureCoordinates[11]),
-		Vertex(x, y, -z, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, textureCoordinates[12], textureCoordinates[13]),
-		Vertex(x, -y, -z, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, textureCoordinates[14], textureCoordinates[15]),
+		Vertex(x, -y, z, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[8], textureCoordinates[9]),
+		Vertex(x, y, z, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[10], textureCoordinates[11]),
+		Vertex(x, y, -z, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[12], textureCoordinates[13]),
+		Vertex(x, -y, -z, 1.f, 0.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[14], textureCoordinates[15]),
 
 		// Side C, clockwise
-		Vertex(x, -y, -z, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, textureCoordinates[16], textureCoordinates[17]),
-		Vertex(x, y, -z, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, textureCoordinates[18], textureCoordinates[19]),
-		Vertex(-x, y, -z, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, textureCoordinates[20], textureCoordinates[21]),
-		Vertex(-x, -y, -z, 0.f, 0.f, -1.f, 1.f, 0.f, 0.f, textureCoordinates[22], textureCoordinates[23]),
+		Vertex(x, -y, -z, 0.f, 0.f, -1.f, -1.f, 0.f, 0.f, textureCoordinates[16], textureCoordinates[17]),
+		Vertex(x, y, -z, 0.f, 0.f, -1.f, -1.f, 0.f, 0.f, textureCoordinates[18], textureCoordinates[19]),
+		Vertex(-x, y, -z, 0.f, 0.f, -1.f, -1.f, 0.f, 0.f, textureCoordinates[20], textureCoordinates[21]),
+		Vertex(-x, -y, -z, 0.f, 0.f, -1.f, -1.f, 0.f, 0.f, textureCoordinates[22], textureCoordinates[23]),
 
 		// Side D, clockwise
-		Vertex(-x, -y, -z, -1.f, 0.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[24], textureCoordinates[25]),
-		Vertex(-x, y, -z, -1.f, 0.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[26], textureCoordinates[27]),
-		Vertex(-x, y, z, -1.f, 0.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[28], textureCoordinates[29]),
-		Vertex(-x, -y, z, -1.f, 0.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[30], textureCoordinates[31]),
+		Vertex(-x, -y, -z, -1.f, 0.f, 0.f, 0.f, 0.f, 1.f, textureCoordinates[24], textureCoordinates[25]),
+		Vertex(-x, y, -z, -1.f, 0.f, 0.f, 0.f, 0.f, 1.f, textureCoordinates[26], textureCoordinates[27]),
+		Vertex(-x, y, z, -1.f, 0.f, 0.f, 0.f, 0.f, 1.f, textureCoordinates[28], textureCoordinates[29]),
+		Vertex(-x, -y, z, -1.f, 0.f, 0.f, 0.f, 0.f, 1.f, textureCoordinates[30], textureCoordinates[31]),
 
 		// Side E, clockwise
-		Vertex(x, y, z, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, textureCoordinates[32], textureCoordinates[33]),
-		Vertex(-x, y, z, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, textureCoordinates[34], textureCoordinates[35]),
-		Vertex(-x, y, -z, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, textureCoordinates[36], textureCoordinates[37]),
-		Vertex(x, y, -z, 0.f, 1.f, 0.f, 1.f, 0.f, 0.f, textureCoordinates[38], textureCoordinates[39]),
+		Vertex(x, y, z, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[32], textureCoordinates[33]),
+		Vertex(-x, y, z, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[34], textureCoordinates[35]),
+		Vertex(-x, y, -z, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[36], textureCoordinates[37]),
+		Vertex(x, y, -z, 0.f, 1.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[38], textureCoordinates[39]),
 
 		// Side F, clockwise
-		Vertex(-x, -y, z, 0.f, -1.f, 0.f, -1.f, 0.f, 0.f, textureCoordinates[40], textureCoordinates[41]),
-		Vertex(x, -y, z, 0.f, -1.f, 0.f, -1.f, 0.f, 0.f, textureCoordinates[42], textureCoordinates[43]),
-		Vertex(x, -y, -z, 0.f, -1.f, 0.f, -1.f, 0.f, 0.f, textureCoordinates[44], textureCoordinates[45]),
-		Vertex(-x, -y, -z, 0.f, -1.f, 0.f, -1.f, 0.f, 0.f, textureCoordinates[46], textureCoordinates[47])
+		Vertex(-x, -y, z, 0.f, -1.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[40], textureCoordinates[41]),
+		Vertex(x, -y, z, 0.f, -1.f, 0.f,  0.f, 0.f, -1.f, textureCoordinates[42], textureCoordinates[43]),
+		Vertex(x, -y, -z, 0.f, -1.f, 0.f,  0.f, 0.f, -1.f, textureCoordinates[44], textureCoordinates[45]),
+		Vertex(-x, -y, -z, 0.f, -1.f, 0.f, 0.f, 0.f, -1.f, textureCoordinates[46], textureCoordinates[47])
 	};
 	result.Indices = {
 		// Side A, offset = 0

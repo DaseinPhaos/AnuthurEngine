@@ -4,12 +4,10 @@
 //
 // Copyright (c) Dasein Phaos aka. Luxko.
 //**********************************************************************
-#include "NaiveDRP.h"
+#include "NaiveQDM.h"
 #include "BasicGeometry.h"
-#include "DDSTextureLoader.h"
 #include "WICReadback.h"
-
-using GBVSI = Luxko::Anuthur::DRP::GBPass::NaiveBlinnPhong::VSI;
+using GBVSI = WTF::NBPQDM::VSI;
 static GBVSI convert(const BasicGeometry::Vertex& v) {
 	GBVSI r;
 	r.posO = v.Pos.AsVector4f();
@@ -19,21 +17,20 @@ static GBVSI convert(const BasicGeometry::Vertex& v) {
 	r.v = v.Texture._y;
 	return r;
 }
-
-void NaiveDRPApp::OnInit()
+void NaiveQDMApp::OnInit()
 {
 	D3D12App::OnInit();
 	auto pDevice = _d3d12Manager.GetD3D12Device();
 	auto pCmdList = _d3d12Manager.GetMainCmdList();
 	auto pCmdAlloc = _d3d12Manager.GetMainCmdAllocator();
-	pCmdList->Reset(pCmdAlloc, nullptr);
-
+	ThrowIfFailed(pCmdList->Reset(pCmdAlloc, nullptr));
+	WTF::NaiveBpqdmGenerator::getInputBuffer(pDevice, pCmdList);
 	_mainCam = PerspecCamera::FromHFOVAndAspectRatio(
 		1.f, 1000.f, 16.f / 9.f, 3.f*static_cast<float>(M_PI) / 4.f,
 		Vector3DH(-1.f, -1.f, -1.f).Normalize(),
 		Vector3DH(0.f, 1.f, 0.f), Point3DH(10.f, 10.f, 10.f));
 	_cameraAttr_gpu = decltype(_cameraAttr_gpu)(pDevice);
-	
+
 	_mkTracker.pMouse = _mouse.get();
 	_mkTracker.pKeyboard = _keyboard.get();
 
@@ -49,7 +46,8 @@ void NaiveDRPApp::OnInit()
 	_movingLight_gpu = decltype(_movingLight_gpu)(pDevice);
 	//auto tptr = _movingLight_gpu.Get();
 
-	_blinnPhong.initialize(pDevice);
+	_qdmGenerator.initialize(pDevice);
+	_qdm.initialize(pDevice);
 	auto rtvFormat = _d3d12Manager.GetMainWindowResource().GetBackBufferFormat();
 	auto dsvFormat = _d3d12Manager.GetMainWindowResource().GetDepthStencilFormat();
 	_pointLight.initialize(pDevice, rtvFormat, dsvFormat);
@@ -71,19 +69,16 @@ void NaiveDRPApp::OnInit()
 	{
 		terranVertices.push_back(convert(v));
 	}
-	_meshes_cpu.emplace_back(std::move(terranVertices),
-		std::move(terranMesh.Indices),
-		MaterialsCB{
-			Matrix4x4f::Identity(),
-			Vector3f(0.1f, 0.2f, 0.1f), 10.f
-	});
 
-
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer0;
-	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer1;
-	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer2;
-
+	RenderObject terranObject;
+	terranObject.mesh.InitializeCPUResource(DXGI_FORMAT_R32_UINT,
+		static_cast<UINT>(terranMesh.Indices.size()),
+		terranMesh.Indices.data(),
+		static_cast<UINT>(sizeof(GBInput)),
+		static_cast<UINT>(terranVertices.size()),
+		terranVertices.data());
+	terranObject.mesh.RecordUpdateFromCPUtoGPU(
+		pDevice, pCmdList);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> diffusemap;
 	Microsoft::WRL::ComPtr<ID3D12Resource> normalmap;
@@ -91,17 +86,24 @@ void NaiveDRPApp::OnInit()
 	Microsoft::WRL::ComPtr<ID3D12Resource> normalmapU;
 
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\tile.dds)", diffusemap, diffusemapU));
+		LR"(..\Asset\Textures\bricks2.dds)", diffusemap, diffusemapU));
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\tile_nmap.dds)", normalmap, normalmapU));
+		LR"(..\Asset\Textures\bricks2_nmap.dds)", normalmap, normalmapU));
 
-	auto& tvCpu = std::get<0>(_meshes_cpu.back());
-	auto vb_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,
-		tvCpu.data(), tvCpu.size() * sizeof(GBInput), uploadBuffer0);
-	auto& tiCpu = std::get<1>(_meshes_cpu.back());
-	auto ib_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,
-		tiCpu.data(), tiCpu.size() * sizeof(UINT), uploadBuffer1);
-	auto& tmCpu = std::get<2>(_meshes_cpu.back());
+	auto p = _qdmGenerator.generateQDM(normalmap.Get(), pDevice, pCmdList);
+	ID3D12CommandQueue* pCmdQueue = _d3d12Manager.GetCmdQueue();
+	ThrowIfFailed(pCmdList->Close());
+	ID3D12CommandList* lists[] = { pCmdList };
+	pCmdQueue->ExecuteCommandLists(1u, lists);
+	//pCmdQueue->Signal(_d3d12Manager.GetMainFence(), _d3d12Manager.GetMainFenceCount() + 1);
+	_d3d12Manager.FlushCommandQueue();
+	ThrowIfFailed(pCmdList->Reset(pCmdAlloc, nullptr));
+	Microsoft::WRL::ComPtr<ID3D12Resource> uploadBuffer2;
+	auto tmCpu = MaterialsCB{
+		Matrix4x4f::Identity(),
+		Vector3f(0.1f, 0.2f, 0.1f),
+		10.f, p.first
+	};
 	auto mb_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,
 		&tmCpu, D3D12Helper::GetCBSizeAligned(sizeof(tmCpu)), uploadBuffer2);
 
@@ -154,21 +156,31 @@ void NaiveDRPApp::OnInit()
 		pDevice, pCmdList, &db.first, D3D12Helper::GetCBSizeAligned(sizeof(db.first)),
 		uploadBuffer5);
 
-	ID3D12CommandQueue* pCmdQueue = _d3d12Manager.GetCmdQueue();
+	// ID3D12CommandQueue* pCmdQueue = _d3d12Manager.GetCmdQueue();
 	ThrowIfFailed(pCmdList->Close());
-	ID3D12CommandList* lists[] = { pCmdList };
+	//ID3D12CommandList* lists[] = { pCmdList };
 	pCmdQueue->ExecuteCommandLists(1u, lists);
-	pCmdQueue->Signal(_d3d12Manager.GetMainFence(), _d3d12Manager.GetMainFenceCount() + 1);
+	//ThrowIfFailed(pCmdQueue->Signal(_d3d12Manager.GetMainFence(),
+	//	_d3d12Manager.GetMainFenceCount() + 1));
 	_d3d12Manager.FlushCommandQueue();
+	//ThrowIfFailed(pCmdAlloc->Reset());
+	//ThrowIfFailed(pCmdList->Reset(pCmdAlloc, nullptr));
 	ComPtr<ID3D12DescriptorHeap> mdHeap;
 	pDevice->CreateDescriptorHeap(
 		&D3D12Helper::DescriptorHeapDescriptor(
-			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 2u,
+			D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 3u,
 			D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE), IID_PPV_ARGS(mdHeap.GetAddressOf()));
 
 	_d3d12Manager.CreateSRVOnHeap(diffusemap.Get(), nullptr, mdHeap.Get(), 0u);
 	_d3d12Manager.CreateSRVOnHeap(normalmap.Get(), nullptr, mdHeap.Get(), 1u);
-	_meshes_gpu.emplace_back(vb_gpu, ib_gpu, mb_gpu, diffusemap, normalmap, mdHeap);
+	_d3d12Manager.CreateSRVOnHeap(p.second.Get(), nullptr, mdHeap.Get(), 2u);
+	terranObject.materialCB = mb_gpu;
+	terranObject.diffuseMap = diffusemap;
+	terranObject.normalMap = normalmap;
+	terranObject.qdMap = p.second;
+	terranObject.srvHeap = mdHeap;
+	_renderObjects.push_back(terranObject);
+	//_meshes_gpu.emplace_back(vb_gpu, ib_gpu, mb_gpu, diffusemap, normalmap, mdHeap);
 	pb.second = pl_gpu;
 	sb.second = sl_gpu;
 	db.second = dl_gpu;
@@ -241,14 +253,13 @@ void NaiveDRPApp::OnInit()
 	_movingLight_gpu.Update(_movingLight_cpu);
 }
 
-void NaiveDRPApp::OnDestroy()
+void NaiveQDMApp::OnDestroy()
 {
 	_d3d12Manager.FlushCommandQueue();
 	D3D12App::OnDestroy();
 }
 
-
-void NaiveDRPApp::OnUpdate()
+void NaiveQDMApp::OnUpdate()
 {
 	_d3d12Manager.FlushCommandQueue();
 	static auto lastTick = _mainTimer.PeekCurrentTick();
@@ -257,11 +268,22 @@ void NaiveDRPApp::OnUpdate()
 	lastTick = cTick;
 	auto camUpdated = _camControl.Update(deltaMs);
 	auto lightUpdated = _movingLight_control.Update(deltaMs);
-	
+
 	_d3d12Manager.FlushCommandQueue();
 	_kbdst.Update(_keyboard->GetState());
 	if (_kbdst.IsKeyReleased(DirectX::Keyboard::Enter)) {
-		ReadBackTo(_d3d12Manager.FindTexture2D(_gBuffers[0]).Get(), L"./gb0 drp.png");
+		//ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm9.png", 9);
+		ReadBackTo(_d3d12Manager.FindTexture2D(_gBuffers[0]).Get(), L"./gb0 ddrp.png");
+		ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm0.png", 0);
+		ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm1.png", 1);
+		ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm2.png", 2);
+		ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm3.png", 3);
+		//ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm4.png", 4);
+		//ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm5.png", 5);
+		//ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm6.png", 6);
+		//ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm7.png", 7);
+		//ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm8.png", 8);
+		//ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm9.png", 9);
 		//ReadBackTo(_d3d12Manager.FindTexture2D(_gBuffers[1]).Get(), L"./gb1 drp.png");
 		//ReadBackTo(_d3d12Manager.FindTexture2D(_gBuffers[2]).Get(), L"./gb2 drp.png");
 	}
@@ -275,16 +297,15 @@ void NaiveDRPApp::OnUpdate()
 		_cameraAttr_gpu.Update(_cameraAttr_cpu);
 	}
 
-	
+
 	if (lightUpdated) {
 		DRP::LightPass::NaiveLights::PointLight::generateOtoWMatrix(_movingLight_cpu);
 		_movingLight_gpu.Update(_movingLight_cpu);
 	}
-	
 
 }
 
-void NaiveDRPApp::OnRender()
+void NaiveQDMApp::OnRender()
 {
 	_d3d12Manager.FlushCommandQueue();
 	D3D12App::LogFPSToTitle();
@@ -320,8 +341,7 @@ void NaiveDRPApp::OnRender()
 	_d3d12Manager.GetMainWindowResource().AdvanceBackBufferIndex();
 }
 
-void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
-	ID3D12CommandAllocator* pCmdAlloc)
+void NaiveQDMApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist, ID3D12CommandAllocator* pCmdAlloc)
 {
 #pragma region recordGBPass
 	ID3D12DescriptorHeap* dsvHeap = _d3d12Manager.FindDescriptorHeap(_dsvDH).Get();
@@ -331,14 +351,14 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 	pCmdlist->RSSetScissorRects(1u, sRect);
 	pCmdlist->RSSetViewports(1u, &windowResrc.GetMainViewport());
 
-	
-	_blinnPhong.recordStateSettings(pCmdlist);
+
+	_qdm.recordStateSettings(pCmdlist);
 	ID3D12Resource* gbs[] = {
 		_d3d12Manager.FindTexture2D(_gBuffers[0]).Get(),
 		_d3d12Manager.FindTexture2D(_gBuffers[1]).Get(),
 		_d3d12Manager.FindTexture2D(_gBuffers[2]).Get(),
 	};
-	DRP::GBPass::NaiveBlinnPhong::recordGBTransitionFrom(pCmdlist, gbs);
+	WTF::NBPQDM::recordGBTransitionFrom(pCmdlist, gbs);
 
 
 	auto rtvHandle = D3D12Helper::DescriptorHandleCPU(
@@ -348,36 +368,30 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 	rtvHandles[0] = rtvHandle;
 	rtvHandles[1] = rtvHandle.Offset(_d3d12Manager.GetRTVDescriptorSize());
 	rtvHandles[2] = rtvHandle.Offset(_d3d12Manager.GetRTVDescriptorSize());
-	DRP::GBPass::NaiveBlinnPhong::recordClearAndSetRtvDsv(pCmdlist, rtvHandles,
+	WTF::NBPQDM::recordClearAndSetRtvDsv(pCmdlist, rtvHandles,
 		dsvHeap->GetCPUDescriptorHandleForHeapStart(), 1u, sRect);
 
-	DRP::GBPass::NaiveBlinnPhong::recordRp0Camera(pCmdlist, _cameraAttr_gpu.Get()->GetGPUVirtualAddress());
-	for (auto i = 0u; i < _meshes_gpu.size(); ++i) {
-		auto& mesh = _meshes_gpu[i];
-		auto& mesh_cpu = _meshes_cpu[i];
-		DRP::GBPass::NaiveBlinnPhong::recordRp1Material(pCmdlist, std::get<2>(mesh)->GetGPUVirtualAddress());
-		ID3D12DescriptorHeap* dhs[] = { std::get<5>(mesh).Get() };
+	WTF::NBPQDM::recordRp0Camera(pCmdlist, _cameraAttr_gpu.Get()->GetGPUVirtualAddress());
+	for (auto i = 0u; i <_renderObjects.size(); ++i) {
+		auto& ro = _renderObjects[i];
+		WTF::NBPQDM::recordRp1Material(pCmdlist, ro.materialCB->GetGPUVirtualAddress());
+
+		// DRP::GBPass::NaiveBlinnPhong::recordRp1Material(pCmdlist, std::get<2>(mesh)->GetGPUVirtualAddress());
+		ID3D12DescriptorHeap* dhs[] = { ro.srvHeap.Get() };
 		pCmdlist->SetDescriptorHeaps(1u, dhs);
-		DRP::GBPass::NaiveBlinnPhong::recordRp2Textures(pCmdlist, dhs[0]->GetGPUDescriptorHandleForHeapStart());
-		D3D12_VERTEX_BUFFER_VIEW vbv;
-		vbv.BufferLocation = std::get<0>(mesh)->GetGPUVirtualAddress();
-		vbv.SizeInBytes = static_cast<UINT>(std::get<0>(mesh_cpu).size() * sizeof(GBInput));
-		vbv.StrideInBytes = sizeof(GBInput);
-		pCmdlist->IASetVertexBuffers(0u, 1u, &vbv);
-		D3D12_INDEX_BUFFER_VIEW ibv;
-		ibv.BufferLocation = std::get<1>(mesh)->GetGPUVirtualAddress();
-		ibv.SizeInBytes = static_cast<UINT>(std::get<1>(mesh_cpu).size() * sizeof(UINT));
-		ibv.Format = DXGI_FORMAT_R32_UINT;
-		pCmdlist->IASetIndexBuffer(&ibv);
+		WTF::NBPQDM::recordRp2Textures(
+			pCmdlist, dhs[0]->GetGPUDescriptorHandleForHeapStart());
+		pCmdlist->IASetVertexBuffers(0u, 1u, &ro.mesh.VertexBufferView());
+		pCmdlist->IASetIndexBuffer(&ro.mesh.IndexBufferView());
 		pCmdlist->DrawIndexedInstanced(
-			static_cast<UINT>(std::get<1>(mesh_cpu).size()), 1u, 0u, 0u, 0u);
+			ro.mesh.GetTotoalIndexCount(), 1u, 0u, 0u, 0u);
 	}
 #pragma endregion recordGBPass
 
 #pragma region recordLightPass
 	DRP::GBPass::NaiveBlinnPhong::recordGBTransitionTo(pCmdlist, gbs);
 	DRP::LightPass::NaiveLights::recordSettings(pCmdlist, _d3d12Manager.GetD3D12Device());
-	
+
 	D3D12_RESOURCE_BARRIER bbarrier[] = {
 		D3D12Helper::ResourceBarrier::TransitionBarrier(
 			windowResrc.GetCurrentBackBufferResource(),
@@ -387,15 +401,15 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 		),
 	};
 	pCmdlist->ResourceBarrier(1u, bbarrier);
-	
-	pCmdlist->OMSetRenderTargets(1u, &windowResrc.GetCurrentCPURTV(), TRUE, 
+
+	pCmdlist->OMSetRenderTargets(1u, &windowResrc.GetCurrentCPURTV(), TRUE,
 		&dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	static float bbg[] = { 0.f, 0.f, 0.f, 0.f };
 	pCmdlist->ClearRenderTargetView(windowResrc.GetCurrentCPURTV(), bbg, 1u, sRect);
 
 	ID3D12DescriptorHeap* dhs[] = { _d3d12Manager.FindDescriptorHeap(_lightPassDH).Get() };
 	pCmdlist->SetDescriptorHeaps(1u, dhs);
-	DRP::LightPass::NaiveLights::recordRp1CameraAndGBuffer(pCmdlist, 
+	DRP::LightPass::NaiveLights::recordRp1CameraAndGBuffer(pCmdlist,
 		dhs[0]->GetGPUDescriptorHandleForHeapStart());
 	// pCmdlist->SetGraphicsRootDescriptorTable(1u, dhs[0]->GetGPUDescriptorHandleForHeapStart());
 	UINT stencilRef = 0x80;
@@ -446,10 +460,10 @@ void NaiveDRPApp::RecordCmds(ID3D12GraphicsCommandList* pCmdlist,
 #pragma endregion recordLightPass
 }
 
-void NaiveDRPApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename)
+void NaiveQDMApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename, UINT subResource /*= 0*/)
 {
 	auto srcDesc = src->GetDesc();
-	assert(srcDesc.Format == DXGI_FORMAT_R32G32B32A32_FLOAT);
+	//assert(srcDesc.Format == DXGI_FORMAT_R32G32B32A32_FLOAT);
 	ID3D12GraphicsCommandList* cmdList = _d3d12Manager.GetMainCmdList();
 	ID3D12CommandAllocator* cmdAlloc = _d3d12Manager.GetMainCmdAllocator();
 	ID3D12CommandQueue* cmdQueue = _d3d12Manager.GetCmdQueue();
@@ -457,7 +471,7 @@ void NaiveDRPApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename)
 
 	ComPtr<ID3D12Resource> readbackHeap;
 	auto heapProperties = D3D12Helper::ResourceHeapProperties(D3D12_HEAP_TYPE_READBACK);
-	auto resDesc = D3D12Helper::ResourceDescriptor::Buffer(srcDesc.Width*srcDesc.Height * sizeof(float) * 4);
+	auto resDesc = D3D12Helper::ResourceDescriptor::Buffer(srcDesc.Width*srcDesc.Height * (D3D12Helper::DxgiFormatBitSize(srcDesc.Format)/8));
 	device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE,
 		&resDesc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(readbackHeap.GetAddressOf()));
 
@@ -465,15 +479,16 @@ void NaiveDRPApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename)
 	dstl.pResource = readbackHeap.Get();
 	dstl.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 	dstl.PlacedFootprint.Footprint.Depth = 1;
-	dstl.PlacedFootprint.Footprint.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	dstl.PlacedFootprint.Footprint.Width = static_cast<UINT>(srcDesc.Width);
-	dstl.PlacedFootprint.Footprint.Height = static_cast<UINT>(srcDesc.Height);
-	dstl.PlacedFootprint.Footprint.RowPitch = static_cast<UINT>(srcDesc.Width * sizeof(float) * 4);
+	dstl.PlacedFootprint.Footprint.Format = srcDesc.Format;
+	dstl.PlacedFootprint.Footprint.Width = static_cast<UINT>(srcDesc.Width/(1<<subResource));
+	dstl.PlacedFootprint.Footprint.Height = static_cast<UINT>(srcDesc.Height/(1<<subResource));
+	dstl.PlacedFootprint.Footprint.RowPitch = static_cast<UINT>(dstl.PlacedFootprint.Footprint.Width
+		* (D3D12Helper::DxgiFormatBitSize(srcDesc.Format)/8));
 
 	D3D12_TEXTURE_COPY_LOCATION srcl = {};
 	srcl.pResource = src;
 	srcl.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-	srcl.SubresourceIndex = 0u;
+	srcl.SubresourceIndex = subResource;
 
 	ThrowIfFailed(cmdAlloc->Reset());
 	ThrowIfFailed(cmdList->Reset(cmdAlloc, nullptr));
@@ -502,7 +517,8 @@ void NaiveDRPApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename)
 
 	_d3d12Manager.FlushCommandQueue();
 
-	Luxko::Anuthur::SaveTexture2DAsPNG(readbackHeap.Get(),
-		static_cast<unsigned int>(srcDesc.Width),
-		static_cast<unsigned int>(srcDesc.Height), filename);
+	Luxko::Anuthur::SaveTexture2DAsPNG(readbackHeap.Get(), filename, 0u,
+		static_cast<unsigned int>(srcDesc.Width / (1 << subResource)),
+		static_cast<unsigned int>(srcDesc.Height / (1 << subResource)),
+		srcDesc.Format);
 }
