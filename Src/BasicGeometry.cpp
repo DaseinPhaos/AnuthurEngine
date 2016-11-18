@@ -197,8 +197,11 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Sphere(
 
 			auto pos = Point3DH(r*cosAlpha, z, r*sinAlpha);
 			auto norm = Vector3DH(r*cosAlpha, z, r*sinAlpha).Normalize();
-			auto tangent = Vector3DH::E2().Cross(norm).Normalize();
-			result.Vertices.emplace_back(pos, norm, tangent, static_cast<float>(i) / sliceCount, 0.5f - static_cast<float>(i / 2.f) / stackCount);
+			auto tangent = Vector3DH(-z * sinAlpha, 0.f, z*cosAlpha).Normalize();
+			result.Vertices.emplace_back(
+				pos, norm, tangent, 
+				dAlpha*i/(2.f*static_cast<float>(M_PI)), 
+				dBeta*j/ static_cast<float>(M_PI));
 		}
 	}
 
@@ -217,8 +220,11 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Sphere(
 			auto r = radius * cosBeta;
 			auto pos = Point3DH(r*cosAlpha, -z, r*sinAlpha);
 			auto norm = Vector3DH(r*cosAlpha, -z, r*sinAlpha).Normalize();
-			auto tangent = (-Vector3DH::E2()).Cross(norm).Normalize();
-			result.Vertices.emplace_back(pos, norm, tangent, static_cast<float>(i) / sliceCount, 0.5f + static_cast<float>(i / 2.f) / stackCount);
+			auto tangent = Vector3DH(-z * sinAlpha, 0.f, z*cosAlpha).Normalize();
+			result.Vertices.emplace_back(
+				pos, norm, tangent, 
+				dAlpha*i / (2.f*static_cast<float>(M_PI)),
+				dBeta*j / static_cast<float>(M_PI));
 
 
 		}
@@ -255,47 +261,6 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Sphere(
 const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(float width, float length, UINT m, UINT n)
 {
 	Mesh result;
-	
-	// Set vertice
-	//result.Vertices.reserve((m+1)*(n+1));
-	//auto halfWidth = 0.5f * width;
-	//auto halfHeight = 0.5f * length;
-	//auto dx = width / m;
-	//auto dz = length / n;
-	//auto x = -halfWidth;
-	//
-	//for (auto i = 0u; i <= m; ++i) {
-	//	auto z = -halfHeight;
-	//	auto tx = static_cast<float>(i) / m;
-	//	for (auto j = 0u; j <= n; ++j) {
-	//		auto ty = static_cast<float>(j) / n;
-	//		result.Vertices.emplace_back(
-	//		Point3DH{ x, 0.f, z },
-	//		Vector3DH{ 0.f, 1.f, 0.f },
-	//		Vector3DH{ 1.f, 0.f, 0.f },
-	//			tx, ty
-	//		);
-
-	//		z += dz;
-	//	}
-	//	x += dx;
-	//}
-
-	//// Set indice
-	//result.Indices.reserve(6 * m*n);
-	//for (auto i = 0u; i < m; ++i) {
-	//	for (auto j = 0u; j < n; ++j) {
-	//		result.Indices.push_back(i*(n + 1) + j + 1);
-	//		result.Indices.push_back(i*(n + 1) + j);
-	//		result.Indices.push_back((i + 1)*(n + 1) + j);
-
-	//		result.Indices.push_back(i*(n + 1) + j + 1);
-	//		result.Indices.push_back((i + 1)*(n + 1) + j);
-	//		result.Indices.push_back((i + 1)*(n + 1) + j + 1);
-	//	}
-	//}
-
-	//return result;
 
 	result.Vertices.reserve((m + 1)*(n + 1));
 	auto halfWidth = 0.5f * width;
@@ -332,6 +297,15 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(fl
 			result.Indices.push_back((j + 1)*(m + 1) + i);
 			result.Indices.push_back(j*(m + 1) + i + 1);
 			result.Indices.push_back((j + 1)*(m + 1) + i + 1);
+
+			//result.Indices.push_back(j * (m + 1) + i + 1);
+			//result.Indices.push_back(j*(m + 1) + i);
+
+			//result.Indices.push_back((j + 1)*(m + 1) + i);
+			//result.Indices.push_back(j*(m + 1) + i + 1);
+			//result.Indices.push_back((j + 1)*(m + 1) + i);
+
+			//result.Indices.push_back((j + 1)*(m + 1) + i + 1);
 		}
 	}
 

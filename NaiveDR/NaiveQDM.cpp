@@ -61,9 +61,9 @@ void NaiveQDMApp::OnInit()
 	// Initialize scene components
 	//auto terranMesh = BasicGeometry::Terran(10, 10, 10, 10);
 	//auto terranMesh = BasicGeometry::Cylinder(5.f, 2.f, 3.f, 16, 16);
-	auto terranMesh = BasicGeometry::Box(4.f, 5.f, 6.f);
+	//auto terranMesh = BasicGeometry::Box(4.f, 5.f, 6.f);
 	//auto terranMesh = BasicGeometry::Sphere(5.f);
-	//auto terranMesh = BasicGeometry::Grid(10, 10, 10, 10);
+	auto terranMesh = BasicGeometry::Grid(10, 10, 10, 10);
 	std::vector<GBInput> terranVertices;
 	for (auto& v : terranMesh.Vertices)
 	{
@@ -86,9 +86,9 @@ void NaiveQDMApp::OnInit()
 	Microsoft::WRL::ComPtr<ID3D12Resource> normalmapU;
 
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\bricks2.dds)", diffusemap, diffusemapU));
+		LR"(..\Asset\Textures\tile.dds)", diffusemap, diffusemapU));
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\bricks2_nmap.dds)", normalmap, normalmapU));
+		LR"(..\Asset\Textures\tile_nmap.dds)", normalmap, normalmapU));
 
 	auto p = _qdmGenerator.generateQDM(normalmap.Get(), pDevice, pCmdList);
 	ID3D12CommandQueue* pCmdQueue = _d3d12Manager.GetCmdQueue();
@@ -102,7 +102,7 @@ void NaiveQDMApp::OnInit()
 	auto tmCpu = MaterialsCB{
 		Matrix4x4f::Identity(),
 		Vector3f(0.1f, 0.2f, 0.1f),
-		10.f, p.first
+		10.f, p.first - 1
 	};
 	auto mb_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,
 		&tmCpu, D3D12Helper::GetCBSizeAligned(sizeof(tmCpu)), uploadBuffer2);
