@@ -480,8 +480,8 @@ void NaiveQDMApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename, UINT 
 	dstl.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 	dstl.PlacedFootprint.Footprint.Depth = 1;
 	dstl.PlacedFootprint.Footprint.Format = srcDesc.Format;
-	dstl.PlacedFootprint.Footprint.Width = static_cast<UINT>(srcDesc.Width/(1<<subResource));
-	dstl.PlacedFootprint.Footprint.Height = static_cast<UINT>(srcDesc.Height/(1<<subResource));
+	dstl.PlacedFootprint.Footprint.Width = static_cast<UINT>(srcDesc.Width/(1ull<<subResource));
+	dstl.PlacedFootprint.Footprint.Height = static_cast<UINT>(srcDesc.Height/(1ull<<subResource));
 	dstl.PlacedFootprint.Footprint.RowPitch = static_cast<UINT>(dstl.PlacedFootprint.Footprint.Width
 		* (D3D12Helper::DxgiFormatBitSize(srcDesc.Format)/8));
 
