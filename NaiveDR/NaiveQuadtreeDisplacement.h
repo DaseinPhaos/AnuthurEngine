@@ -210,12 +210,29 @@ namespace WTF {
 			cmdlist->SetPipelineState(_normalState.Get());
 			cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
 		}
+
+		inline void recordStateSettingsPOM(ID3D12GraphicsCommandList* cmdlist,
+			D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
+			cmdlist->OMSetStencilRef(0x80);
+			cmdlist->IASetPrimitiveTopology(primitiveTopology);
+			cmdlist->SetPipelineState(_normalStatePOM.Get());
+			cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
+		}
+
+		inline void recordStateSettingsQDM(ID3D12GraphicsCommandList* cmdlist,
+			D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
+			cmdlist->OMSetStencilRef(0x80);
+			cmdlist->IASetPrimitiveTopology(primitiveTopology);
+			cmdlist->SetPipelineState(_normalStateQDM.Get());
+			cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
+		}
+
 		inline void recordStateSettingsWireframe(
 			ID3D12GraphicsCommandList* cmdlist,
 			D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
 			cmdlist->OMSetStencilRef(0x80);
 			cmdlist->IASetPrimitiveTopology(primitiveTopology);
-			cmdlist->SetPipelineState(_normalState.Get());
+			cmdlist->SetPipelineState(_wireframeState.Get());
 			cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
 		}
 
@@ -272,9 +289,15 @@ namespace WTF {
 	private:
 		static auto constexpr shaderPath = LR"(./dsquadtree.hlsl)";
 		D3D12Helper::ShaderByteCode _vertexShader;
+
+		D3D12Helper::ShaderByteCode _pixelShaderQDM;
+		D3D12Helper::ShaderByteCode _pixelShaderPOM;
 		D3D12Helper::ShaderByteCode _pixelShader;
+
 		ComPtr<ID3D12RootSignature> _rootSignature;
 		ComPtr<ID3D12PipelineState> _normalState;
+		ComPtr<ID3D12PipelineState> _normalStateQDM;
+		ComPtr<ID3D12PipelineState> _normalStatePOM;
 		ComPtr<ID3D12PipelineState> _wireframeState;
 
 

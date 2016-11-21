@@ -277,7 +277,15 @@ void WTF::NBPQDM::initialize(ID3D12Device* pDevice, DXGI_FORMAT dsvFormat /*= DX
 	// initialize shader bytecode
 	{
 		ThrowIfFailed(_vertexShader.CompileFromFile(shaderPath, "VSMain", "vs_5_0"));
-		ThrowIfFailed(_pixelShader.CompileFromFile(shaderPath, "PSMain", "ps_5_0"));
+
+		D3D_SHADER_MACRO macros[] = {
+			"QDM", "1", nullptr, nullptr
+		};
+		ThrowIfFailed(_pixelShaderQDM.CompileFromFile(shaderPath, "PSMain", "ps_5_0", macros));
+		macros[0].Name = "POM";
+		ThrowIfFailed(_pixelShaderPOM.CompileFromFile(shaderPath, "PSMain", "ps_5_0", macros));
+		macros[0].Name = "ISPM";
+		ThrowIfFailed(_pixelShader.CompileFromFile(shaderPath, "PSMain", "ps_5_0", macros));
 	}
 
 	// initialize PSOs
@@ -286,7 +294,7 @@ void WTF::NBPQDM::initialize(ID3D12Device* pDevice, DXGI_FORMAT dsvFormat /*= DX
 		psd.InputLayout = getInputLayout();
 		psd.pRootSignature = _rootSignature.Get();
 		psd.VS = _vertexShader.Get();
-		psd.PS = _pixelShader.Get();
+		psd.PS = _pixelShaderQDM.Get();
 		psd.BlendState = BlendDescriptor::Default();
 		psd.SampleMask = UINT_MAX;
 		psd.RasterizerState = RasterizerDescriptor();
@@ -302,6 +310,12 @@ void WTF::NBPQDM::initialize(ID3D12Device* pDevice, DXGI_FORMAT dsvFormat /*= DX
 		psd.DSVFormat = dsvFormat;
 		psd.SampleDesc.Count = 1;
 		psd.SampleDesc.Quality = 0;
+		ThrowIfFailed(pDevice->CreateGraphicsPipelineState(&psd,
+			IID_PPV_ARGS(_normalStateQDM.ReleaseAndGetAddressOf())));
+		psd.PS = _pixelShaderPOM.Get();
+		ThrowIfFailed(pDevice->CreateGraphicsPipelineState(&psd,
+			IID_PPV_ARGS(_normalStatePOM.ReleaseAndGetAddressOf())));
+		psd.PS = _pixelShader.Get();
 		ThrowIfFailed(pDevice->CreateGraphicsPipelineState(&psd,
 			IID_PPV_ARGS(_normalState.ReleaseAndGetAddressOf())));
 		psd.RasterizerState = RasterizerDescriptor(D3D12_FILL_MODE_WIREFRAME);

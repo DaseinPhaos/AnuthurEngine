@@ -68,216 +68,14 @@ float2 SpheremapEncode(float3 norm) {
 	return normalize(norm.xy) * (sqrt(-norm.z * 0.5f + 0.5f));
 }
 
-float qdmHeightAt(float2 tUV, int2 mc, float maxH) {
-	float height = QuadDispMap.Load(int3(tUV*exp2(mc.x - mc.y), mc.y));
-	return height * maxH;
-	//return height * vz;
+float2 PMSearch(float3 viewRayT, float2 posTex) {
+	float hSampled = NormalMap.Sample(LinearSampler, posTex).w;
+	float h = hSampled * material.heightScale + material.heightOffset;
+	return posTex -= h * viewRayT.xy;
 }
 
-float qdmDAt(float2 tUV, int mipD, int mipL, float scaling) {
-	float height = QuadDispMap.Load(int3(tUV*mipD, mipL));
-	return (1.f - height) * scaling;
-	//return height * vz;
-}
-
-// `viewRayT` should be a normalized vector
-// pointing from the viewport to the interception point.
-//float3 QDMSearch(int MaxMipLevel, float3 viewRayT, float3 posT) {
-//	////float3 startPos = posT - viewRayT * QuadDispMap.Load(int3((posT*exp2(MaxMipLevel)).xy, MaxMipLevel));
-//	//float3 startPos = posT;
-//	//float currHeight;
-//	//float3 lastPos = startPos;
-//	//int currLevel = MaxMipLevel;
-//	//int2 dircSign = sign(viewRayT.xy);
-//
-//	//uint count = 0;
-//	//while (currLevel >= 0) {
-//	//	uint tWidth = exp2(MaxMipLevel - currLevel);
-//	//	uint tHeight = tWidth;
-//
-//
-//	//	int2 lastPosCellID = int2(lastPos.xy*float2(tWidth, tHeight));
-//	//	currHeight = QuadDispMap.Load(int3(lastPosCellID, currLevel));
-//	//	//currHeight = qdmHeightAt(lastPos.xy, int2(MaxMipLevel, currLevel), viewRayT.z);
-//
-//	//	if (currHeight < lastPos.z) {
-//	//		float3 currPos = startPos + viewRayT * (1.f - currHeight);
-//	//		int2 currPosCellID = int2(currPos.xy * float2(tWidth, tHeight));
-//	//		if (currPosCellID.x != lastPosCellID.x || currPosCellID.y != lastPosCellID.y) {
-//	//			float2 dlp = lastPos.xy - startPos.xy;
-//	//			float2 rayingPos = (lastPosCellID + dircSign) / float2(tWidth, tHeight);
-//	//			float2 drp = rayingPos - startPos.xy;
-//	//			float2 dnc = abs((1.f - lastPos.z) * drp / dlp);
-//	//			float currDepth = min(1.f - currHeight, min(dnc.x, dnc.y));
-//	//			currHeight = 1.f - currDepth;
-//	//			currLevel += 2;
-//	//			currPos = startPos + viewRayT * (1.f - currHeight);
-//	//		}
-//	//		lastPos = currPos;
-//	//		if(count > 1) return float3(0.f, 0.f, 1.f);
-//	//	}
-//	//	currLevel--;
-//	//	count++;
-//	//	if (count > 16 * MaxMipLevel)return float3(0.f, 0.f, 1.f);
-//	//}
-//	////float finalH = NormalMap.Sample(Sampler, lastPos.xy).w;
-//	////lastPos = posT + viewRayT * stepCo * (1.f - finalH);
-//	//return lastPos;
-//
-//
-//	//float currHeight;
-//	//float3 lastPos = posT;
-//	//int currLevel = MaxMipLevel;
-//	//int2 dircSign = sign(viewRayT.xy);
-//
-//	//uint count = 0;
-//	//while (currLevel >= 0) {
-//	//	uint tWidth = exp2(MaxMipLevel - currLevel);
-//	//	int2 lastPosCellID = int2(lastPos.xy * tWidth);
-//	//	currHeight = qdmHeightAt(lastPos.xy, int2(MaxMipLevel, currLevel), posT.z);
-//
-//	//	if (currHeight < lastPos.z) {
-//	//		float3 currPos = posT + viewRayT * (posT.z - currHeight);
-//	//		int2 currPosCellID = int2(currPos.xy * tWidth);
-//	//		if (currPosCellID.x != lastPosCellID.x || currPosCellID.y != lastPosCellID.y) {
-//	//			float2 dlp = lastPos.xy - posT.xy;
-//	//			float2 rayingPos = (lastPosCellID + dircSign) / float(tWidth);
-//	//			float2 drp = rayingPos - posT.xy;
-//	//			float2 dnc = abs((posT.z - lastPos.z) * drp / dlp);
-//	//			float currDepth = min(posT.z - currHeight, min(dnc.x, dnc.y));
-//	//			currHeight = posT.z - currDepth;
-//	//			currLevel += 2;
-//	//			currPos = posT + viewRayT * (posT.z - currHeight);
-//	//		}
-//	//		lastPos = currPos;
-//	//		//if(count > 4) return float3(0.f, 0.f, 1.f);
-//	//	}
-//	//	currLevel--;
-//	//	count++;
-//	//	if (count > 8 * MaxMipLevel)return float3(0.f, 0.f, 1.f);
-//	//}
-//	////float finalH = NormalMap.Sample(Sampler, lastPos.xy).w;
-//	////lastPos = posT + viewRayT * stepCo * (1.f - finalH);
-//	//return lastPos;
-//
-//	float currHeight;
-//	float3 lastPos = posT;
-//	int currLevel = MaxMipLevel;
-//	int2 dircSign = sign(viewRayT.xy);
-//	float maxD = 0.1f;
-//	uint count = 0;
-//	while (currLevel >= 0) {
-//		uint tWidth = exp2(MaxMipLevel - currLevel);
-//		int2 lastPosCellID = int2(lastPos.xy * tWidth);
-//		currHeight = qdmHeightAt(lastPos.xy, int2(MaxMipLevel, currLevel), maxD);
-//
-//		if (currHeight < lastPos.z) {
-//			float3 currPos = posT + viewRayT * (maxD - currHeight);
-//			int2 currPosCellID = int2(currPos.xy * tWidth);
-//			if (currPosCellID.x != lastPosCellID.x || currPosCellID.y != lastPosCellID.y) {
-//				float2 dlp = lastPos.xy - posT.xy;
-//				float2 rayingPos = (lastPosCellID + dircSign) / float(tWidth);
-//				float2 drp = rayingPos - posT.xy;
-//				float2 dnc = abs((maxD - lastPos.z) * drp / dlp);
-//				float currDepth = min(maxD - currHeight, min(dnc.x, dnc.y));
-//				currHeight = maxD - currDepth;
-//				currLevel += 2;
-//				currPos = posT + viewRayT * (maxD - currHeight);
-//			}
-//			lastPos = currPos;
-//			//if(count > 0) return float3(0.f, 0.f, 1.f);
-//		}
-//		currLevel--;
-//		count++;
-//		if (count > 8 * MaxMipLevel)return float3(0.f, 0.f, 1.f);
-//	}
-//	//float finalH = NormalMap.Sample(Sampler, lastPos.xy).w;
-//	//lastPos = posT + viewRayT * stepCo * (1.f - finalH);
-//	return lastPos;
-//}
-float2 QDMSearch(int maxMipLevel, float3 vTangent, float2 posTex) {
-	int currLevel = maxMipLevel;
-	float currH;
-	float3 v = float3(vTangent.xy * material.heightScale, 1.f);
-	//v = v / abs(v.z);
-	//v.xy *= material.texScaling;
-	//v *= material.texScaling;
-	//v /= abs(v.z);
-
-	//v = v * sf;
-	const float3 startPos = float3(posTex + material.heightOffset * vTangent.xy, 0.f) + v;
-	//const float3 startPos = float3(posTex, 0.f);
-	float3 lastPos = startPos;
-	const int2 vDir = -sign(v.xy);
-	int count = 0;
-	while (currLevel >= 0) {
-		int mipD = int(exp2(maxMipLevel - currLevel));
-		currH = QuadDispMap.Load(int3(lastPos.xy * mipD, currLevel));
-		int2 lastPosCID = int2(lastPos.xy * mipD);
-		if (currH < lastPos.z) {
-			float3 currPos = startPos - v * (1.f - currH);
-			int2 currPosCID = int2(currPos.xy * mipD);
-			if (currPosCID.x != lastPosCID.x || currPosCID.y != lastPosCID.y) {
-				float2 lastDuv = lastPos.xy - startPos.xy;
-				float2 nextPos = (vDir + lastPosCID) / float(mipD);
-				float2 nextDuv = nextPos - startPos.xy;
-				float2 nextD = abs((1.f - lastPos.z) * nextDuv / lastDuv);
-				currH = 1.f - min(1.f - currH, min(nextD.x, nextD.y));
-				currLevel += 2;
-				currPos = startPos - v * (1.f - currH);
-			}
-			lastPos = currPos;
-		}
-		currLevel--;
-		count++;
-		if (count > 3 * maxMipLevel)
-			break;
-			//return float3(0.f, 0.f, 1.f);
-	}
-
-	float finalH = NormalMap.Sample(Sampler, lastPos.xy).w;
-	lastPos = startPos - v * (1.f - finalH);
-	return lastPos.xy;
-}
-
-float2 POSearch(float3 vTangent, float2 pTex, float2 tdx, float2 tdy) {
-	//float gHeightScale = 2.f / 256.f;
-	//float2 maxPaO = viewRayT.xy * gHeightScale /*/ abs(viewRayT.z)*/;
-	//posTex -= maxPaO;
-	//int sampleCount = 64;
-	//float zStep = 1.f / (float)sampleCount;
-	//float2 texStep = maxPaO * zStep;
-
-	//int sampleI = 0;
-	//float2 cTO = 0;
-	//float2 lTO = 0;
-	//float2 fTO = 0;
-	//float cRZ = 1.f - zStep;
-	//float lRZ = 1.f;
-	//float cH = 0.f;
-	//float lH = 0.f;
-
-	//while (sampleI < sampleCount + 1) {
-	//	cH = NormalMap.SampleGrad(LinearSampler, posTex + cTO, tdx, tdy).w;
-	//	//cH = QuadDispMap.SampleGrad(LinearSampler, posTex + cTO, tdx, tdy);
-	//	if (cH > cRZ) {
-	//		//return (0.f, 0.f, 1.f);
-	//		float t = (lH - lRZ) / (lH - cH + cRZ - lRZ);
-	//		fTO = lTO + t * texStep;
-	//		break;
-	//	}
-	//	else {
-	//		sampleI++;
-	//		lTO = cTO;
-	//		lRZ = cRZ;
-	//		lH = cH;
-	//		//fTO = lTO;
-	//		cTO += texStep;
-	//		cRZ -= zStep;
-	//	}
-	//}
-	//return float3(posTex + fTO, 0.f);
-
+// Parallex Occlusion, Frank 2012
+float2 POMSearch(float3 vTangent, float2 pTex, float2 tdx, float2 tdy) {
 	float2 uvOut = pTex + material.heightOffset * vTangent.xy;
 	float2 vTex = vTangent.xy * material.heightScale;
 
@@ -289,7 +87,7 @@ float2 POSearch(float3 vTangent, float2 pTex, float2 tdx, float2 tdy) {
 	float2 lUV = uvOut + vTex;
 	float lHaM = NormalMap.SampleGrad(LinearSampler, lUV, tdx, tdy).w;
 
-	const uint stepCount = 16.f * abs(vTangent.z) + 128.f * (1 - abs(vTangent.z));
+	const uint stepCount = 8.f * abs(vTangent.z) + 32.f * (1.f - abs(vTangent.z));
 
 	const float dH = 1.f / float(stepCount);
 
@@ -309,15 +107,29 @@ float2 POSearch(float3 vTangent, float2 pTex, float2 tdx, float2 tdy) {
 
 	float2 iUV = cUV + (lUV - cUV) * (cHaM - cH) / (lH - cH + cHaM - lHaM);
 
+	//float t = (lHaM - lH) / (lHaM - lH + cH - cHaM);
+	//float2 iUV = lUV + t * vTex * dH;
+
+	//// following a binary search
+	//float3 lastPos = float3(lUV, lH);
+	//float3 nextPos = float3(cUV, cH);
+	//float3 midPos = (lastPos + nextPos) * 0.5f;
+	//for (int i = 0; i < 5; ++i) {
+	//	float3 midPos = (lastPos + nextPos) * 0.5f;
+	//	float tHeight = NormalMap.SampleGrad(LinearSampler, midPos.xy, tdx, tdy).w;
+	//	if (tHeight < midPos.z) {
+	//		lastPos = midPos;
+	//	}
+	//	else {
+	//		nextPos = midPos;
+	//	}
+	//}
+	//float2 iUV = midPos.xy;
+
 	return iUV;
 }
 
-float2 PMSearch(float3 viewRayT, float2 posTex) {
-	float hSampled = NormalMap.Sample(LinearSampler, posTex).w;
-	float h = hSampled * material.heightScale + material.heightOffset;
-	return posTex -= h * viewRayT.xy;
-}
-
+// Iterative Sloped Parallex Mapping, Szirmay-Kalos 2008
 float2 ISPMSearch(float3 vTangent, float2 posTex) {
 	float hSampled = NormalMap.Sample(LinearSampler, posTex).w;
 	float h = hSampled * material.heightScale + material.heightOffset;
@@ -326,6 +138,118 @@ float2 ISPMSearch(float3 vTangent, float2 posTex) {
 	hSampled = NormalMap.Sample(LinearSampler, tUV).w;
 	h = hSampled * material.heightScale + material.heightOffset;
 	return tUV + h * vTangent.xy * vTangent.z;
+}
+
+// Quadtree Displacement Mapping, Michal 2010
+float3 QDMSearch(int maxMipLevel, float3 vTangent, float2 pTex) {
+	int currLevel = maxMipLevel;
+	float3 uvhOut = float3(pTex + vTangent.xy *material.heightOffset, 0.f);
+	const float3 vTex = float3(vTangent.xy * material.heightScale, 1.f);
+	const int2 vDir = sign(vTex.xy);
+
+	float currH;
+
+	float3 lastPos = uvhOut + vTex;
+
+	int count = 0;
+	while (currLevel >= 0
+		&& count <= 4 * maxMipLevel) {
+		float mipD = exp2(maxMipLevel - currLevel);
+		currH = QuadDispMap.Load(int3(lastPos.xy * mipD, currLevel));
+		int2 lastCID = int2(lastPos.xy * mipD);
+
+		if (currH < lastPos.z) {
+			float3 currPos = uvhOut + vTex * currH;
+			int2 currCID = int2(currPos.xy * mipD);
+
+			if (currCID.x != lastCID.x 
+				|| currCID.y != lastCID.y) {
+				float2 lastDuv = lastPos.xy - uvhOut.xy;
+				float2 nextPos = (lastCID - vDir) / mipD;
+				float2 nextDuv = nextPos.xy - uvhOut.xy;
+				float2 nextDz = (nextDuv / lastDuv) * lastPos.z;
+				currH = max(currH, max(nextDz.x, nextDz.y));
+				currLevel += 2;
+				currPos = uvhOut + vTex * currH;
+			}
+			lastPos = currPos;
+		}
+		currLevel--;
+		count++;
+	}
+
+	// following a binary search
+	float3 midPos;
+	float mipD = exp2(maxMipLevel);
+
+	midPos = (uvhOut + lastPos) * 0.5f;
+	float tHeight = QuadDispMap.Load(int3(midPos.xy * mipD, 0));
+	if (tHeight < midPos.z) {
+		lastPos = midPos;
+	}
+	else {
+		uvhOut = midPos;
+	}
+
+	midPos = (uvhOut + lastPos) * 0.5f;
+	tHeight = QuadDispMap.Load(int3(midPos.xy * mipD, 0));
+	if (tHeight < midPos.z) {
+		lastPos = midPos;
+	}
+	else {
+		uvhOut = midPos;
+	}
+	midPos = (uvhOut + lastPos) * 0.5f;
+	tHeight = QuadDispMap.Load(int3(midPos.xy * mipD, 0));
+	if (tHeight < midPos.z) {
+		lastPos = midPos;
+	}
+	else {
+		uvhOut = midPos;
+	}
+	midPos = (uvhOut + lastPos) * 0.5f;
+	tHeight = QuadDispMap.Load(int3(midPos.xy * mipD, 0));
+	if (tHeight < midPos.z) {
+		lastPos = midPos;
+	}
+	else {
+		uvhOut = midPos;
+	}
+	midPos = (uvhOut + lastPos) * 0.5f;
+	tHeight = QuadDispMap.Load(int3(midPos.xy * mipD, 0));
+	if (tHeight < midPos.z) {
+		lastPos = midPos;
+	}
+	else {
+		uvhOut = midPos;
+	}
+
+
+	//for (int i = 0; i < 5; ++i) {
+	//	midPos = (uvhOut + lastPos) * 0.5f;
+	//	float tHeight = QuadDispMap.Load(int3(midPos.xy * mipD, 0));
+	//	if (tHeight < midPos.z) {
+	//		lastPos = midPos;
+	//	}
+	//	else {
+	//		uvhOut = midPos;
+	//	}
+	//}
+	return midPos;
+	//currH = NormalMap.Sample(Sampler, lastPos.xy).w;
+	//lastPos = uvhOut + vTex * currH;
+
+	//return lastPos;
+
+	//float mipD = exp2(maxMipLevel);
+	//float dStep = 1.f / (mipD * material.heightScale);
+	//lastPos += vTex * dStep * 1.5f;
+	//float3 nextPos = lastPos - vTex * dStep;
+	//float lastHaM = QuadDispMap.Load(int3(lastPos.xy * mipD, 0));
+	//float nextHaM = QuadDispMap.Load(int3(nextPos.xy * mipD, 0));
+
+	//float t = (lastPos.z - lastHaM) / (nextHaM - nextPos.z + lastPos.z - lastHaM);
+	//return lastPos - vTex * dStep * t;
 }
 
 VSO VSMain(in VSI vsi) {
@@ -339,8 +263,6 @@ VSO VSMain(in VSI vsi) {
 	return vso;
 }
 
-
-
 PSO PSMain(in VSO psi) {
 	float3 norm = normalize(psi.normW);
 	//float3 tangent = normalize(psi.tangentW);
@@ -350,13 +272,21 @@ PSO PSMain(in VSO psi) {
 	
 	float3 viewRayW = normalize(camera.posW - psi.posW);
 	float3 viewRayT = mul(tFrameW, viewRayW);
-	//viewRayT = normalize(viewRayT);
+	;
+
+#if defined QDM
 	//float2 adjustedPosT = psi.tex;
-	//float2 adjustedPosT = QDMSearch(material.qdmMaxMipLvl, viewRayT, psi.tex);
-	//float2 adjustedPosT = POSearch(viewRayT, psi.tex, ddx(psi.tex), ddy(psi.tex));
+	float3 adjustedPosT = QDMSearch(material.qdmMaxMipLvl, viewRayT, psi.tex);
+#elif defined POM
+	float2 adjustedPosT = POMSearch(viewRayT, psi.tex, ddx(psi.tex), ddy(psi.tex));
+#else
 	//float2 adjustedPosT = PMSearch(viewRayT, psi.tex);
 	float2 adjustedPosT = ISPMSearch(viewRayT, psi.tex);
+#endif
+
+	//float3 normalT = NormalMap.Sample(Sampler, adjustedPosT.xy).xyz;
 	float3 normalT = NormalMap.Sample(LinearSampler, adjustedPosT.xy).xyz;
+	//float3 normalT = NormalMap.Load(float3(adjustedPosT.xy* exp2(material.qdmMaxMipLvl), 0.f)).xyz;
 	normalT = normalT * 2.f - 1.f;
 	float3 normW = mul(normalT, tFrameW);
 	
@@ -366,7 +296,6 @@ PSO PSMain(in VSO psi) {
 		mul(float4(psi.posW, 1.f), camera.mWtoV).z / camera.farClipD, 
 		material.sPower);
 	pso.da = DiffuseMap.Sample(Sampler, adjustedPosT.xy);
-
 	pso.sa = float4(material.sAlbedo, 1.f);
 	return pso;
 }

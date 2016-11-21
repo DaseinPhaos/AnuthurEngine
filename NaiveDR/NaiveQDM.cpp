@@ -20,6 +20,7 @@ static GBVSI convert(const BasicGeometry::Vertex& v) {
 void NaiveQDMApp::OnInit()
 {
 	D3D12App::OnInit();
+	_sampleMode = 0;
 	auto pDevice = _d3d12Manager.GetD3D12Device();
 	auto pCmdList = _d3d12Manager.GetMainCmdList();
 	auto pCmdAlloc = _d3d12Manager.GetMainCmdAllocator();
@@ -102,7 +103,7 @@ void NaiveQDMApp::OnInit()
 	auto tmCpu = MaterialsCB{
 		Matrix4x4f::Identity(),
 		Vector3f(0.1f, 0.2f, 0.1f),
-		10.f, 0.02f, -0.01f, p.first - 1
+		10.f, 0.03f, -0.01f, p.first - 1
 	};
 	auto mb_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,
 		&tmCpu, D3D12Helper::GetCBSizeAligned(sizeof(tmCpu)), uploadBuffer2);
@@ -119,10 +120,10 @@ void NaiveQDMApp::OnInit()
 	auto& pb = _pointLights.back();
 	pb.first.mOtoW = Matrix4x4f::Identity();
 	// pb.first.color = Vector4f(0.f, 0.f, 4.f, 1.0f);
-	pb.first.color = Vector4f(0.8f, 0.8f, 0.7f, 1.0f);
+	pb.first.color = Vector4f(0.8f, 0.4f, 0.4f, 1.0f);
 	// pb.first.color = Vector4f(0.f, 0.f, 0.f, 1.0f);
-	pb.first.posW = Vector4f(-5.f, 5.f, 5.f, 1.f);
-	pb.first.range = Vector4f(10.f, 0.f, 0.f, 0.f);
+	pb.first.posW = Vector4f(0.f, 5.f, 0.f, 1.f);
+	pb.first.range = Vector4f(6.f, 0.f, 0.f, 0.f);
 	DRP::LightPass::NaiveLights::PointLight::generateOtoWMatrix(pb.first);
 	auto pl_gpu = D3D12Helper::CreateDefaultBuffer(
 		pDevice, pCmdList, &pb.first, D3D12Helper::GetCBSizeAligned(sizeof(pb.first)),
@@ -132,7 +133,7 @@ void NaiveQDMApp::OnInit()
 	auto& sb = _spotLights.back();
 	// sb.first.mOtoW = Matrix4x4f::Identity();
 	//sb.first.color = Vector4f(2.5f, 0.f, 0.f, 1.0f);
-	sb.first.color = Vector4f(0.7f, 0.7f, 0.9f, 1.0f);
+	sb.first.color = Vector4f(0.4f, 0.4f, 0.9f, 1.0f);
 	// sb.first.color = Vector4f(0.f, 0.f, 0.f, 1.0f);
 	sb.first.posW = Vector4f(5.f, 5.f, 5.f, 1.f);
 	sb.first.direction = Vector4f(-1.f, -1.f, -1.f, 0.f).Normalize();
@@ -150,7 +151,7 @@ void NaiveQDMApp::OnInit()
 	db.first.color = Vector4f(0.6f, 0.6f, 0.6f, 1.0f);
 	db.first.posW = Vector4f(5.f, 5.f, 5.f, 1.f);
 	db.first.range = Vector4f(1000.f, 5.f, 5.f, 1.f);
-	db.first.direction = Vector4f(5.f, -5.f, 5.f, 0.f).Normalize();
+	db.first.direction = Vector4f(-5.f, -5.f, 5.f, 0.f).Normalize();
 	DRP::LightPass::NaiveLights::DirectionalLight::generateOtoWMatrix(db.first);
 	auto dl_gpu = D3D12Helper::CreateDefaultBuffer(
 		pDevice, pCmdList, &db.first, D3D12Helper::GetCBSizeAligned(sizeof(db.first)),
@@ -271,6 +272,10 @@ void NaiveQDMApp::OnUpdate()
 
 	_d3d12Manager.FlushCommandQueue();
 	_kbdst.Update(_keyboard->GetState());
+	if (_kbdst.IsKeyPressed(DirectX::Keyboard::Space)) {
+		_sampleMode = (_sampleMode + 1) % 4;
+	}
+
 	if (_kbdst.IsKeyReleased(DirectX::Keyboard::Enter)) {
 		//ReadBackTo(_renderObjects[0].qdMap.Get(), L"./qdm9.png", 9);
 		ReadBackTo(_d3d12Manager.FindTexture2D(_gBuffers[0]).Get(), L"./gb0 ddrp.png");
@@ -307,29 +312,158 @@ void NaiveQDMApp::OnUpdate()
 
 void NaiveQDMApp::OnRender()
 {
+	static auto oriTitle = _title;
+	LPWSTR titleAddOn = nullptr;
+	if (_sampleMode == 0) titleAddOn = L" ISPM ";
+	else if (_sampleMode == 1) titleAddOn = L" POM ";
+	else if (_sampleMode == 2) titleAddOn = L" QDM ";
+	else titleAddOn = L" WireFrame ";
+	_title = oriTitle + titleAddOn;
 	_d3d12Manager.FlushCommandQueue();
 	D3D12App::LogFPSToTitle();
-	ID3D12GraphicsCommandList* pCmdlist;
+	ID3D12GraphicsCommandList* pCmdlist = _d3d12Manager.GetMainCmdList();
+	ID3D12CommandAllocator* pCmdAlloc = _d3d12Manager.GetMainCmdAllocator();
+	ThrowIfFailed(pCmdAlloc->Reset());
+	ThrowIfFailed(pCmdlist->Reset(pCmdAlloc, nullptr));
 
-	static size_t frameCount = 0;
-	static size_t backbufferCount = _d3d12Manager.GetMainWindowResource().GetSwapChainBufferCount();
-	if (frameCount < backbufferCount) {
-		auto caid = _d3d12Manager.AddCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT);
-		auto pca = _d3d12Manager.FindCommandAllocator(caid).Get();
-		auto clid = _d3d12Manager.AddCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, pca);
-		auto pcl = _d3d12Manager.FindCommandList(clid).Get();
-		RecordCmds(pcl, pca);
-		_cmdObjs.emplace_back(pcl, pca);
-		pCmdlist = pcl;
-		frameCount++;
+	//static size_t frameCount = 0;
+	//static size_t backbufferCount = _d3d12Manager.GetMainWindowResource().GetSwapChainBufferCount();
+	//if (frameCount < backbufferCount) {
+	//	auto caid = _d3d12Manager.AddCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT);
+	//	auto pca = _d3d12Manager.FindCommandAllocator(caid).Get();
+	//	auto clid = _d3d12Manager.AddCommandList(D3D12_COMMAND_LIST_TYPE_DIRECT, pca);
+	//	auto pcl = _d3d12Manager.FindCommandList(clid).Get();
+	//	RecordCmds(pcl, pca);
+	//	_cmdObjs.emplace_back(pcl, pca);
+	//	pCmdlist = pcl;
+	//	frameCount++;
+	//}
+	//else if (frameCount < 2 * backbufferCount) {
+	//	pCmdlist = _cmdObjs[frameCount - backbufferCount].first;
+	//	frameCount++;
+	//	if (frameCount == 2 * backbufferCount) {
+	//		frameCount = backbufferCount;
+	//	}
+	//}
+
+#pragma region recordGBPass
+	ID3D12DescriptorHeap* dsvHeap = _d3d12Manager.FindDescriptorHeap(_dsvDH).Get();
+	ID3D12DescriptorHeap* rtvHeap = _d3d12Manager.FindDescriptorHeap(_rtvDH).Get();
+	D3D12WindowResource& windowResrc = _d3d12Manager.GetMainWindowResource();
+	auto sRect = &windowResrc.GetMainScissor();
+	pCmdlist->RSSetScissorRects(1u, sRect);
+	pCmdlist->RSSetViewports(1u, &windowResrc.GetMainViewport());
+
+	if(_sampleMode == 0) _qdm.recordStateSettings(pCmdlist);
+	else if (_sampleMode == 1) _qdm.recordStateSettingsPOM(pCmdlist);
+	else if (_sampleMode == 2) _qdm.recordStateSettingsQDM(pCmdlist);
+	else _qdm.recordStateSettingsWireframe(pCmdlist);
+
+	ID3D12Resource* gbs[] = {
+		_d3d12Manager.FindTexture2D(_gBuffers[0]).Get(),
+		_d3d12Manager.FindTexture2D(_gBuffers[1]).Get(),
+		_d3d12Manager.FindTexture2D(_gBuffers[2]).Get(),
+	};
+	WTF::NBPQDM::recordGBTransitionFrom(pCmdlist, gbs);
+
+
+	auto rtvHandle = D3D12Helper::DescriptorHandleCPU(
+		_d3d12Manager.FindDescriptorHeap(_rtvDH)->GetCPUDescriptorHandleForHeapStart());
+
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[3] = {};
+	rtvHandles[0] = rtvHandle;
+	rtvHandles[1] = rtvHandle.Offset(_d3d12Manager.GetRTVDescriptorSize());
+	rtvHandles[2] = rtvHandle.Offset(_d3d12Manager.GetRTVDescriptorSize());
+	WTF::NBPQDM::recordClearAndSetRtvDsv(pCmdlist, rtvHandles,
+		dsvHeap->GetCPUDescriptorHandleForHeapStart(), 1u, sRect);
+
+	WTF::NBPQDM::recordRp0Camera(pCmdlist, _cameraAttr_gpu.Get()->GetGPUVirtualAddress());
+	for (auto i = 0u; i < _renderObjects.size(); ++i) {
+		auto& ro = _renderObjects[i];
+		WTF::NBPQDM::recordRp1Material(pCmdlist, ro.materialCB->GetGPUVirtualAddress());
+
+		// DRP::GBPass::NaiveBlinnPhong::recordRp1Material(pCmdlist, std::get<2>(mesh)->GetGPUVirtualAddress());
+		ID3D12DescriptorHeap* dhs[] = { ro.srvHeap.Get() };
+		pCmdlist->SetDescriptorHeaps(1u, dhs);
+		WTF::NBPQDM::recordRp2Textures(
+			pCmdlist, dhs[0]->GetGPUDescriptorHandleForHeapStart());
+		pCmdlist->IASetVertexBuffers(0u, 1u, &ro.mesh.VertexBufferView());
+		pCmdlist->IASetIndexBuffer(&ro.mesh.IndexBufferView());
+		pCmdlist->DrawIndexedInstanced(
+			ro.mesh.GetTotoalIndexCount(), 1u, 0u, 0u, 0u);
 	}
-	else if (frameCount < 2 * backbufferCount) {
-		pCmdlist = _cmdObjs[frameCount - backbufferCount].first;
-		frameCount++;
-		if (frameCount == 2 * backbufferCount) {
-			frameCount = backbufferCount;
-		}
+#pragma endregion recordGBPass
+
+#pragma region recordLightPass
+	DRP::GBPass::NaiveBlinnPhong::recordGBTransitionTo(pCmdlist, gbs);
+	DRP::LightPass::NaiveLights::recordSettings(pCmdlist, _d3d12Manager.GetD3D12Device());
+
+	D3D12_RESOURCE_BARRIER bbarrier[] = {
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			windowResrc.GetCurrentBackBufferResource(),
+			D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_BARRIER_FLAG_NONE
+		),
+	};
+	pCmdlist->ResourceBarrier(1u, bbarrier);
+
+	pCmdlist->OMSetRenderTargets(1u, &windowResrc.GetCurrentCPURTV(), TRUE,
+		&dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	static float bbg[] = { 0.f, 0.f, 0.f, 0.f };
+	pCmdlist->ClearRenderTargetView(windowResrc.GetCurrentCPURTV(), bbg, 1u, sRect);
+
+	ID3D12DescriptorHeap* dhs[] = { _d3d12Manager.FindDescriptorHeap(_lightPassDH).Get() };
+	pCmdlist->SetDescriptorHeaps(1u, dhs);
+	DRP::LightPass::NaiveLights::recordRp1CameraAndGBuffer(pCmdlist,
+		dhs[0]->GetGPUDescriptorHandleForHeapStart());
+	// pCmdlist->SetGraphicsRootDescriptorTable(1u, dhs[0]->GetGPUDescriptorHandleForHeapStart());
+	UINT stencilRef = 0x80;
+
+	_pointLight.recordSettings(pCmdlist);
+	// pCmdlist->SetPipelineState(_drr.getPointlightPSO());
+	for (auto i = 0u; i < _pointLights.size(); ++i) {
+		auto& light = _pointLights[i];
+		DRP::LightPass::NaiveLights::recordRp0Light(pCmdlist,
+			light.second->GetGPUVirtualAddress(), stencilRef);
+		DRP::LightPass::NaiveLights::PointLight::recordDraw(pCmdlist);
+		//pCmdlist->SetGraphicsRootConstantBufferView(0u, light.second->GetGPUVirtualAddress());
+		//pCmdlist->DrawInstanced(6u, 1u, 0u, 0u);
 	}
+
+	_directionalLight.recordSettings(pCmdlist);
+	// pCmdlist->SetPipelineState(_drr.getDirectionallightPSO());
+	for (auto i = 0u; i < _directionalLights.size(); ++i) {
+		auto& light = _directionalLights[i];
+		DRP::LightPass::NaiveLights::recordRp0Light(pCmdlist,
+			light.second->GetGPUVirtualAddress(), stencilRef);
+		DRP::LightPass::NaiveLights::DirectionalLight::recordDraw(pCmdlist);
+		//pCmdlist->SetGraphicsRootConstantBufferView(0u, light.second->GetGPUVirtualAddress());
+		//pCmdlist->DrawInstanced(6u, 1u, 0u, 0u);
+	}
+
+	_spotLight.recordSettings(pCmdlist);
+	// pCmdlist->SetPipelineState(_drr.getSpotlightPSO());
+	for (auto i = 0u; i < _spotLights.size(); ++i) {
+		auto& light = _spotLights[i];
+		DRP::LightPass::NaiveLights::recordRp0Light(pCmdlist,
+			light.second->GetGPUVirtualAddress(), stencilRef);
+		DRP::LightPass::NaiveLights::SpotLight::recordDraw(pCmdlist);
+		//pCmdlist->SetGraphicsRootConstantBufferView(0u, light.second->GetGPUVirtualAddress());
+		//pCmdlist->DrawInstanced(6u, 1u, 0u, 0u);
+	}
+
+	D3D12_RESOURCE_BARRIER lbarrier[] = {
+		D3D12Helper::ResourceBarrier::TransitionBarrier(
+			windowResrc.GetCurrentBackBufferResource(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_BARRIER_FLAG_NONE
+		),
+	};
+	pCmdlist->ResourceBarrier(1u, lbarrier);
+	ThrowIfFailed(pCmdlist->Close());
+#pragma endregion recordLightPass
 
 
 

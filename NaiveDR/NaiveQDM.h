@@ -345,6 +345,7 @@ private:
 	CameraControl _camControl;
 	WTF::NaiveBpqdmGenerator _qdmGenerator;
 	WTF::NBPQDM _qdm;
+	int _sampleMode;
 	DRP::LightPass::NaiveLights::PointLight _pointLight;
 	DRP::LightPass::NaiveLights::DirectionalLight _directionalLight;
 	DRP::LightPass::NaiveLights::SpotLight _spotLight;
