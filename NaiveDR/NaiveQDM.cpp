@@ -62,8 +62,8 @@ void NaiveQDMApp::OnInit()
 	//auto terranMesh = BasicGeometry::Terran(10, 10, 10, 10);
 	//auto terranMesh = BasicGeometry::Cylinder(5.f, 2.f, 3.f, 16, 16);
 	//auto terranMesh = BasicGeometry::Box(4.f, 5.f, 6.f);
-	//auto terranMesh = BasicGeometry::Sphere(5.f);
-	auto terranMesh = BasicGeometry::Grid(10, 10, 10, 10);
+	//auto terranMesh = BasicGeometry::Sphere(5.f, 32, 32);
+	auto terranMesh = BasicGeometry::Grid(10, 10, 100, 100);
 	std::vector<GBInput> terranVertices;
 	for (auto& v : terranMesh.Vertices)
 	{
@@ -86,9 +86,9 @@ void NaiveQDMApp::OnInit()
 	Microsoft::WRL::ComPtr<ID3D12Resource> normalmapU;
 
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\tile.dds)", diffusemap, diffusemapU));
+		LR"(..\Asset\Textures\white1x1.dds)", diffusemap, diffusemapU));
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\tile_nmap.dds)", normalmap, normalmapU));
+		LR"(..\Asset\Textures\bricks2_nmap.dds)", normalmap, normalmapU));
 
 	auto p = _qdmGenerator.generateQDM(normalmap.Get(), pDevice, pCmdList);
 	ID3D12CommandQueue* pCmdQueue = _d3d12Manager.GetCmdQueue();
@@ -102,7 +102,7 @@ void NaiveQDMApp::OnInit()
 	auto tmCpu = MaterialsCB{
 		Matrix4x4f::Identity(),
 		Vector3f(0.1f, 0.2f, 0.1f),
-		10.f, p.first - 1
+		10.f, 0.02f, -0.01f, p.first - 1
 	};
 	auto mb_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,
 		&tmCpu, D3D12Helper::GetCBSizeAligned(sizeof(tmCpu)), uploadBuffer2);
@@ -481,7 +481,7 @@ void NaiveQDMApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename, UINT 
 	dstl.PlacedFootprint.Footprint.Depth = 1;
 	dstl.PlacedFootprint.Footprint.Format = srcDesc.Format;
 	dstl.PlacedFootprint.Footprint.Width = static_cast<UINT>(srcDesc.Width/(1ull<<subResource));
-	dstl.PlacedFootprint.Footprint.Height = static_cast<UINT>(srcDesc.Height/(1ull<<subResource));
+	dstl.PlacedFootprint.Footprint.Height = static_cast<UINT>(srcDesc.Height/(1<<subResource));
 	dstl.PlacedFootprint.Footprint.RowPitch = static_cast<UINT>(dstl.PlacedFootprint.Footprint.Width
 		* (D3D12Helper::DxgiFormatBitSize(srcDesc.Format)/8));
 
@@ -518,7 +518,7 @@ void NaiveQDMApp::ReadBackTo(ID3D12Resource* src, const wchar_t* filename, UINT 
 	_d3d12Manager.FlushCommandQueue();
 
 	Luxko::Anuthur::SaveTexture2DAsPNG(readbackHeap.Get(), filename, 0u,
-		static_cast<unsigned int>(srcDesc.Width / (1 << subResource)),
+		static_cast<unsigned int>(srcDesc.Width / (1ull << subResource)),
 		static_cast<unsigned int>(srcDesc.Height / (1 << subResource)),
 		srcDesc.Format);
 }

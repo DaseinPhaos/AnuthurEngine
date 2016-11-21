@@ -63,9 +63,9 @@ void NaiveDRPApp::OnInit()
 	// Initialize scene components
 	//auto terranMesh = BasicGeometry::Terran(10, 10, 10, 10);
 	//auto terranMesh = BasicGeometry::Cylinder(5.f, 2.f, 3.f, 16, 16);
-	auto terranMesh = BasicGeometry::Box(4.f, 5.f, 6.f);
-	//auto terranMesh = BasicGeometry::Sphere(5.f);
-	//auto terranMesh = BasicGeometry::Grid(10, 10, 10, 10);
+	//auto terranMesh = BasicGeometry::Box(4.f, 5.f, 6.f);
+	//auto terranMesh = BasicGeometry::Sphere(5.f, 32, 32);
+	auto terranMesh = BasicGeometry::Grid(10, 10, 10, 10);
 	std::vector<GBInput> terranVertices;
 	for (auto& v : terranMesh.Vertices)
 	{
@@ -91,9 +91,9 @@ void NaiveDRPApp::OnInit()
 	Microsoft::WRL::ComPtr<ID3D12Resource> normalmapU;
 
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\tile.dds)", diffusemap, diffusemapU));
+		LR"(..\Asset\Textures\bricks.dds)", diffusemap, diffusemapU));
 	ThrowIfFailed(DirectX::CreateDDSTextureFromFile12(pDevice, pCmdList,
-		LR"(..\Asset\Textures\tile_nmap.dds)", normalmap, normalmapU));
+		LR"(..\Asset\Textures\bricks_nmap.dds)", normalmap, normalmapU));
 
 	auto& tvCpu = std::get<0>(_meshes_cpu.back());
 	auto vb_gpu = D3D12Helper::CreateDefaultBuffer(pDevice, pCmdList,

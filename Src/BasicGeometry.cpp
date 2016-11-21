@@ -197,7 +197,7 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Sphere(
 
 			auto pos = Point3DH(r*cosAlpha, z, r*sinAlpha);
 			auto norm = Vector3DH(r*cosAlpha, z, r*sinAlpha).Normalize();
-			auto tangent = Vector3DH(-z * sinAlpha, 0.f, z*cosAlpha).Normalize();
+			auto tangent = Vector3DH(z * sinAlpha, 0.f, -z*cosAlpha).Normalize();
 			result.Vertices.emplace_back(
 				pos, norm, tangent, 
 				dAlpha*i/(2.f*static_cast<float>(M_PI)), 
@@ -220,7 +220,7 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Sphere(
 			auto r = radius * cosBeta;
 			auto pos = Point3DH(r*cosAlpha, -z, r*sinAlpha);
 			auto norm = Vector3DH(r*cosAlpha, -z, r*sinAlpha).Normalize();
-			auto tangent = Vector3DH(-z * sinAlpha, 0.f, z*cosAlpha).Normalize();
+			auto tangent = Vector3DH(z * sinAlpha, 0.f, -z*cosAlpha).Normalize();
 			result.Vertices.emplace_back(
 				pos, norm, tangent, 
 				dAlpha*i / (2.f*static_cast<float>(M_PI)),
@@ -275,7 +275,11 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(fl
 		for (auto j = 0u; j <= m; ++j) {
 			auto tu = static_cast<float>(j) / m;
 			result.Vertices.emplace_back(
-				Point3DH{ x, 0.f, z },
+				//Point3DH{ x, 0.f, z },
+				Point3DH{ 
+					-halfWidth + tu * width, 
+					0.f,
+					halfHeight - tv * length },
 				Vector3DH{ 0.f, 1.f, 0.f },
 				Vector3DH{ 1.f, 0.f, 0.f },
 				tu, tv
@@ -290,22 +294,20 @@ const Luxko::Anuthur::BasicGeometry::Mesh Luxko::Anuthur::BasicGeometry::Grid(fl
 	result.Indices.reserve(6 * m*n);
 	for (auto i = 0u; i < n; ++i) {
 		for (auto j = 0u; j < m; ++j) {
-			result.Indices.push_back(j*(m + 1) + i);
-			result.Indices.push_back(j * (m + 1) + i + 1);
-			result.Indices.push_back((j + 1)*(m + 1) + i);
-
-			result.Indices.push_back((j + 1)*(m + 1) + i);
-			result.Indices.push_back(j*(m + 1) + i + 1);
-			result.Indices.push_back((j + 1)*(m + 1) + i + 1);
-
-			//result.Indices.push_back(j * (m + 1) + i + 1);
 			//result.Indices.push_back(j*(m + 1) + i);
+			//result.Indices.push_back(j * (m + 1) + i + 1);
+			//result.Indices.push_back((j + 1)*(m + 1) + i);
 
 			//result.Indices.push_back((j + 1)*(m + 1) + i);
 			//result.Indices.push_back(j*(m + 1) + i + 1);
-			//result.Indices.push_back((j + 1)*(m + 1) + i);
-
 			//result.Indices.push_back((j + 1)*(m + 1) + i + 1);
+
+			result.Indices.push_back(j * (m + 1) + i + 1);
+			result.Indices.push_back(j*(m + 1) + i);
+			result.Indices.push_back((j + 1)*(m + 1) + i);
+			result.Indices.push_back(j*(m + 1) + i + 1);
+			result.Indices.push_back((j + 1)*(m + 1) + i);
+			result.Indices.push_back((j + 1)*(m + 1) + i + 1);
 		}
 	}
 

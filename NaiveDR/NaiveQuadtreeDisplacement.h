@@ -146,6 +146,8 @@ namespace WTF {
 			Matrix4x4f mOtoW;
 			Vector3f sAlbedo;
 			float sPower;
+			float heightScale;
+			float heightOffset;
 			UINT qdmMaxMipLvl;
 		};
 
