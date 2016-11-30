@@ -28,7 +28,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\Src\HLSLShaders\crate.hlsl">
+    <FxCompile Include="crate.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

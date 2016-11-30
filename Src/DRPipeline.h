@@ -32,6 +32,10 @@ namespace Luxko {
 						Matrix4x4f mOtoW;
 						Vector3f sAlbedo;
 						float sPower;
+						float heightScale;
+						float heightOffset;
+						float minSampleCount;
+						float maxSampleCount;
 					};
 
 					struct VSI {
@@ -93,6 +97,23 @@ namespace Luxko {
 						cmdlist->SetPipelineState(_normalState.Get());
 						cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
 					}
+
+					inline void recordStateSettingsPOM(ID3D12GraphicsCommandList* cmdlist,
+						D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
+						cmdlist->OMSetStencilRef(0x80);
+						cmdlist->IASetPrimitiveTopology(primitiveTopology);
+						cmdlist->SetPipelineState(_normalStatePOM.Get());
+						cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
+					}
+
+					inline void recordStateSettingsISPM(ID3D12GraphicsCommandList* cmdlist,
+						D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
+						cmdlist->OMSetStencilRef(0x80);
+						cmdlist->IASetPrimitiveTopology(primitiveTopology);
+						cmdlist->SetPipelineState(_normalStateISPM.Get());
+						cmdlist->SetGraphicsRootSignature(_rootSignature.Get());
+					}
+
 					inline void recordStateSettingsWireframe(
 						ID3D12GraphicsCommandList* cmdlist,
 						D3D_PRIMITIVE_TOPOLOGY primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST) {
@@ -157,8 +178,12 @@ namespace Luxko {
 					static auto constexpr psPath = LR"(../Src/HLSLShaders/DRP/GBPass/NaiveBlinnPhong.hlsl)";
 					D3D12Helper::ShaderByteCode _vertexShader;
 					D3D12Helper::ShaderByteCode _pixelShader;
+					D3D12Helper::ShaderByteCode _pixelShaderISPM;
+					D3D12Helper::ShaderByteCode _pixelShaderPOM;
 					ComPtr<ID3D12RootSignature> _rootSignature;
 					ComPtr<ID3D12PipelineState> _normalState;
+					ComPtr<ID3D12PipelineState> _normalStateISPM;
+					ComPtr<ID3D12PipelineState> _normalStatePOM;
 					ComPtr<ID3D12PipelineState> _wireframeState;
 
 				};

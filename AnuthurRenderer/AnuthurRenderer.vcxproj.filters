@@ -104,7 +104,7 @@
     <ClCompile Include="..\Src\ApplicationHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DRPipeline.cpp">
+    <ClCompile Include="..\Src\DRPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -117,6 +117,9 @@
     </FxCompile>
     <FxCompile Include="..\Src\HLSLShaders\DRP\LightPass\NaiveLights.hlsl">
       <Filter>Shaders\DRP\LightPass</Filter>
+    </FxCompile>
+    <FxCompile Include="..\Src\HLSLShaders\CommonFunc.hlsl">
+      <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
