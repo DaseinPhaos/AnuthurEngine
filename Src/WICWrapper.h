@@ -16,8 +16,22 @@ namespace Luxko {
 		public:
 			static IWICImagingFactory* Get();
 
+			static void ReadTextureFromMemory(
+				const uint8_t* wicData,
+				size_t wicDataSize,
+				std::unique_ptr<uint8_t[]>& decodedData,
+				bool forceSRGB = false,
+				size_t maxsize = 0);
+
+			static void ReadTextureFromFile(
+				const wchar_t* szFileName,
+				std::unique_ptr<uint8_t[]>& decodedData,
+				bool forceSRGB = false,
+				size_t maxsize = 0);
+
+
 			// Standard version
-			static ComPtr<ID3D12Resource> LoadWICTextureFromMemory(
+			static ComPtr<ID3D12Resource> LoadTextureFromMemory(
 				ID3D12Device* d3dDevice,
 				ID3D12GraphicsCommandList* pCmdList,
 				const uint8_t* wicData,
@@ -27,7 +41,7 @@ namespace Luxko {
 				D3D12_SUBRESOURCE_DATA& subresource,
 				size_t maxsize = 0);
 
-			static ComPtr<ID3D12Resource> LoadWICTextureFromFile(
+			static ComPtr<ID3D12Resource> LoadTextureFromFile(
 				ID3D12Device* d3dDevice,
 				ID3D12GraphicsCommandList* pCmdList,
 				const wchar_t* szFileName,
@@ -37,7 +51,7 @@ namespace Luxko {
 				size_t maxsize = 0);
 
 			// Extended version
-			static ComPtr<ID3D12Resource> LoadWICTextureFromMemoryEx(
+			static ComPtr<ID3D12Resource> LoadTextureFromMemoryEx(
 				ID3D12Device* d3dDevice,
 				ID3D12GraphicsCommandList* pCmdList,
 				const uint8_t* wicData,
@@ -49,7 +63,7 @@ namespace Luxko {
 				std::unique_ptr<uint8_t[]>& decodedData,
 				D3D12_SUBRESOURCE_DATA& subresource);
 
-			static ComPtr<ID3D12Resource> LoadWICTextureFromFileEx(
+			static ComPtr<ID3D12Resource> LoadTextureFromFileEx(
 				ID3D12Device* d3dDevice,
 				ID3D12GraphicsCommandList* pCmdList,
 				const wchar_t* szFileName,

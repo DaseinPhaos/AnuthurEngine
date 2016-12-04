@@ -13,6 +13,7 @@ IWICImagingFactory* Luxko::Anuthur::WIC::Get()
 	return wic._wicFactory.Get();
 }
 
+
 namespace {
 	inline DXGI_FORMAT MakeSRGB(_In_ DXGI_FORMAT format)
 	{
@@ -59,19 +60,18 @@ namespace {
 		return count;
 	}
 
-	HRESULT CreateTextureFromWIC(
-		ID3D12Device* d3dDevice,
-		ID3D12GraphicsCommandList* pCmdList,
-		IWICBitmapFrameDecode* frame,
-		size_t maxsize,
-		D3D12_RESOURCE_FLAGS flags,
-		bool forceSRGB,
-		Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer,
-		Microsoft::WRL::ComPtr<ID3D12Resource>& texture,
+	struct WICTextureMetaData {
+		UINT twidth;
+		UINT theight;
+		DXGI_FORMAT format;
+		size_t rowPitch;
+		size_t imageSize;
+	};
+
+	HRESULT ReadTextureFromWIC(IWICBitmapFrameDecode* frame,
+		size_t maxsize, bool forceSRGB, 
 		std::unique_ptr<uint8_t[]>& decodedData,
-		D3D12_SUBRESOURCE_DATA& subresource)
-	{
-		assert(d3dDevice&&pCmdList);
+		WICTextureMetaData& args) {
 
 		UINT width, height;
 		HRESULT hr = frame->GetSize(&width, &height);
@@ -281,18 +281,32 @@ namespace {
 			if (FAILED(hr))
 				return hr;
 		}
+		args.twidth = twidth;
+		args.theight = theight;
+		args.format = format;
+		args.rowPitch = rowPitch;
+		args.imageSize = imageSize;
+		return hr;
+	}
 
-		// Count the number of mips
-		//uint32_t mipCount = (reserveFullMipChain) ? CountMips(twidth, theight) : 1;
-
+	HRESULT UploadTextureToGPU(
+		ID3D12Device* d3dDevice,
+		ID3D12GraphicsCommandList* pCmdList,
+		Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer,
+		Microsoft::WRL::ComPtr<ID3D12Resource>& texture,
+		D3D12_RESOURCE_FLAGS flags,
+		std::unique_ptr<uint8_t[]>& decodedData,
+		D3D12_SUBRESOURCE_DATA& subresource,
+		const WICTextureMetaData& args
+		) {
 		auto uploadHP = Luxko::Anuthur::D3D12Helper::ResourceHeapProperties(
 			D3D12_HEAP_TYPE_UPLOAD);
 
 		auto uploadRD = Luxko::Anuthur::D3D12Helper::ResourceDescriptor::Buffer(
-			static_cast<UINT64>(imageSize),
+			static_cast<UINT64>(args.imageSize),
 			D3D12_RESOURCE_FLAG_NONE);
 
-		hr = d3dDevice->CreateCommittedResource(
+		auto hr = d3dDevice->CreateCommittedResource(
 			&uploadHP,
 			D3D12_HEAP_FLAG_NONE,
 			&uploadRD,
@@ -306,11 +320,11 @@ namespace {
 		}
 
 		D3D12_RESOURCE_DESC desc = {};
-		desc.Width = twidth;
-		desc.Height = theight;
+		desc.Width = args.twidth;
+		desc.Height = args.theight;
 		desc.MipLevels = 1;
 		desc.DepthOrArraySize = 1;
-		desc.Format = format;
+		desc.Format = args.format;
 		desc.SampleDesc.Count = 1;
 		desc.SampleDesc.Quality = 0;
 		desc.Flags = flags;
@@ -331,12 +345,12 @@ namespace {
 		}
 
 		subresource.pData = decodedData.get();
-		subresource.RowPitch = rowPitch;
-		subresource.SlicePitch = imageSize;
+		subresource.RowPitch = args.rowPitch;
+		subresource.SlicePitch = args.imageSize;
 
 		D3D12_RANGE readRange;
 		readRange.Begin = 0u;
-		readRange.End = imageSize;
+		readRange.End = args.imageSize;
 
 		uint8_t* ubPtr = nullptr;
 		hr = uploadBuffer->Map(0u, &readRange, reinterpret_cast<void**>(&ubPtr));
@@ -345,17 +359,17 @@ namespace {
 			return hr;
 		}
 
-		memcpy(ubPtr, decodedData.get(), imageSize);
+		memcpy(ubPtr, decodedData.get(), args.imageSize);
 
 		uploadBuffer->Unmap(0u, &readRange);
 
 		using TextureCopyLocation = Luxko::Anuthur::D3D12Helper::TextureCopyLocation;
 		auto destLoc = TextureCopyLocation::Subresource(texture.Get(), 0u);
 		auto srcLoc = TextureCopyLocation::PlacedFootPrintF(texture.Get(),
-			rowPitch, twidth, theight, 0u, format, 0u);
+			args.rowPitch, args.twidth, args.theight, 0u, args.format, 0u);
 
 		pCmdList->CopyTextureRegion(&destLoc, 0u, 0u, 0u, &srcLoc, nullptr);
-		
+
 		D3D12_RESOURCE_BARRIER rb;
 		rb.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 		rb.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -366,9 +380,67 @@ namespace {
 
 		pCmdList->ResourceBarrier(1u, &rb);
 	}
+
+	HRESULT CreateTextureFromWIC(
+		ID3D12Device* d3dDevice,
+		ID3D12GraphicsCommandList* pCmdList,
+		IWICBitmapFrameDecode* frame,
+		size_t maxsize,
+		D3D12_RESOURCE_FLAGS flags,
+		bool forceSRGB,
+		Microsoft::WRL::ComPtr<ID3D12Resource>& uploadBuffer,
+		Microsoft::WRL::ComPtr<ID3D12Resource>& texture,
+		std::unique_ptr<uint8_t[]>& decodedData,
+		D3D12_SUBRESOURCE_DATA& subresource)
+	{
+		assert(d3dDevice&&pCmdList);
+		WICTextureMetaData args;
+		auto hr = ReadTextureFromWIC(frame, maxsize, forceSRGB, decodedData, args);
+		if (FAILED(hr)) return hr;
+
+		return UploadTextureToGPU(d3dDevice, pCmdList, uploadBuffer, texture, flags, decodedData, subresource, args);
+	}
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromMemory(
+
+void Luxko::Anuthur::WIC::ReadTextureFromMemory(const uint8_t* wicData, size_t wicDataSize, std::unique_ptr<uint8_t[]>& decodedData, bool forceSRGB /*= false*/, size_t maxsize /*= 0*/)
+{
+	auto pWIC = Get();
+	assert(pWIC);
+
+	// Initialize input stream from memory
+	ComPtr<IWICStream> memStream;
+	ThrowIfFailed(pWIC->CreateStream(memStream.GetAddressOf()));
+	ThrowIfFailed(memStream->InitializeFromMemory(const_cast<uint8_t*>(wicData),
+		static_cast<DWORD>(wicDataSize)));
+
+
+	ComPtr<IWICBitmapDecoder> wicDecoder;
+	ThrowIfFailed(pWIC->CreateDecoderFromStream(memStream.Get(), 0,
+		WICDecodeMetadataCacheOnDemand, wicDecoder.GetAddressOf()));
+	ComPtr<IWICBitmapFrameDecode> firstFrame;
+	ThrowIfFailed(wicDecoder->GetFrame(0, firstFrame.GetAddressOf()));
+
+	WICTextureMetaData md;
+	ThrowIfFailed(ReadTextureFromWIC(firstFrame.Get(), maxsize, forceSRGB, decodedData, md));
+}
+
+void Luxko::Anuthur::WIC::ReadTextureFromFile(const wchar_t* szFileName, std::unique_ptr<uint8_t[]>& decodedData, bool forceSRGB /*= false*/, size_t maxsize /*= 0*/)
+{
+	auto pWIC = Get();
+	ComPtr<IWICBitmapDecoder> decoder;
+	ThrowIfFailed(pWIC->CreateDecoderFromFilename(
+		szFileName, 0, GENERIC_READ, WICDecodeMetadataCacheOnDemand,
+		decoder.GetAddressOf()));
+	ComPtr<IWICBitmapFrameDecode> frame;
+	ThrowIfFailed(decoder->GetFrame(0, frame.GetAddressOf()));
+
+	WICTextureMetaData md;
+	ThrowIfFailed(ReadTextureFromWIC(frame.Get(), maxsize, forceSRGB, decodedData, md));
+}
+
+
+Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadTextureFromMemory(
 	ID3D12Device* d3dDevice,
 	ID3D12GraphicsCommandList* pCmdList,
 	const uint8_t* wicData,
@@ -378,7 +450,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromMe
 	D3D12_SUBRESOURCE_DATA& subresource,
 	size_t maxsize /*= 0*/)
 {
-	return LoadWICTextureFromMemoryEx(
+	return LoadTextureFromMemoryEx(
 		d3dDevice,
 		pCmdList,
 		wicData,
@@ -391,7 +463,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromMe
 		subresource);
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromFile(
+Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadTextureFromFile(
 	ID3D12Device* d3dDevice,
 	ID3D12GraphicsCommandList* pCmdList,
 	const wchar_t* szFileName,
@@ -400,7 +472,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromFi
 	D3D12_SUBRESOURCE_DATA& subresource,
 	size_t maxsize /*= 0*/)
 {
-	return LoadWICTextureFromFileEx(
+	return LoadTextureFromFileEx(
 		d3dDevice,
 		pCmdList,
 		szFileName,
@@ -412,7 +484,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromFi
 		subresource);
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromMemoryEx(
+Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadTextureFromMemoryEx(
 	ID3D12Device* d3dDevice,
 	ID3D12GraphicsCommandList* pCmdList,
 	const uint8_t* wicData,
@@ -457,7 +529,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromMe
 	return texture;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadWICTextureFromFileEx(
+Microsoft::WRL::ComPtr<ID3D12Resource> Luxko::Anuthur::WIC::LoadTextureFromFileEx(
 	ID3D12Device* d3dDevice,
 	ID3D12GraphicsCommandList* pCmdList,
 	const wchar_t* szFileName,
