@@ -75,6 +75,9 @@
     <ClInclude Include="..\Src\MouseKeyControl.h">
       <Filter>Headers\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="..\Src\WICWrapper.h">
+      <Filter>Headers\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\BasicGeometry.cpp">
@@ -105,6 +108,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Src\DRPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Src\WICWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

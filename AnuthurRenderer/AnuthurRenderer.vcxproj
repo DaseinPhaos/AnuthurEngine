@@ -166,6 +166,7 @@
     <ClInclude Include="..\Src\MouseKeyControl.h" />
     <ClInclude Include="..\Src\PerspecCamera.h" />
     <ClInclude Include="..\Src\RendererPCH.h" />
+    <ClInclude Include="..\Src\WICWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AnuthurMath\AnuthurMath.vcxproj">
@@ -189,6 +190,7 @@
     <ClCompile Include="..\Src\DRPipeline.cpp" />
     <ClCompile Include="..\Src\LightandMaterial.cpp" />
     <ClCompile Include="..\Src\PerspecCamera.cpp" />
+    <ClCompile Include="..\Src\WICWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\Src\HLSLShaders\CommonFunc.hlsl">

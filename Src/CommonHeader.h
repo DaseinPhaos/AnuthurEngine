@@ -42,7 +42,7 @@
 #include <type_traits>
 #include <typeinfo>
 #include <memory>
-
+#include <functional>
 
 #pragma warning ( disable: 4229)
 

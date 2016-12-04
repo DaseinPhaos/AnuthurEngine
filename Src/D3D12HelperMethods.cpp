@@ -895,3 +895,27 @@ Luxko::Anuthur::D3D12Helper::DescriptorHandleGPU Luxko::Anuthur::D3D12Helper::De
 	result.Offset(offsetInBytes);
 	return result;
 }
+
+Luxko::Anuthur::D3D12Helper::TextureCopyLocation Luxko::Anuthur::D3D12Helper::TextureCopyLocation::Subresource(ID3D12Resource* pResource, UINT subresourceIndex /*= 0*/)
+{
+	TextureCopyLocation tcl = {};
+	tcl.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+	tcl.pResource = pResource;
+	tcl.SubresourceIndex = subresourceIndex;
+	return tcl;
+}
+
+Luxko::Anuthur::D3D12Helper::TextureCopyLocation Luxko::Anuthur::D3D12Helper::TextureCopyLocation::PlacedFootPrintF(ID3D12Resource* pResource, UINT rowPitch, UINT width, UINT height, UINT depth /*= 0*/, DXGI_FORMAT format /*= DXGI_FORMAT_UNKNOWN*/, UINT64 offsetFromHeapStart /*= 0*/)
+{
+	TextureCopyLocation tcl = {};
+	tcl.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+	tcl.pResource = pResource;
+	tcl.PlacedFootprint.Footprint.RowPitch = rowPitch;
+	tcl.PlacedFootprint.Footprint.Width = width;
+	tcl.PlacedFootprint.Footprint.Height = height;
+	tcl.PlacedFootprint.Footprint.Depth = depth;
+	tcl.PlacedFootprint.Footprint.Format = format;
+	tcl.PlacedFootprint.Offset = offsetFromHeapStart;
+
+	return tcl;
+}

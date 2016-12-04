@@ -8,7 +8,7 @@
 #pragma once
 #include "CommonHeader.h"
 
-#define __luxfinline __forceinline
+#define __luxfinline inline
 namespace Luxko {
 
 	// Note that if used improperly there might be a chance
@@ -82,14 +82,19 @@ namespace Luxko {
 			return _stub.second(_stub.first, std::forward<PTs>(args)...);
 		}
 
-		inline bool operator==(const Delegate<RT, PTs...>& d) {
+		inline bool operator==(const Delegate<RT, PTs...>& d)const noexcept {
 			return _stub == d._stub;
 		}
 
-		inline bool operator!=(const Delegate<RT, PTs...>& d) {
+		inline bool operator!=(const Delegate<RT, PTs...>& d)const noexcept {
 			return !(this->operator ==(d));
 		}
 
+		inline size_t getHash()const {
+			const auto h1 = std::hash<InsPtr>{}(_stub.first);
+			const auto h2 = std::hash<InternalFuncType>{}(_stub.second);
+			return h1 ^ (h2 << 1);
+		}
 	private:
 		Stub _stub;
 		
@@ -137,3 +142,15 @@ namespace Luxko {
 	};
 }
 
+// Hasher for Delegate
+namespace std {
+	template <class RT, class ... PTs>
+	struct hash<Luxko::Delegate<RT, PTs...>> {
+		using argument_type = Luxko::Delegate<RT, PTs...>;
+		using result_type = size_t;
+
+		result_type operator()(const argument_type& d)const {
+			return d.getHash();
+		}
+	};
+}

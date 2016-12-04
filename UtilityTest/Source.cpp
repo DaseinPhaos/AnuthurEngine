@@ -7,6 +7,7 @@
 #include "Allocator.h"
 #include "ObserverPattern.h"
 #include "AnyOptional.h"
+#include <unordered_set>
 
 int FileSystemTest() {
 	std::wcout.imbue(std::locale("chs"));
@@ -280,6 +281,11 @@ int DelegateTest() {
 	ct.value = 9.f;
 	lctbd.Invoke(std::move(ct));
 
+
+	getchar();
+	std::unordered_set<Luxko::Delegate<Base, CopyTalk&>> fuckset;
+	
+	fuckset.insert(lctbd);
 
 	return 0;
 }

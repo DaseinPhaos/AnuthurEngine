@@ -500,6 +500,19 @@ namespace Luxko {
 					UINT refreshRateNumerator = 60, UINT refreshRateDenomerator = 1);
 			};
 
+			class TextureCopyLocation : public D3D12_TEXTURE_COPY_LOCATION {
+			private:
+				TextureCopyLocation() {}
+			public:
+				static TextureCopyLocation Subresource(
+				ID3D12Resource* pResource, UINT subresourceIndex = 0);
+				static TextureCopyLocation PlacedFootPrintF(
+					ID3D12Resource* pResource, 
+					UINT rowPitch, UINT width, UINT height,
+					UINT depth = 0, DXGI_FORMAT format = DXGI_FORMAT_UNKNOWN,
+					UINT64 offsetFromHeapStart = 0);
+			};
+ 
 			ANUTHURRENDERER_API Microsoft::WRL::ComPtr<ID3D12Resource> CreateDefaultBuffer(
 				ID3D12Device* device, ID3D12GraphicsCommandList* cmdlst,
 				const void* data, UINT64 sizeInBytes,
